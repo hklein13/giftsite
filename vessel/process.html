@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Process — The Gift Site</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1a18;
+      --paper: #f5f2eb;
+      --stone: #d4cfc3;
+      --clay: #a89f8f;
+      --rust: #b85a3b;
+      --moss: #4a5d4a;
+      --cream: #fffef8;
+
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'DM Sans', -apple-system, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    ::selection {
+      background: var(--rust);
+      color: var(--cream);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 18px;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.7;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* Navigation */
+    .nav-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: var(--ink);
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: var(--paper);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.85rem;
+      color: var(--clay);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--paper);
+    }
+
+    /* Page Header */
+    .page-header {
+      padding: 12rem 6rem 4rem;
+      background: var(--paper);
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .page-header h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-header h1 em {
+      font-style: italic;
+      color: var(--rust);
+    }
+
+    .page-header p {
+      font-size: 1.1rem;
+      color: var(--clay);
+      line-height: 1.8;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Process Steps */
+    .process-section {
+      padding: 4rem 0;
+    }
+
+    .process-step {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 50vh;
+      border-top: 1px solid var(--stone);
+    }
+
+    .process-step:last-child {
+      border-bottom: 1px solid var(--stone);
+    }
+
+    .step-number {
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem;
+    }
+
+    .step-number span {
+      font-family: var(--font-serif);
+      font-size: 10rem;
+      color: var(--stone);
+      opacity: 0.5;
+      line-height: 1;
+    }
+
+    .step-content {
+      padding: 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .step-content h3 {
+      font-family: var(--font-serif);
+      font-size: 2.5rem;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+      color: var(--ink);
+    }
+
+    .step-content p {
+      font-size: 1.05rem;
+      color: var(--clay);
+      line-height: 1.9;
+      max-width: 400px;
+    }
+
+    .step-marker {
+      width: 12px;
+      height: 12px;
+      background: var(--rust);
+      border-radius: 50%;
+      margin-top: 2rem;
+    }
+
+    /* Alternate layout */
+    .process-step:nth-child(even) .step-number {
+      order: 2;
+    }
+
+    .process-step:nth-child(even) .step-content {
+      order: 1;
+      text-align: right;
+      align-items: flex-end;
+    }
+
+    /* Quote Section */
+    .quote-section {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 6rem;
+      text-align: center;
+    }
+
+    .quote-section blockquote {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-style: italic;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .quote-section blockquote span {
+      color: var(--rust);
+    }
+
+    .quote-section .attribution {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: var(--clay);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* CTA */
+    .cta-section {
+      background: var(--paper);
+      padding: 5rem 6rem;
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 1rem 2rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      text-decoration: none;
+      background: var(--ink);
+      color: var(--paper);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: var(--rust);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 4rem 6rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .footer-brand {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 3rem;
+    }
+
+    .footer-links a {
+      color: var(--clay);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--paper);
+    }
+
+    .footer-bottom {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: var(--clay);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .nav-bar {
+        padding: 1rem 2rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .page-header {
+        padding: 8rem 2rem 3rem;
+      }
+
+      .process-step {
+        grid-template-columns: 1fr;
+      }
+
+      .step-number {
+        padding: 2rem;
+      }
+
+      .step-number span {
+        font-size: 6rem;
+      }
+
+      .step-content {
+        padding: 2rem;
+      }
+
+      .process-step:nth-child(even) .step-number,
+      .process-step:nth-child(even) .step-content {
+        order: unset;
+        text-align: left;
+        align-items: flex-start;
+      }
+
+      .quote-section {
+        padding: 4rem 2rem;
+      }
+
+      .quote-section blockquote {
+        font-size: 1.5rem;
+      }
+
+      footer {
+        padding: 3rem 2rem;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        gap: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav-bar">
+    <a href="index.html" class="logo">The Gift Site</a>
+    <ul class="nav-links">
+      <li><a href="why.html">Why We Exist</a></li>
+      <li><a href="process.html" class="active">The Process</a></li>
+      <li><a href="audiences.html">Who It's For</a></li>
+      <li><a href="companion.html">Companion</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <h1>How <em>Discovery</em> Unfolds</h1>
+    <p>This isn't a personality test or a skills assessment. It's a process of reflection, dialogue, and mutual recognition. The most meaningful insights emerge not from algorithms, but from conversations with people who see you clearly.</p>
+  </header>
+
+  <!-- Process Steps -->
+  <section class="process-section">
+    <div class="process-step">
+      <div class="step-number">
+        <span>1</span>
+      </div>
+      <div class="step-content">
+        <h3>Reflect</h3>
+        <p>Begin by looking inward. Consider the moments when you've felt most alive, most useful, most yourself. What were you doing? Who were you with? What felt effortless?</p>
+        <div class="step-marker"></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-number">
+        <span>2</span>
+      </div>
+      <div class="step-content">
+        <h3>Dialogue</h3>
+        <p>Share your reflections with people who know you well. Listen as they affirm and refine what you've sensed about yourself. This is where the real discovery happens — face to face.</p>
+        <div class="step-marker"></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-number">
+        <span>3</span>
+      </div>
+      <div class="step-content">
+        <h3>Clarify</h3>
+        <p>Name your Gift. Not as a label or a limitation, but as a compass — something you can return to when making decisions, building relationships, or finding your path forward.</p>
+        <div class="step-marker"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quote -->
+  <section class="quote-section">
+    <blockquote>
+      "The real power of this work lives inside of <span>dialogue</span> — hearing affirming reflections from others, face to face or over the phone."
+    </blockquote>
+    <p class="attribution">The Heart of the Process</p>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Who is this for?</h2>
+    <a href="audiences.html" class="btn">See Who It's For</a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">The Gift Site</div>
+      <div class="footer-links">
+        <a href="why.html">Why We Exist</a>
+        <a href="process.html">The Process</a>
+        <a href="audiences.html">Who It's For</a>
+        <a href="companion.html">Companion</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 The Gift Site. All Rights Reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
