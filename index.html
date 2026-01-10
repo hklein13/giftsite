@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Gift Site — Template Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: #1a1a18;
+      overflow: hidden;
+    }
+
+    /* Template iframe */
+    .template-frame {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .template-frame.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Floating switcher */
+    .switcher {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(26, 26, 24, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 0.5rem;
+      border-radius: 50px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      animation: slideUp 0.6s ease 0.5s backwards;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .switcher-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+      padding: 0 0.75rem;
+    }
+
+    .switcher-btn {
+      padding: 0.75rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .switcher-btn:hover {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .switcher-btn.active {
+      background: #b85a3b;
+      color: #fff;
+    }
+
+    /* Info tooltip */
+    .info-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-left: 0.25rem;
+    }
+
+    .info-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Info panel */
+    .info-panel {
+      position: fixed;
+      bottom: 6rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      z-index: 9998;
+      background: rgba(26, 26, 24, 0.98);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      max-width: 400px;
+      width: calc(100% - 2rem);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .info-panel.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .info-panel h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.75rem;
+    }
+
+    .info-panel p {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .info-panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    .template-name {
+      color: #b85a3b;
+      font-weight: 600;
+    }
+
+    .info-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+
+    .info-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* Loading state */
+    .loader {
+      position: fixed;
+      inset: 0;
+      background: #1a1a18;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9997;
+      transition: opacity 0.4s ease;
+    }
+
+    .loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader-spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #b85a3b;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 500px) {
+      .switcher {
+        bottom: 1rem;
+        padding: 0.4rem;
+      }
+
+      .switcher-label {
+        display: none;
+      }
+
+      .switcher-btn {
+        padding: 0.65rem 1rem;
+        font-size: 0.85rem;
+      }
+
+      .info-panel {
+        bottom: 5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading state -->
+  <div class="loader" id="loader">
+    <div class="loader-spinner"></div>
+  </div>
+
+  <!-- Template iframes -->
+  <iframe 
+    src="./vessel/" 
+    class="template-frame" 
+    id="frame-vessel"
+    onload="hideLoader()"
+  ></iframe>
+  <iframe 
+    src="./gather/" 
+    class="template-frame hidden" 
+    id="frame-gather"
+  ></iframe>
+
+  <!-- Floating switcher -->
+  <div class="switcher">
+    <span class="switcher-label">Template</span>
+    <button class="switcher-btn active" data-template="vessel" onclick="switchTemplate('vessel')">Vessel</button>
+    <button class="switcher-btn" data-template="gather" onclick="switchTemplate('gather')">Gather</button>
+    <button class="info-btn" onclick="toggleInfo()">?</button>
+  </div>
+
+  <!-- Info panel -->
+  <div class="info-panel" id="infoPanel">
+    <button class="info-close" onclick="toggleInfo()">×</button>
+    <h3>Template Preview</h3>
+    <p>You're viewing two design directions for The Gift Site. Use the toggle below to switch between them.</p>
+    <p><span class="template-name">Vessel</span> — Contemplative, gallery-like. Dramatic dark/light contrast with generous negative space.</p>
+    <p><span class="template-name">Gather</span> — Warm, layered, handcrafted feel. Soft shapes and inviting color palette.</p>
+  </div>
+
+  <script>
+    function switchTemplate(template) {
+      const vesselFrame = document.getElementById('frame-vessel');
+      const gatherFrame = document.getElementById('frame-gather');
+      const buttons = document.querySelectorAll('.switcher-btn');
+
+      // Update buttons
+      buttons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.template === template);
+      });
+
+      // Swap visibility
+      if (template === 'vessel') {
+        vesselFrame.classList.remove('hidden');
+        gatherFrame.classList.add('hidden');
+      } else {
+        gatherFrame.classList.remove('hidden');
+        vesselFrame.classList.add('hidden');
+      }
+
+      // Close info panel if open
+      document.getElementById('infoPanel').classList.remove('visible');
+    }
+
+    function toggleInfo() {
+      document.getElementById('infoPanel').classList.toggle('visible');
+    }
+
+    function hideLoader() {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+      }, 300);
+    }
+
+    // Close info panel when clicking outside
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('infoPanel');
+      const infoBtn = document.querySelector('.info-btn');
+      if (!panel.contains(e.target) && !infoBtn.contains(e.target)) {
+        panel.classList.remove('visible');
+      }
+    });
+  </script>
+</body>
+</html>
