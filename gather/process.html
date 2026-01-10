@@ -401,9 +401,10 @@
       position: absolute;
       bottom: -5px;
       left: 0;
-      width: 0;
+      width: var(--underline-width, 0%);
       height: 3px;
       background: var(--terracotta);
+      transition: width 0.6s ease;
     }
 
     .quote-section .note {
@@ -850,11 +851,6 @@
         duration: 1,
         ease: "power3.out"
       })
-      .to(".quote-section blockquote em::after", {
-        width: "100%",
-        duration: 0.6,
-        ease: "power2.inOut"
-      }, "-=0.3")
       .to(".quote-section .note", {
         opacity: 0.8,
         y: 0,

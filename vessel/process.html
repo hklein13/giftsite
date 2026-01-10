@@ -409,9 +409,10 @@
       position: absolute;
       bottom: 0;
       left: 0;
-      width: 0;
+      width: var(--underline-width, 0%);
       height: 2px;
       background: var(--rust);
+      transition: width 0.6s ease;
     }
 
     .quote-section .attribution {
@@ -865,25 +866,20 @@
         duration: 1,
         ease: "power3.out"
       })
-      .to(".quote-section blockquote span::after", {
-        width: "100%",
-        duration: 0.5
-      }, "-=0.3")
       .to(".quote-section .attribution", {
         opacity: 0.6,
         duration: 0.6
       }, "-=0.2");
 
-    // Animate underline on the keyword
+    // Animate underline on the keyword (using CSS variable since pseudo-elements can't be animated directly)
     ScrollTrigger.create({
       trigger: ".quote-section",
       start: "top 55%",
       onEnter: () => {
-        gsap.to(".quote-section blockquote span::after", {
-          width: "100%",
-          duration: 0.6,
-          ease: "power2.out"
-        });
+        document.querySelector(".quote-section blockquote span").style.setProperty('--underline-width', '100%');
+      },
+      onLeaveBack: () => {
+        document.querySelector(".quote-section blockquote span").style.setProperty('--underline-width', '0%');
       }
     });
 
