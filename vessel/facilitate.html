@@ -76,7 +76,7 @@
     .nav-toggle span {
       display: block;
       height: 2px;
-      background: var(--paper);
+      background: var(--cream);
       transition: all 0.3s ease;
     }
 
@@ -119,7 +119,7 @@
       left: 2rem;
       font-family: var(--font-serif);
       font-size: 1rem;
-      color: var(--paper);
+      color: var(--cream);
       text-decoration: none;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -161,35 +161,48 @@
 
     /* Content Section */
     .content-section {
-      padding: 6rem;
+      padding: 5rem 6rem;
       max-width: 900px;
       margin: 0 auto;
     }
 
-    .content-section h2 {
-      font-family: var(--font-serif);
-      font-size: 1.8rem;
-      font-weight: 400;
-      margin-bottom: 1.5rem;
-      color: var(--ink);
-    }
-
-    .content-section > p {
+    .content-section p {
       color: var(--clay);
       font-size: 1.1rem;
       line-height: 1.9;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
-    .guide-card {
+    /* Steps Section */
+    .steps-section {
       background: var(--cream);
-      border: 1px solid var(--stone);
-      padding: 2.5rem;
+      border-top: 1px solid var(--stone);
+      border-bottom: 1px solid var(--stone);
+      padding: 5rem 6rem;
+    }
+
+    .steps-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .steps-container h2 {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      font-weight: 400;
       margin-bottom: 2rem;
+      color: var(--ink);
+    }
+
+    .step-card {
+      background: var(--paper);
+      border: 1px solid var(--stone);
+      padding: 2rem 2.5rem;
+      margin-bottom: 1.5rem;
       position: relative;
     }
 
-    .guide-card::before {
+    .step-card::before {
       content: '';
       position: absolute;
       top: 0;
@@ -199,109 +212,59 @@
       background: var(--rust);
     }
 
-    .guide-card h3 {
-      font-family: var(--font-serif);
-      font-size: 1.4rem;
-      font-weight: 400;
-      margin-bottom: 1rem;
-      color: var(--ink);
-    }
-
-    .guide-card p {
-      color: var(--clay);
-      line-height: 1.8;
-      margin-bottom: 1rem;
-    }
-
-    .guide-card ul {
-      list-style: none;
-      padding-left: 1.5rem;
-    }
-
-    .guide-card li {
-      position: relative;
-      padding: 0.5rem 0;
-      color: var(--ink);
-    }
-
-    .guide-card li::before {
-      content: '·';
-      position: absolute;
-      left: -1rem;
+    .step-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       color: var(--rust);
-      font-size: 1.5rem;
-      line-height: 1;
+      margin-bottom: 0.75rem;
     }
 
-    /* Tips Section */
-    .tips-section {
-      background: var(--ink);
-      color: var(--paper);
+    .step-card > p {
+      color: var(--ink);
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    /* Process Details */
+    .process-details {
       padding: 5rem 6rem;
-    }
-
-    .tips-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-      max-width: 1000px;
+      max-width: 900px;
       margin: 0 auto;
     }
 
-    .tip-card {
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 2rem;
-    }
-
-    .tip-card h4 {
+    .process-details h2 {
       font-family: var(--font-serif);
-      font-size: 1.2rem;
+      font-size: 1.8rem;
       font-weight: 400;
-      margin-bottom: 1rem;
-      color: var(--rust);
+      margin-bottom: 1.5rem;
+      color: var(--ink);
     }
 
-    .tip-card p {
+    .process-details p {
       color: var(--clay);
-      font-size: 0.95rem;
-      line-height: 1.7;
+      font-size: 1.05rem;
+      line-height: 1.9;
+      margin-bottom: 1.5rem;
     }
 
-    /* CTA Section */
-    .cta-section {
-      background: var(--paper);
+    /* Closing Section */
+    .closing-section {
+      background: var(--ink);
+      color: var(--paper);
       padding: 5rem 6rem;
       text-align: center;
     }
 
-    .cta-section h2 {
+    .closing-section p {
       font-family: var(--font-serif);
-      font-size: 2rem;
-      font-weight: 400;
-      margin-bottom: 1.5rem;
-    }
-
-    .cta-section p {
+      font-style: italic;
+      font-size: 1.25rem;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.8;
       color: var(--clay);
-      margin-bottom: 2rem;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 1rem 2rem;
-      font-family: var(--font-sans);
-      font-size: 0.9rem;
-      text-decoration: none;
-      background: var(--ink);
-      color: var(--paper);
-      transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-      background: var(--rust);
     }
 
     /* Footer */
@@ -357,15 +320,15 @@
         padding: 4rem 2rem;
       }
 
-      .tips-section {
+      .steps-section {
         padding: 4rem 2rem;
       }
 
-      .tips-grid {
-        grid-template-columns: 1fr;
+      .process-details {
+        padding: 4rem 2rem;
       }
 
-      .cta-section {
+      .closing-section {
         padding: 4rem 2rem;
       }
 
@@ -401,85 +364,60 @@
 
   <!-- Page Header -->
   <header class="page-header">
-    <p class="section-label">For Facilitators</p>
-    <h1>Guide the Journey</h1>
-    <p>Whether you're leading a family gathering or a team workshop, these guidelines will help you create a safe, meaningful space for Gift discovery.</p>
+    <p class="section-label">For Groups</p>
+    <h1>Getting Together with a Group?</h1>
+    <p>The Gift Process is a powerful tool that facilitates life-long bonding.</p>
   </header>
 
   <!-- Content Section -->
   <section class="content-section">
-    <h2>The Facilitator's Role</h2>
-    <p>As a facilitator, your job is not to analyze or interpret — it's to create the conditions for honest reflection and affirming dialogue. You are a guide, not an expert. The wisdom emerges from the participants themselves.</p>
+    <p>So often in our busy day to day lives most people tend to focus on what it is we are doing next. We continually focus on what needs to be fixed, or what can be improved upon.</p>
 
-    <div class="guide-card">
-      <h3>Before You Begin</h3>
-      <p>Set the stage for meaningful conversation:</p>
-      <ul>
-        <li>Choose a comfortable, private space free from distractions</li>
-        <li>Allow adequate time — rushing defeats the purpose</li>
-        <li>Ensure all participants understand the process beforehand</li>
-        <li>Consider starting with a meal or casual conversation to build connection</li>
-      </ul>
-    </div>
-
-    <div class="guide-card">
-      <h3>During the Process</h3>
-      <p>Guide with gentleness and intention:</p>
-      <ul>
-        <li>Read each question slowly, giving space for reflection</li>
-        <li>Encourage participants to share without judgment</li>
-        <li>Listen more than you speak</li>
-        <li>When witnessing, focus on specific examples and genuine observations</li>
-        <li>Allow silence — it's where insight often emerges</li>
-      </ul>
-    </div>
-
-    <div class="guide-card">
-      <h3>The Witnessing Phase</h3>
-      <p>This is the heart of the process. When participants share what they see in each other:</p>
-      <ul>
-        <li>Encourage specificity: "Tell me about a time you saw this in action"</li>
-        <li>Keep the focus positive and affirming</li>
-        <li>Help the recipient truly receive what is being offered</li>
-        <li>Notice the themes that emerge across different witnesses</li>
-      </ul>
-    </div>
-
-    <div class="guide-card">
-      <h3>Closing the Session</h3>
-      <p>End with intention and forward momentum:</p>
-      <ul>
-        <li>Help participants articulate a draft Gift Statement</li>
-        <li>Remind them this is a beginning, not an end</li>
-        <li>Encourage them to continue reflecting on what they heard</li>
-        <li>Consider scheduling a follow-up conversation</li>
-      </ul>
-    </div>
+    <p>The Gift Process is an affirming process that serves to strengthen one's appreciation of themselves and one another. Many have used the Gift Process as part of a birthday or anniversary celebration. Many teams we have worked with use the Gift Process as a part of an on-boarding process. People participating in Gift Processes over the years all agree that the process serves to strengthen the bonds between family members and/or members of a team.</p>
   </section>
 
-  <!-- Tips Section -->
-  <section class="tips-section">
-    <div class="tips-grid">
-      <div class="tip-card">
-        <h4>Create Safety</h4>
-        <p>The most important thing you can do is create an atmosphere where people feel safe to be vulnerable and honest.</p>
+  <!-- Steps Section -->
+  <section class="steps-section">
+    <div class="steps-container">
+      <h2>Facilitating the Gift Process</h2>
+
+      <div class="step-card">
+        <p class="step-label">First</p>
+        <p>Send out a link to the Gift site and let people know that you would like to facilitate a Gift Ritual.</p>
       </div>
-      <div class="tip-card">
-        <h4>Trust the Process</h4>
-        <p>The questions work. The witnessing works. Your job is to hold space, not to manufacture insights.</p>
+
+      <div class="step-card">
+        <p class="step-label">Second</p>
+        <p>Ask each person to come prepared having answered the four questions found in the Discover Your Gift section. Let each person know the other people who will be in attendance and have them begin reflecting upon what it is they appreciate about this other person.</p>
       </div>
-      <div class="tip-card">
-        <h4>Model Presence</h4>
-        <p>Be fully present. Put away devices. Give your complete attention to each speaker.</p>
+
+      <div class="step-card">
+        <p class="step-label">Third</p>
+        <p>As you begin facilitating the Gift Process ask your group to adopt a spirit of dignity, reverence, and appreciation for each other as you join forces to help each person to clarify and appreciate their respective unique Gifts.</p>
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="cta-section">
-    <h2>Ready to explore the questions?</h2>
-    <p>Review the four core questions that form the foundation of the Gift Clarification Process.</p>
-    <a href="discover.html" class="btn">See the Questions</a>
+  <!-- Process Details -->
+  <section class="process-details">
+    <h2>During the Gift Ritual</h2>
+
+    <p>Start with the person on your left. Ask them to share their responses to the four questions. Then ask each of the remaining participants to give input to this person's gift. As they are giving input the facilitator is taking notes.</p>
+
+    <p>When everyone has offered their input the facilitator takes a few moments to construct the first draft of the first participant's Gift statement. Upon completing the draft the facilitator reads what has been written out loud.</p>
+
+    <p>This same process is repeated until each member of the family or team has had a turn in receiving input and a gift statement from the facilitator. Finally someone else volunteers to facilitate the process so that the initial facilitator can have their Gift clarified.</p>
+
+    <p>The facilitator who invited everyone to attend may then email everyone a copy of their Gift statement.</p>
+
+    <h2>After the Ritual</h2>
+
+    <p>When you receive a copy of your Gift statement we encourage you to regularly revise it as you start increasing your awareness of noticing the gift of you in action. The Gift statement can be a living evolving entity and serve as a reference point to the unique contribution you bring to those people and projects you care about in your life.</p>
+  </section>
+
+  <!-- Closing -->
+  <section class="closing-section">
+    <p>The Gift Process serves to strengthen the bonds between family members and members of a team — helping each person clarify and appreciate their unique Gift.</p>
   </section>
 
   <!-- Footer -->

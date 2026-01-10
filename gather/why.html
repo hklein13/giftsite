@@ -200,49 +200,60 @@
       line-height: 1.8;
     }
 
-    .content-card:first-child p::first-letter {
-      font-family: var(--font-display);
-      font-size: 3.5rem;
-      float: left;
-      line-height: 0.8;
-      margin-right: 0.5rem;
-      margin-top: 0.1rem;
-      color: var(--terracotta);
-    }
-
-    /* Foundation Section */
-    .foundation-section {
+    /* Belief Section */
+    .belief-section {
       background: var(--cream);
-      padding: 5rem 3rem;
+      padding: 4rem 3rem;
+      text-align: center;
     }
 
-    .foundation-content {
-      max-width: 700px;
+    .belief-intro {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--charcoal);
+      margin-bottom: 2rem;
+    }
+
+    .belief-statements {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .belief-statements p {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--midnight);
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .belief-statements p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+      padding: 4rem 3rem;
+      max-width: 800px;
       margin: 0 auto;
       text-align: center;
     }
 
-    .foundation-content h2 {
-      font-family: var(--font-display);
-      font-size: 1.8rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      color: var(--midnight);
-    }
-
-    .foundation-content .since {
-      font-size: 0.9rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--terracotta);
+    .welcome-section p {
+      color: var(--charcoal);
+      font-size: 1.1rem;
+      line-height: 1.9;
       margin-bottom: 1.5rem;
     }
 
-    .foundation-content > p:last-child {
-      color: var(--charcoal);
-      font-size: 1.1rem;
-      line-height: 1.8;
+    .welcome-section .closing {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-style: italic;
+      color: var(--midnight);
+      margin-top: 2rem;
     }
 
     /* Call to Action */
@@ -407,36 +418,41 @@
     <div class="section-tag">
       <span>Why We Exist</span>
     </div>
-    <h1>Naming What Has <em>Always</em> Been True</h1>
+    <h1>Helping People Discover Their Unique Gift — And the Gift in One Another</h1>
   </header>
 
   <!-- Main Content -->
   <section class="content-section">
     <div class="content-card">
-      <p>Every person carries within them a unique Gift — an innate way of contributing to the world that brings life to others and fulfillment to themselves.</p>
+      <p>Since 1982, the Gift Process has helped more than 100,000 people uncover a deeper understanding of who they are and how they contribute to the world. What began as a simple reflective inquiry has grown into a powerful framework for personal purpose, relational insight, and the cultivation of human worth.</p>
     </div>
     <div class="content-card">
-      <p>Yet many of us move through life without ever naming this Gift. We sense it in moments of flow, in the gratitude of others, in the quiet satisfaction of work that feels meaningful. But we haven't found the words.</p>
-    </div>
-    <div class="content-card">
-      <p>The Gift Site exists to help you — and the people you care about — discover and articulate what has always been true about you.</p>
+      <p>The Gathering Gifts Foundation was created to bring this work to people of all ages, backgrounds, and circumstances — without financial barriers.</p>
     </div>
   </section>
 
-  <!-- Foundation Section -->
-  <section class="foundation-section">
-    <div class="foundation-content">
-      <h2>The Gathering Gifts Foundation</h2>
-      <p class="since">Since 1982</p>
-      <p>The Gift Clarification Process was developed by the Gathering Gifts Foundation, an organization dedicated to helping individuals, families, and teams discover their unique contributions. For over four decades, this work has helped thousands of people name what has always been true about them — and live more fully from that place of clarity.</p>
+  <!-- Belief Section -->
+  <section class="belief-section">
+    <p class="belief-intro">At the heart of our mission is a simple belief:</p>
+    <div class="belief-statements">
+      <p>Every person has a unique Gift.</p>
+      <p>Every Gift has value.</p>
+      <p>And the world becomes better when we recognize and appreciate one another's Gifts.</p>
     </div>
+  </section>
+
+  <!-- Welcome Section -->
+  <section class="welcome-section">
+    <p>Our work combines decades of lived experience with emerging technologies — including AI — to make self-discovery more accessible, more human, and more connected than ever before.</p>
+    <p>Whether you are discovering your own Gift or witnessing someone else's, you are participating in something meaningful: the honoring of human essence.</p>
+    <p class="closing">Welcome. We're glad you're here.</p>
   </section>
 
   <!-- CTA -->
   <section class="cta-section">
     <h2>Ready to begin?</h2>
     <p>The Gift Process is designed to guide you through reflection, dialogue, and discovery.</p>
-    <a href="process.html" class="btn btn-primary">Explore the Process</a>
+    <a href="discover.html" class="btn btn-primary">Discover Your Gift</a>
   </section>
 
   <!-- Footer -->
