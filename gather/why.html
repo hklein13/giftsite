@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why We Exist — The Gift Site</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --midnight: #1e1e2e;
+      --charcoal: #2d2d3a;
+      --warm-white: #faf8f5;
+      --cream: #f0ebe3;
+      --terracotta: #d4714e;
+      --burnt: #b85d3d;
+      --gold: #d4a853;
+      --sage: #7d9a7d;
+      --lavender: #a8a3c7;
+      --blush: #e8c4b8;
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Outfit', -apple-system, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    ::selection {
+      background: var(--terracotta);
+      color: var(--warm-white);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 400;
+      background: var(--warm-white);
+      color: var(--midnight);
+      line-height: 1.75;
+      font-size: 17px;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: rgba(250, 248, 245, 0.95);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--midnight);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--terracotta);
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 2px solid var(--warm-white);
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--charcoal);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--terracotta);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--midnight);
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a.active::after {
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header {
+      padding: 10rem 3rem 4rem;
+      background: var(--cream);
+      text-align: center;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-tag::before {
+      content: '';
+      width: 40px;
+      height: 2px;
+      background: var(--terracotta);
+    }
+
+    .section-tag::after {
+      content: '';
+      width: 40px;
+      height: 2px;
+      background: var(--terracotta);
+    }
+
+    .section-tag span {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+    }
+
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 400;
+      line-height: 1.15;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .page-header h1 em {
+      font-style: italic;
+      color: var(--terracotta);
+    }
+
+    /* Main Content */
+    .content-section {
+      padding: 5rem 3rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .content-card {
+      background: var(--warm-white);
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--terracotta);
+    }
+
+    .content-card p {
+      color: var(--charcoal);
+      font-size: 1.15rem;
+      line-height: 1.8;
+    }
+
+    .content-card:first-child p::first-letter {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      float: left;
+      line-height: 0.8;
+      margin-right: 0.5rem;
+      margin-top: 0.1rem;
+      color: var(--terracotta);
+    }
+
+    /* Call to Action */
+    .cta-section {
+      background: var(--midnight);
+      color: var(--warm-white);
+      padding: 5rem 3rem;
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-section p {
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.75rem;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--terracotta);
+      color: var(--warm-white);
+    }
+
+    .btn-primary:hover {
+      background: var(--burnt);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(212, 113, 78, 0.3);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--midnight);
+      color: var(--warm-white);
+      padding: 4rem 3rem 2rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-brand .logo {
+      color: var(--warm-white);
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+      max-width: 300px;
+    }
+
+    .footer-col h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+      color: var(--warm-white);
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-col a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-col a:hover {
+      color: var(--terracotta);
+    }
+
+    .footer-bottom {
+      max-width: 1100px;
+      margin: 3rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .page-header {
+        padding: 8rem 1.5rem 3rem;
+      }
+
+      .content-section {
+        padding: 3rem 1.5rem;
+      }
+
+      .content-card {
+        padding: 1.5rem;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="logo">
+      <div class="logo-mark"></div>
+      The Gift Site
+    </a>
+    <ul class="nav-links">
+      <li><a href="why.html" class="active">Why We Exist</a></li>
+      <li><a href="process.html">The Process</a></li>
+      <li><a href="audiences.html">Who It's For</a></li>
+      <li><a href="companion.html">Companion</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="section-tag">
+      <span>Why We Exist</span>
+    </div>
+    <h1>Naming What Has <em>Always</em> Been True</h1>
+  </header>
+
+  <!-- Main Content -->
+  <section class="content-section">
+    <div class="content-card">
+      <p>Every person carries within them a unique Gift — an innate way of contributing to the world that brings life to others and fulfillment to themselves.</p>
+    </div>
+    <div class="content-card">
+      <p>Yet many of us move through life without ever naming this Gift. We sense it in moments of flow, in the gratitude of others, in the quiet satisfaction of work that feels meaningful. But we haven't found the words.</p>
+    </div>
+    <div class="content-card">
+      <p>The Gift Site exists to help you — and the people you care about — discover and articulate what has always been true about you.</p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Ready to begin?</h2>
+    <p>The Gift Process is designed to guide you through reflection, dialogue, and discovery.</p>
+    <a href="process.html" class="btn btn-primary">Explore the Process</a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <div class="logo-mark"></div>
+          The Gift Site
+        </a>
+        <p>A gentle guide that supports reflection — and deepens interpersonal connection.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="why.html">Why We Exist</a></li>
+          <li><a href="process.html">The Process</a></li>
+          <li><a href="audiences.html">Who It's For</a></li>
+          <li><a href="companion.html">Companion</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 The Gift Site. All Rights Reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
