@@ -56,45 +56,74 @@
     }
 
     /* Navigation */
-    .nav-bar {
+    nav {
       position: fixed;
       top: 0;
-      left: 0;
       right: 0;
-      padding: 1.5rem 3rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 2rem;
       z-index: 100;
+    }
+
+    .nav-toggle {
+      width: 32px;
+      height: 24px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .nav-toggle span {
+      display: block;
+      height: 2px;
+      background: var(--paper);
+      transition: all 0.3s ease;
+    }
+
+    .nav-menu {
+      position: fixed;
+      inset: 0;
       background: var(--ink);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s ease;
+      z-index: 99;
+    }
+
+    .nav-menu.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .nav-menu a {
+      font-family: var(--font-serif);
+      font-size: 3rem;
+      color: var(--paper);
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-menu a:hover {
+      opacity: 1;
     }
 
     .logo {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
       font-family: var(--font-serif);
-      font-size: 1.1rem;
+      font-size: 1rem;
       color: var(--paper);
       text-decoration: none;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-size: 0.85rem;
-      color: var(--clay);
-      text-decoration: none;
-      transition: color 0.3s ease;
-      letter-spacing: 0.05em;
-    }
-
-    .nav-links a:hover,
-    .nav-links a.active {
-      color: var(--paper);
+      z-index: 100;
     }
 
     /* Page Header */
@@ -296,14 +325,6 @@
 
     /* Responsive */
     @media (max-width: 1024px) {
-      .nav-bar {
-        padding: 1rem 2rem;
-      }
-
-      .nav-links {
-        display: none;
-      }
-
       .page-header {
         padding: 8rem 2rem 3rem;
       }
@@ -338,15 +359,21 @@
 </head>
 <body>
   <!-- Navigation -->
-  <nav class="nav-bar">
-    <a href="index.html" class="logo">The Gift Site</a>
-    <ul class="nav-links">
-      <li><a href="why.html">Why We Exist</a></li>
-      <li><a href="process.html">The Process</a></li>
-      <li><a href="audiences.html">Who It's For</a></li>
-      <li><a href="companion.html" class="active">Companion</a></li>
-    </ul>
+  <a href="index.html" class="logo">The Gift Site</a>
+  <nav>
+    <div class="nav-toggle" onclick="toggleNav()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
   </nav>
+
+  <div class="nav-menu" id="navMenu">
+    <a href="why.html" onclick="toggleNav()">Why We Exist</a>
+    <a href="process.html" onclick="toggleNav()">The Process</a>
+    <a href="audiences.html" onclick="toggleNav()">Who It's For</a>
+    <a href="companion.html" onclick="toggleNav()">Companion</a>
+  </div>
 
   <!-- Page Header -->
   <header class="page-header">
@@ -404,5 +431,11 @@
       <p>&copy; 2026 The Gift Site. All Rights Reserved.</p>
     </div>
   </footer>
+
+  <script>
+    function toggleNav() {
+      document.getElementById('navMenu').classList.toggle('active');
+    }
+  </script>
 </body>
 </html>
