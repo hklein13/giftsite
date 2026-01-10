@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gift Companion — The Gift Site</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --midnight: #1e1e2e;
+      --charcoal: #2d2d3a;
+      --warm-white: #faf8f5;
+      --cream: #f0ebe3;
+      --terracotta: #d4714e;
+      --burnt: #b85d3d;
+      --gold: #d4a853;
+      --sage: #7d9a7d;
+      --lavender: #a8a3c7;
+      --blush: #e8c4b8;
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Outfit', -apple-system, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    ::selection {
+      background: var(--terracotta);
+      color: var(--warm-white);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 400;
+      background: var(--warm-white);
+      color: var(--midnight);
+      line-height: 1.75;
+      font-size: 17px;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: rgba(250, 248, 245, 0.95);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--midnight);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--terracotta);
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 2px solid var(--warm-white);
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--charcoal);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--terracotta);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--midnight);
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a.active::after {
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header {
+      padding: 10rem 3rem 4rem;
+      background: var(--midnight);
+      color: var(--warm-white);
+      text-align: center;
+    }
+
+    .tools-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--blush);
+      opacity: 0.8;
+      margin-bottom: 1rem;
+    }
+
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 400;
+      line-height: 1.15;
+      max-width: 700px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .page-header p {
+      color: rgba(255,255,255,0.7);
+      font-size: 1.15rem;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    /* Tool Section */
+    .tool-section {
+      padding: 5rem 3rem;
+      background: var(--warm-white);
+    }
+
+    .tool-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .tool-info h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      color: var(--midnight);
+    }
+
+    .tool-info p {
+      color: var(--charcoal);
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
+
+    .tool-features {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+
+    .tool-features li {
+      padding: 0.6rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: var(--midnight);
+    }
+
+    .tool-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--sage);
+      font-weight: 600;
+    }
+
+    .tool-preview {
+      background: var(--cream);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .tool-preview-header {
+      background: var(--charcoal);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .tool-preview-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--terracotta);
+      border-radius: 50%;
+    }
+
+    .tool-preview-header span {
+      font-size: 0.9rem;
+      color: var(--warm-white);
+      opacity: 0.9;
+    }
+
+    .tool-preview-body {
+      padding: 3rem 2rem;
+      text-align: center;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .tool-preview-body p {
+      color: var(--charcoal);
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.75rem;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--midnight);
+      color: var(--warm-white);
+    }
+
+    .btn-primary:hover {
+      background: var(--terracotta);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(212, 113, 78, 0.3);
+    }
+
+    /* Note Section */
+    .note-section {
+      background: var(--cream);
+      padding: 4rem 3rem;
+      text-align: center;
+    }
+
+    .note-section p {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.25rem;
+      color: var(--charcoal);
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .note-section p em {
+      color: var(--terracotta);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--midnight);
+      color: var(--warm-white);
+      padding: 4rem 3rem 2rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-brand .logo {
+      color: var(--warm-white);
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+      max-width: 300px;
+    }
+
+    .footer-col h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+      color: var(--warm-white);
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-col a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-col a:hover {
+      color: var(--terracotta);
+    }
+
+    .footer-bottom {
+      max-width: 1100px;
+      margin: 3rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .page-header {
+        padding: 8rem 1.5rem 3rem;
+      }
+
+      .tool-section {
+        padding: 3rem 1.5rem;
+      }
+
+      .tool-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="logo">
+      <div class="logo-mark"></div>
+      The Gift Site
+    </a>
+    <ul class="nav-links">
+      <li><a href="why.html">Why We Exist</a></li>
+      <li><a href="process.html">The Process</a></li>
+      <li><a href="audiences.html">Who It's For</a></li>
+      <li><a href="companion.html" class="active">Companion</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <p class="tools-label">Preparation Tool</p>
+    <h1>Gift Companion</h1>
+    <p>An AI-assisted companion to help you prepare for the Gift Process. It supports your reflection and helps clarify your thinking before the conversations that matter most.</p>
+  </header>
+
+  <!-- Tool Section -->
+  <section class="tool-section">
+    <div class="tool-container">
+      <div class="tool-info">
+        <h2>How It Works</h2>
+        <p>The Gift Companion is designed to guide you through thoughtful reflection before you engage in dialogue with family members or team members.</p>
+        <ul class="tool-features">
+          <li>Guided questions to spark self-reflection</li>
+          <li>Helps you articulate what you sense about your Gift</li>
+          <li>Prepares you for meaningful conversations</li>
+          <li>Works at your own pace</li>
+        </ul>
+        <p>Remember: The companion is just a tool — the real work happens between people, face to face.</p>
+      </div>
+      <div class="tool-preview">
+        <div class="tool-preview-header">
+          <div class="tool-preview-dot"></div>
+          <span>Gift Companion</span>
+        </div>
+        <div class="tool-preview-body">
+          <p>A guided reflection experience to help you prepare.</p>
+          <a href="https://giftsite.org/gift-companion-bot/" class="btn btn-primary" target="_blank" rel="noopener">Launch Companion</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Note -->
+  <section class="note-section">
+    <p>"The real power of this work lives inside of <em>dialogue</em> — hearing affirming reflections from others, face to face or over the phone. The Companion helps you prepare, but it can never replace the human connection at the heart of the Gift Process."</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <div class="logo-mark"></div>
+          The Gift Site
+        </a>
+        <p>A gentle guide that supports reflection — and deepens interpersonal connection.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="why.html">Why We Exist</a></li>
+          <li><a href="process.html">The Process</a></li>
+          <li><a href="audiences.html">Who It's For</a></li>
+          <li><a href="companion.html">Companion</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 The Gift Site. All Rights Reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
