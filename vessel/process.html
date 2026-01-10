@@ -7,9 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <!-- GSAP and ScrollTrigger -->
+  <!-- GSAP, ScrollTrigger, and Lenis -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <style>
     :root {
       --ink: #1a1a18;
@@ -22,6 +23,9 @@
 
       --font-serif: 'Instrument Serif', Georgia, serif;
       --font-sans: 'DM Sans', -apple-system, sans-serif;
+
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     * {
@@ -36,8 +40,20 @@
     }
 
     html {
-      scroll-behavior: auto; /* Disable for GSAP control */
+      scroll-behavior: auto;
       font-size: 18px;
+    }
+
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+
+    .lenis.lenis-stopped {
+      overflow: hidden;
     }
 
     body {
@@ -46,6 +62,7 @@
       color: var(--ink);
       line-height: 1.7;
       overflow-x: hidden;
+      cursor: none;
     }
 
     /* Grain overlay */
@@ -59,7 +76,67 @@
       z-index: 1000;
     }
 
-    /* Navigation */
+    /* ============================================
+       CUSTOM CURSOR
+       ============================================ */
+    .cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 16px;
+      height: 16px;
+      background: var(--rust);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s var(--ease-out-expo),
+                  height 0.4s var(--ease-out-expo),
+                  background 0.3s ease;
+    }
+
+    .cursor.cursor-hover {
+      width: 50px;
+      height: 50px;
+      background: var(--cream);
+    }
+
+    .cursor-follower {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 50px;
+      height: 50px;
+      border: 1px solid var(--rust);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.5s var(--ease-out-expo),
+                  height 0.5s var(--ease-out-expo),
+                  opacity 0.3s ease;
+      opacity: 0.4;
+    }
+
+    .cursor-follower.cursor-hover {
+      width: 70px;
+      height: 70px;
+      opacity: 0.2;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .cursor, .cursor-follower {
+        display: none;
+      }
+      body {
+        cursor: auto;
+      }
+    }
+
+    /* ============================================
+       NAVIGATION
+       ============================================ */
     nav {
       position: fixed;
       top: 0;
@@ -71,17 +148,28 @@
     .nav-toggle {
       width: 32px;
       height: 24px;
-      cursor: pointer;
+      cursor: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      opacity: 0;
+      transform: translateX(20px);
     }
 
     .nav-toggle span {
       display: block;
       height: 2px;
       background: var(--ink);
-      transition: all 0.3s ease;
+      transition: all 0.4s var(--ease-out-expo);
+      transform-origin: center;
+    }
+
+    .nav-toggle:hover span:first-child {
+      transform: translateY(2px);
+    }
+
+    .nav-toggle:hover span:last-child {
+      transform: translateY(-2px);
     }
 
     .nav-menu {
@@ -95,7 +183,7 @@
       gap: 1rem;
       opacity: 0;
       visibility: hidden;
-      transition: all 0.5s ease;
+      transition: all 0.5s var(--ease-out-expo);
       z-index: 99;
     }
 
@@ -109,12 +197,29 @@
       font-size: 3rem;
       color: var(--paper);
       text-decoration: none;
-      opacity: 0.6;
-      transition: opacity 0.3s ease;
+      opacity: 0.5;
+      transition: all 0.4s ease;
+      cursor: none;
+      position: relative;
+    }
+
+    .nav-menu a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--rust);
+      transition: width 0.4s var(--ease-out-expo);
     }
 
     .nav-menu a:hover {
       opacity: 1;
+    }
+
+    .nav-menu a:hover::after {
+      width: 100%;
     }
 
     .logo {
@@ -128,16 +233,21 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       z-index: 100;
+      opacity: 0;
+      transform: translateX(-20px);
+      cursor: none;
     }
 
-    /* Page Header */
+    /* ============================================
+       PAGE HEADER
+       ============================================ */
     .page-header {
-      padding: 12rem 6rem 4rem;
+      padding: 12rem 6rem 6rem;
       background: var(--paper);
       text-align: center;
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
-      min-height: 80vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -146,56 +256,67 @@
 
     .page-header h1 {
       font-family: var(--font-serif);
-      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-size: clamp(3rem, 8vw, 5rem);
       font-weight: 400;
-      line-height: 1.15;
-      margin-bottom: 1.5rem;
+      line-height: 1.1;
+      margin-bottom: 2rem;
       overflow: hidden;
     }
 
-    .page-header h1 .word {
+    .page-header h1 .char {
       display: inline-block;
       opacity: 0;
       transform: translateY(100%);
     }
 
-    .page-header h1 em {
+    .page-header h1 .word {
+      display: inline-block;
+      margin-right: 0.3em;
+    }
+
+    .page-header h1 .word:last-child {
+      margin-right: 0;
+    }
+
+    .page-header h1 em,
+    .highlight-word {
       font-style: italic;
       color: var(--rust);
     }
 
-    .page-header p {
-      font-size: 1.1rem;
+    .page-header .subtitle {
+      font-size: 1.15rem;
       color: var(--clay);
-      line-height: 1.8;
+      line-height: 1.9;
       max-width: 600px;
       margin: 0 auto;
       opacity: 0;
+      transform: translateY(30px);
     }
 
     /* Scroll indicator */
     .scroll-indicator {
       position: absolute;
-      bottom: 2rem;
+      bottom: 3rem;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
+      gap: 1rem;
       opacity: 0;
     }
 
     .scroll-indicator span {
       font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.25em;
       color: var(--clay);
     }
 
     .scroll-line {
       width: 1px;
-      height: 60px;
+      height: 70px;
       background: var(--stone);
       position: relative;
       overflow: hidden;
@@ -209,7 +330,7 @@
       width: 100%;
       height: 100%;
       background: var(--rust);
-      animation: scrollDown 1.5s ease-in-out infinite;
+      animation: scrollDown 2s ease-in-out infinite;
     }
 
     @keyframes scrollDown {
@@ -217,9 +338,11 @@
       100% { top: 100%; }
     }
 
-    /* Process Steps */
+    /* ============================================
+       PROCESS SECTION
+       ============================================ */
     .process-section {
-      padding: 4rem 0;
+      padding: 6rem 0;
       position: relative;
     }
 
@@ -246,7 +369,7 @@
     .process-step {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      min-height: 60vh;
+      min-height: 70vh;
       border-top: 1px solid var(--stone);
       position: relative;
       opacity: 0;
@@ -262,19 +385,20 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       background: var(--paper);
       border: 2px solid var(--stone);
       border-radius: 50%;
       z-index: 10;
-      transition: all 0.4s ease;
+      transition: all 0.5s var(--ease-out-expo);
     }
 
     .process-step.active .step-dot {
       background: var(--rust);
       border-color: var(--rust);
-      box-shadow: 0 0 0 8px rgba(184, 90, 59, 0.2);
+      box-shadow: 0 0 0 10px rgba(184, 90, 59, 0.15);
+      transform: translate(-50%, -50%) scale(1.2);
     }
 
     .step-number {
@@ -289,22 +413,22 @@
 
     .step-number span {
       font-family: var(--font-serif);
-      font-size: 12rem;
+      font-size: 14rem;
       color: var(--stone);
-      opacity: 0.3;
+      opacity: 0.25;
       line-height: 1;
-      transform: translateY(50px);
-      transition: all 0.6s ease;
+      transform: translateY(60px);
+      transition: all 0.7s var(--ease-out-expo);
     }
 
     .process-step.active .step-number span {
-      opacity: 0.5;
+      opacity: 0.4;
       transform: translateY(0);
       color: var(--rust);
     }
 
     .step-content {
-      padding: 4rem;
+      padding: 5rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -312,33 +436,33 @@
 
     .step-content h3 {
       font-family: var(--font-serif);
-      font-size: 2.5rem;
+      font-size: 2.8rem;
       font-weight: 400;
       margin-bottom: 1.5rem;
       color: var(--ink);
       opacity: 0;
-      transform: translateX(-30px);
+      transform: translateX(-40px);
     }
 
     .step-content p {
       font-size: 1.05rem;
       color: var(--clay);
       line-height: 1.9;
-      max-width: 400px;
+      max-width: 420px;
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(25px);
     }
 
     .step-marker {
       width: 0;
       height: 2px;
       background: var(--rust);
-      margin-top: 2rem;
-      transition: width 0.6s ease 0.3s;
+      margin-top: 2.5rem;
+      transition: width 0.7s var(--ease-out-expo) 0.3s;
     }
 
     .process-step.active .step-marker {
-      width: 60px;
+      width: 70px;
     }
 
     /* Alternate layout */
@@ -353,14 +477,16 @@
     }
 
     .process-step:nth-child(even) .step-content h3 {
-      transform: translateX(30px);
+      transform: translateX(40px);
     }
 
-    /* Quote Section */
+    /* ============================================
+       QUOTE SECTION
+       ============================================ */
     .quote-section {
       background: var(--ink);
       color: var(--paper);
-      padding: 8rem 6rem;
+      padding: 10rem 6rem;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -370,33 +496,33 @@
     .quote-decoration {
       position: absolute;
       border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.08);
       pointer-events: none;
     }
 
     .decoration-1 {
-      width: 400px;
-      height: 400px;
-      top: -200px;
-      left: -200px;
+      width: 500px;
+      height: 500px;
+      top: -250px;
+      left: -250px;
     }
 
     .decoration-2 {
-      width: 300px;
-      height: 300px;
-      bottom: -150px;
-      right: -150px;
+      width: 400px;
+      height: 400px;
+      bottom: -200px;
+      right: -200px;
     }
 
     .quote-section blockquote {
       font-family: var(--font-serif);
-      font-size: 2.2rem;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
       font-style: italic;
-      max-width: 700px;
+      max-width: 750px;
       margin: 0 auto;
       line-height: 1.5;
       opacity: 0;
-      transform: translateY(40px);
+      transform: translateY(50px);
     }
 
     .quote-section blockquote span {
@@ -407,41 +533,51 @@
     .quote-section blockquote span::after {
       content: '';
       position: absolute;
-      bottom: 0;
+      bottom: -3px;
       left: 0;
       width: var(--underline-width, 0%);
       height: 2px;
       background: var(--rust);
-      transition: width 0.6s ease;
+      transition: width 0.8s var(--ease-out-expo);
     }
 
     .quote-section .attribution {
-      margin-top: 2rem;
-      font-size: 0.85rem;
+      margin-top: 2.5rem;
+      font-size: 0.8rem;
       color: var(--clay);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
       opacity: 0;
+      transform: translateY(20px);
     }
 
-    /* CTA */
+    /* ============================================
+       CTA SECTION
+       ============================================ */
     .cta-section {
       background: var(--paper);
-      padding: 6rem 6rem;
+      padding: 8rem 6rem;
       text-align: center;
     }
 
     .cta-section h2 {
       font-family: var(--font-serif);
-      font-size: 2.5rem;
+      font-size: clamp(2rem, 5vw, 3rem);
       font-weight: 400;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
       opacity: 0;
+      transform: translateY(30px);
     }
 
     .cta-section h2 em {
       font-style: italic;
       color: var(--rust);
+    }
+
+    /* Magnetic button */
+    .btn-magnetic {
+      position: relative;
+      display: inline-block;
     }
 
     .btn {
@@ -452,11 +588,12 @@
       text-decoration: none;
       background: var(--ink);
       color: var(--paper);
-      transition: all 0.4s ease;
+      transition: all 0.5s var(--ease-out-expo);
       position: relative;
       overflow: hidden;
       opacity: 0;
       transform: translateY(20px);
+      cursor: none;
     }
 
     .btn::before {
@@ -467,7 +604,7 @@
       width: 100%;
       height: 100%;
       background: var(--rust);
-      transition: left 0.4s ease;
+      transition: left 0.5s var(--ease-out-expo);
       z-index: 0;
     }
 
@@ -478,13 +615,26 @@
     .btn span {
       position: relative;
       z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    /* Footer */
+    .btn-arrow {
+      transition: transform 0.4s var(--ease-out-expo);
+    }
+
+    .btn:hover .btn-arrow {
+      transform: translateX(5px);
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
     footer {
       background: var(--ink);
       color: var(--paper);
-      padding: 4rem 6rem;
+      padding: 5rem 6rem;
     }
 
     .footer-inner {
@@ -508,6 +658,7 @@
       text-decoration: none;
       font-size: 0.9rem;
       transition: color 0.3s ease;
+      cursor: none;
     }
 
     .footer-links a:hover {
@@ -523,15 +674,22 @@
       font-size: 0.85rem;
     }
 
-    /* Responsive */
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
     @media (max-width: 1024px) {
       .page-header {
-        padding: 8rem 2rem 3rem;
+        padding: 10rem 2rem 4rem;
         min-height: auto;
+      }
+
+      .page-header h1 {
+        font-size: clamp(2.5rem, 10vw, 3.5rem);
       }
 
       .process-step {
         grid-template-columns: 1fr;
+        min-height: auto;
       }
 
       .timeline {
@@ -543,15 +701,19 @@
       }
 
       .step-number {
-        padding: 2rem;
+        padding: 3rem 2rem;
       }
 
       .step-number span {
-        font-size: 6rem;
+        font-size: 8rem;
       }
 
       .step-content {
-        padding: 2rem;
+        padding: 3rem 2rem;
+      }
+
+      .step-content h3 {
+        font-size: 2rem;
       }
 
       .process-step:nth-child(even) .step-number,
@@ -562,19 +724,15 @@
       }
 
       .process-step:nth-child(even) .step-content h3 {
-        transform: translateX(-30px);
+        transform: translateX(-40px);
       }
 
       .quote-section {
-        padding: 4rem 2rem;
-      }
-
-      .quote-section blockquote {
-        font-size: 1.5rem;
+        padding: 5rem 2rem;
       }
 
       .cta-section {
-        padding: 4rem 2rem;
+        padding: 5rem 2rem;
       }
 
       footer {
@@ -589,10 +747,14 @@
   </style>
 </head>
 <body>
+  <!-- Custom Cursor -->
+  <div class="cursor"></div>
+  <div class="cursor-follower"></div>
+
   <!-- Navigation -->
-  <a href="index.html" class="logo">The Gift Site</a>
+  <a href="index.html" class="logo" data-cursor="hover">The Gift Site</a>
   <nav>
-    <div class="nav-toggle" onclick="toggleNav()">
+    <div class="nav-toggle" onclick="toggleNav()" data-cursor="hover">
       <span></span>
       <span></span>
       <span></span>
@@ -600,21 +762,21 @@
   </nav>
 
   <div class="nav-menu" id="navMenu">
-    <a href="why.html" onclick="toggleNav()">Why We Exist</a>
-    <a href="discover.html" onclick="toggleNav()">Discover</a>
-    <a href="process.html" onclick="toggleNav()">The Process</a>
-    <a href="facilitate.html" onclick="toggleNav()">Facilitate</a>
-    <a href="companion.html" onclick="toggleNav()">Companion</a>
+    <a href="why.html" onclick="toggleNav()" data-cursor="hover">Why We Exist</a>
+    <a href="discover.html" onclick="toggleNav()" data-cursor="hover">Discover</a>
+    <a href="process.html" onclick="toggleNav()" data-cursor="hover">The Process</a>
+    <a href="facilitate.html" onclick="toggleNav()" data-cursor="hover">Facilitate</a>
+    <a href="companion.html" onclick="toggleNav()" data-cursor="hover">Companion</a>
   </div>
 
   <!-- Page Header -->
   <header class="page-header">
     <h1>
       <span class="word">How</span>
-      <span class="word"><em>Discovery</em></span>
+      <span class="word highlight-word">Discovery</span>
       <span class="word">Unfolds</span>
     </h1>
-    <p>This isn't a personality test or a skills assessment. It's a process of reflection, dialogue, and mutual recognition. The most meaningful insights emerge not from algorithms, but from conversations with people who see you clearly.</p>
+    <p class="subtitle">This isn't a personality test or a skills assessment. It's a process of reflection, dialogue, and mutual recognition. The most meaningful insights emerge from conversations with people who see you clearly.</p>
     <div class="scroll-indicator">
       <span>Scroll</span>
       <div class="scroll-line"></div>
@@ -633,7 +795,7 @@
       <div class="step-number">
         <span>1</span>
       </div>
-      <div class="step-content">
+      <div class="step-content" data-cursor="hover">
         <h3>Reflection</h3>
         <p>Begin with four core questions that help you look inward. Consider the moments when you've felt most alive, most useful, most yourself. What were you doing? Who were you with?</p>
         <div class="step-marker"></div>
@@ -644,7 +806,7 @@
       <div class="step-number">
         <span>2</span>
       </div>
-      <div class="step-content">
+      <div class="step-content" data-cursor="hover">
         <h3>Witnessing</h3>
         <p>Share your reflections with people who know you well. Listen as they affirm and refine what you've sensed about yourself. This is where the real discovery happens — hearing from others.</p>
         <div class="step-marker"></div>
@@ -655,7 +817,7 @@
       <div class="step-number">
         <span>3</span>
       </div>
-      <div class="step-content">
+      <div class="step-content" data-cursor="hover">
         <h3>Integration</h3>
         <p>Look for the themes that emerge from your reflections and the feedback from others. What patterns appear? What words keep surfacing? What truths resonate most deeply?</p>
         <div class="step-marker"></div>
@@ -666,7 +828,7 @@
       <div class="step-number">
         <span>4</span>
       </div>
-      <div class="step-content">
+      <div class="step-content" data-cursor="hover">
         <h3>The Gift Statement</h3>
         <p>Name your Gift. Not as a label or a limitation, but as a compass — something you can return to when making decisions, building relationships, or finding your path forward.</p>
         <div class="step-marker"></div>
@@ -687,7 +849,16 @@
   <!-- CTA -->
   <section class="cta-section">
     <h2>Ready to <em>begin</em>?</h2>
-    <a href="discover.html" class="btn"><span>Explore the Questions</span></a>
+    <div class="btn-magnetic">
+      <a href="discover.html" class="btn" data-cursor="hover">
+        <span>
+          Explore the Questions
+          <svg class="btn-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+    </div>
   </section>
 
   <!-- Footer -->
@@ -695,11 +866,11 @@
     <div class="footer-inner">
       <div class="footer-brand">The Gift Site</div>
       <div class="footer-links">
-        <a href="why.html">Why We Exist</a>
-        <a href="discover.html">Discover</a>
-        <a href="process.html">The Process</a>
-        <a href="facilitate.html">Facilitate</a>
-        <a href="companion.html">Companion</a>
+        <a href="why.html" data-cursor="hover">Why We Exist</a>
+        <a href="discover.html" data-cursor="hover">Discover</a>
+        <a href="process.html" data-cursor="hover">The Process</a>
+        <a href="facilitate.html" data-cursor="hover">Facilitate</a>
+        <a href="companion.html" data-cursor="hover">Companion</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -708,142 +879,290 @@
   </footer>
 
   <script>
+    // ============================================
+    // NAV TOGGLE
+    // ============================================
+
     function toggleNav() {
       document.getElementById('navMenu').classList.toggle('active');
     }
+
+    // ============================================
+    // LENIS SMOOTH SCROLL
+    // ============================================
+
+    const lenis = new Lenis({
+      duration: 1.4,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // Integrate Lenis with GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
 
     // Register ScrollTrigger
     gsap.registerPlugin(ScrollTrigger);
 
     // ============================================
-    // HERO SECTION ANIMATIONS
+    // CUSTOM CURSOR
     // ============================================
 
-    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const cursor = document.querySelector('.cursor');
+    const cursorFollower = document.querySelector('.cursor-follower');
+    let mouseX = 0, mouseY = 0;
+    let cursorX = 0, cursorY = 0;
+    let followerX = 0, followerY = 0;
+
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      function animateCursor() {
+        cursorX += (mouseX - cursorX) * 0.15;
+        cursorY += (mouseY - cursorY) * 0.15;
+        cursor.style.left = cursorX + 'px';
+        cursor.style.top = cursorY + 'px';
+
+        followerX += (mouseX - followerX) * 0.08;
+        followerY += (mouseY - followerY) * 0.08;
+        cursorFollower.style.left = followerX + 'px';
+        cursorFollower.style.top = followerY + 'px';
+
+        requestAnimationFrame(animateCursor);
+      }
+      animateCursor();
+
+      const hoverElements = document.querySelectorAll('[data-cursor="hover"]');
+      hoverElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          cursor.classList.add('cursor-hover');
+          cursorFollower.classList.add('cursor-hover');
+        });
+        el.addEventListener('mouseleave', () => {
+          cursor.classList.remove('cursor-hover');
+          cursorFollower.classList.remove('cursor-hover');
+        });
+      });
+
+      document.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
+        cursorFollower.style.opacity = '0';
+      });
+      document.addEventListener('mouseenter', () => {
+        cursor.style.opacity = '1';
+        cursorFollower.style.opacity = '0.4';
+      });
+    }
+
+    // ============================================
+    // MAGNETIC BUTTON
+    // ============================================
+
+    const magneticButtons = document.querySelectorAll('.btn-magnetic');
+
+    magneticButtons.forEach(btn => {
+      const button = btn.querySelector('.btn');
+
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+
+        gsap.to(button, {
+          x: x * 0.35,
+          y: y * 0.35,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(button, {
+          x: 0,
+          y: 0,
+          duration: 0.8,
+          ease: 'elastic.out(1, 0.3)'
+        });
+      });
+    });
+
+    // ============================================
+    // TEXT SPLIT ANIMATION
+    // ============================================
+
+    function splitTextIntoChars(element) {
+      const words = element.querySelectorAll('.word');
+      words.forEach(word => {
+        const text = word.textContent;
+        const isHighlight = word.classList.contains('highlight-word');
+        word.innerHTML = '';
+        text.split('').forEach(char => {
+          const span = document.createElement('span');
+          span.className = 'char';
+          span.textContent = char === ' ' ? '\u00A0' : char;
+          word.appendChild(span);
+        });
+      });
+    }
+
+    const heading = document.querySelector('.page-header h1');
+    splitTextIntoChars(heading);
+
+    // ============================================
+    // HERO ANIMATIONS
+    // ============================================
+
+    const heroTl = gsap.timeline({
+      defaults: { ease: 'power4.out' }
+    });
 
     heroTl
-      .to(".page-header h1 .word", {
+      .to('.logo', {
+        opacity: 1,
+        x: 0,
+        duration: 1,
+        delay: 0.3
+      })
+      .to('.nav-toggle', {
+        opacity: 1,
+        x: 0,
+        duration: 1
+      }, '-=0.8')
+      .to('.page-header h1 .char', {
         opacity: 1,
         y: 0,
-        duration: 1,
-        stagger: 0.2,
-        ease: "power4.out",
-        delay: 0.5
-      })
-      .to(".page-header p", {
+        duration: 0.9,
+        stagger: 0.025,
+        ease: 'power3.out'
+      }, '-=0.6')
+      .to('.page-header .subtitle', {
+        opacity: 1,
+        y: 0,
+        duration: 1
+      }, '-=0.5')
+      .to('.scroll-indicator', {
         opacity: 1,
         duration: 0.8
-      }, "-=0.4")
-      .to(".scroll-indicator", {
-        opacity: 1,
-        duration: 0.6
-      }, "-=0.2");
+      }, '-=0.3');
 
     // ============================================
-    // TIMELINE FILL ANIMATION
+    // TIMELINE FILL
     // ============================================
 
-    gsap.to(".timeline-fill", {
-      height: "100%",
-      ease: "none",
+    gsap.to('.timeline-fill', {
+      height: '100%',
+      ease: 'none',
       scrollTrigger: {
-        trigger: ".process-section",
-        start: "top center",
-        end: "bottom center",
+        trigger: '.process-section',
+        start: 'top center',
+        end: 'bottom center',
         scrub: 0.3
       }
     });
 
     // ============================================
-    // PROCESS STEPS - SEQUENTIAL REVEAL
+    // PROCESS STEPS
     // ============================================
 
-    const steps = gsap.utils.toArray(".process-step");
+    const steps = gsap.utils.toArray('.process-step');
 
     steps.forEach((step, index) => {
       const isEven = index % 2 === 1;
-      const xDirection = isEven ? 30 : -30;
 
-      // Main step fade in
       gsap.to(step, {
         opacity: 1,
-        duration: 0.6,
+        duration: 0.7,
         scrollTrigger: {
           trigger: step,
-          start: "top 75%",
-          toggleActions: "play none none reverse"
+          start: 'top 80%',
+          toggleActions: 'play none none reverse'
         }
       });
 
-      // Timeline for inner elements
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: step,
-          start: "top 70%",
-          end: "center center",
-          toggleActions: "play none none reverse",
+          start: 'top 70%',
+          end: 'center center',
+          toggleActions: 'play none none reverse',
           onEnter: () => step.classList.add('active'),
           onLeaveBack: () => step.classList.remove('active')
         }
       });
 
-      // Number reveal with parallax
-      tl.to(step.querySelector(".step-number span"), {
-        opacity: 0.5,
+      tl.to(step.querySelector('.step-number span'), {
+        opacity: 0.4,
         y: 0,
-        duration: 0.8,
-        ease: "power3.out"
+        duration: 0.9,
+        ease: 'power3.out'
       })
-      // Title slides in
-      .to(step.querySelector("h3"), {
+      .to(step.querySelector('h3'), {
         opacity: 1,
         x: 0,
-        duration: 0.6,
-        ease: "power2.out"
-      }, "-=0.5")
-      // Description fades up
-      .to(step.querySelector("p"), {
+        duration: 0.7,
+        ease: 'power2.out'
+      }, '-=0.6')
+      .to(step.querySelector('p'), {
         opacity: 1,
         y: 0,
-        duration: 0.6,
-        ease: "power2.out"
-      }, "-=0.4");
+        duration: 0.7,
+        ease: 'power2.out'
+      }, '-=0.5');
 
-      // Parallax effect on the number as you scroll
-      gsap.to(step.querySelector(".step-number span"), {
-        y: -30,
+      // Parallax on numbers
+      gsap.to(step.querySelector('.step-number span'), {
+        y: -40,
         scrollTrigger: {
           trigger: step,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.5
         }
       });
     });
 
     // ============================================
-    // DECORATIVE CIRCLES ANIMATION
+    // DECORATIVE CIRCLES
     // ============================================
 
-    gsap.to(".decoration-1", {
+    gsap.to('.decoration-1', {
       rotation: 360,
-      scale: 1.1,
+      scale: 1.15,
       scrollTrigger: {
-        trigger: ".quote-section",
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 2
+        trigger: '.quote-section',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 3
       }
     });
 
-    gsap.to(".decoration-2", {
+    gsap.to('.decoration-2', {
       rotation: -360,
-      scale: 1.2,
+      scale: 1.25,
       scrollTrigger: {
-        trigger: ".quote-section",
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 3
+        trigger: '.quote-section',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 4
       }
     });
 
@@ -853,33 +1172,35 @@
 
     const quoteTl = gsap.timeline({
       scrollTrigger: {
-        trigger: ".quote-section",
-        start: "top 65%",
-        toggleActions: "play none none reverse"
+        trigger: '.quote-section',
+        start: 'top 65%',
+        toggleActions: 'play none none reverse'
       }
     });
 
     quoteTl
-      .to(".quote-section blockquote", {
+      .to('.quote-section blockquote', {
         opacity: 1,
         y: 0,
-        duration: 1,
-        ease: "power3.out"
+        duration: 1.2,
+        ease: 'power3.out'
       })
-      .to(".quote-section .attribution", {
-        opacity: 0.6,
-        duration: 0.6
-      }, "-=0.2");
+      .to('.quote-section .attribution', {
+        opacity: 0.7,
+        y: 0,
+        duration: 0.8
+      }, '-=0.4');
 
-    // Animate underline on the keyword (using CSS variable since pseudo-elements can't be animated directly)
     ScrollTrigger.create({
-      trigger: ".quote-section",
-      start: "top 55%",
+      trigger: '.quote-section',
+      start: 'top 50%',
       onEnter: () => {
-        document.querySelector(".quote-section blockquote span").style.setProperty('--underline-width', '100%');
+        const span = document.querySelector('.quote-section blockquote span');
+        if (span) span.style.setProperty('--underline-width', '100%');
       },
       onLeaveBack: () => {
-        document.querySelector(".quote-section blockquote span").style.setProperty('--underline-width', '0%');
+        const span = document.querySelector('.quote-section blockquote span');
+        if (span) span.style.setProperty('--underline-width', '0%');
       }
     });
 
@@ -889,43 +1210,38 @@
 
     const ctaTl = gsap.timeline({
       scrollTrigger: {
-        trigger: ".cta-section",
-        start: "top 75%",
-        toggleActions: "play none none reverse"
+        trigger: '.cta-section',
+        start: 'top 75%',
+        toggleActions: 'play none none reverse'
       }
     });
 
     ctaTl
-      .to(".cta-section h2", {
-        opacity: 1,
-        duration: 0.8,
-        ease: "power2.out"
-      })
-      .to(".cta-section .btn", {
+      .to('.cta-section h2', {
         opacity: 1,
         y: 0,
-        duration: 0.6,
-        ease: "power2.out"
-      }, "-=0.4");
+        duration: 0.9,
+        ease: 'power3.out'
+      })
+      .to('.cta-section .btn', {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'power2.out'
+      }, '-=0.4');
 
     // ============================================
     // SCROLL INDICATOR HIDE
     // ============================================
 
     ScrollTrigger.create({
-      trigger: ".process-section",
-      start: "top 80%",
+      trigger: '.process-section',
+      start: 'top 85%',
       onEnter: () => {
-        gsap.to(".scroll-indicator", {
-          opacity: 0,
-          duration: 0.3
-        });
+        gsap.to('.scroll-indicator', { opacity: 0, duration: 0.4 });
       },
       onLeaveBack: () => {
-        gsap.to(".scroll-indicator", {
-          opacity: 1,
-          duration: 0.3
-        });
+        gsap.to('.scroll-indicator', { opacity: 1, duration: 0.4 });
       }
     });
 
@@ -934,21 +1250,23 @@
     // ============================================
 
     steps.forEach(step => {
-      step.addEventListener('mouseenter', () => {
-        gsap.to(step.querySelector(".step-number span"), {
-          scale: 1.05,
-          duration: 0.4,
-          ease: "power2.out"
+      const stepContent = step.querySelector('.step-content');
+      if (stepContent) {
+        stepContent.addEventListener('mouseenter', () => {
+          gsap.to(step.querySelector('.step-number span'), {
+            scale: 1.08,
+            duration: 0.5,
+            ease: 'power2.out'
+          });
         });
-      });
-
-      step.addEventListener('mouseleave', () => {
-        gsap.to(step.querySelector(".step-number span"), {
-          scale: 1,
-          duration: 0.4,
-          ease: "power2.out"
+        stepContent.addEventListener('mouseleave', () => {
+          gsap.to(step.querySelector('.step-number span'), {
+            scale: 1,
+            duration: 0.5,
+            ease: 'power2.out'
+          });
         });
-      });
+      }
     });
 
     // ============================================
