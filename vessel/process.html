@@ -7,6 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <!-- GSAP and ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <style>
     :root {
       --ink: #1a1a18;
@@ -33,7 +36,7 @@
     }
 
     html {
-      scroll-behavior: smooth;
+      scroll-behavior: auto; /* Disable for GSAP control */
       font-size: 18px;
     }
 
@@ -42,6 +45,7 @@
       background: var(--paper);
       color: var(--ink);
       line-height: 1.7;
+      overflow-x: hidden;
     }
 
     /* Grain overlay */
@@ -133,6 +137,11 @@
       text-align: center;
       max-width: 800px;
       margin: 0 auto;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
     }
 
     .page-header h1 {
@@ -141,6 +150,13 @@
       font-weight: 400;
       line-height: 1.15;
       margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .page-header h1 .word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(100%);
     }
 
     .page-header h1 em {
@@ -154,22 +170,111 @@
       line-height: 1.8;
       max-width: 600px;
       margin: 0 auto;
+      opacity: 0;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+    }
+
+    .scroll-indicator span {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--clay);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: var(--stone);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--rust);
+      animation: scrollDown 1.5s ease-in-out infinite;
+    }
+
+    @keyframes scrollDown {
+      0% { top: -100%; }
+      100% { top: 100%; }
     }
 
     /* Process Steps */
     .process-section {
       padding: 4rem 0;
+      position: relative;
+    }
+
+    /* Vertical timeline */
+    .timeline {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--stone);
+      transform: translateX(-50%);
+    }
+
+    .timeline-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(180deg, var(--rust), var(--moss));
     }
 
     .process-step {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      min-height: 50vh;
+      min-height: 60vh;
       border-top: 1px solid var(--stone);
+      position: relative;
+      opacity: 0;
     }
 
     .process-step:last-child {
       border-bottom: 1px solid var(--stone);
+    }
+
+    /* Timeline dots */
+    .step-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 16px;
+      background: var(--paper);
+      border: 2px solid var(--stone);
+      border-radius: 50%;
+      z-index: 10;
+      transition: all 0.4s ease;
+    }
+
+    .process-step.active .step-dot {
+      background: var(--rust);
+      border-color: var(--rust);
+      box-shadow: 0 0 0 8px rgba(184, 90, 59, 0.2);
     }
 
     .step-number {
@@ -178,14 +283,24 @@
       align-items: center;
       justify-content: center;
       padding: 4rem;
+      position: relative;
+      overflow: hidden;
     }
 
     .step-number span {
       font-family: var(--font-serif);
-      font-size: 10rem;
+      font-size: 12rem;
       color: var(--stone);
-      opacity: 0.5;
+      opacity: 0.3;
       line-height: 1;
+      transform: translateY(50px);
+      transition: all 0.6s ease;
+    }
+
+    .process-step.active .step-number span {
+      opacity: 0.5;
+      transform: translateY(0);
+      color: var(--rust);
     }
 
     .step-content {
@@ -201,6 +316,8 @@
       font-weight: 400;
       margin-bottom: 1.5rem;
       color: var(--ink);
+      opacity: 0;
+      transform: translateX(-30px);
     }
 
     .step-content p {
@@ -208,14 +325,20 @@
       color: var(--clay);
       line-height: 1.9;
       max-width: 400px;
+      opacity: 0;
+      transform: translateY(20px);
     }
 
     .step-marker {
-      width: 12px;
-      height: 12px;
+      width: 0;
+      height: 2px;
       background: var(--rust);
-      border-radius: 50%;
       margin-top: 2rem;
+      transition: width 0.6s ease 0.3s;
+    }
+
+    .process-step.active .step-marker {
+      width: 60px;
     }
 
     /* Alternate layout */
@@ -229,25 +352,66 @@
       align-items: flex-end;
     }
 
+    .process-step:nth-child(even) .step-content h3 {
+      transform: translateX(30px);
+    }
+
     /* Quote Section */
     .quote-section {
       background: var(--ink);
       color: var(--paper);
-      padding: 6rem;
+      padding: 8rem 6rem;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative circles */
+    .quote-decoration {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+      pointer-events: none;
+    }
+
+    .decoration-1 {
+      width: 400px;
+      height: 400px;
+      top: -200px;
+      left: -200px;
+    }
+
+    .decoration-2 {
+      width: 300px;
+      height: 300px;
+      bottom: -150px;
+      right: -150px;
     }
 
     .quote-section blockquote {
       font-family: var(--font-serif);
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-style: italic;
       max-width: 700px;
       margin: 0 auto;
       line-height: 1.5;
+      opacity: 0;
+      transform: translateY(40px);
     }
 
     .quote-section blockquote span {
       color: var(--rust);
+      position: relative;
+    }
+
+    .quote-section blockquote span::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--rust);
     }
 
     .quote-section .attribution {
@@ -256,35 +420,63 @@
       color: var(--clay);
       letter-spacing: 0.1em;
       text-transform: uppercase;
+      opacity: 0;
     }
 
     /* CTA */
     .cta-section {
       background: var(--paper);
-      padding: 5rem 6rem;
+      padding: 6rem 6rem;
       text-align: center;
     }
 
     .cta-section h2 {
       font-family: var(--font-serif);
-      font-size: 2rem;
+      font-size: 2.5rem;
       font-weight: 400;
       margin-bottom: 1.5rem;
+      opacity: 0;
+    }
+
+    .cta-section h2 em {
+      font-style: italic;
+      color: var(--rust);
     }
 
     .btn {
       display: inline-block;
-      padding: 1rem 2rem;
+      padding: 1.25rem 2.5rem;
       font-family: var(--font-sans);
       font-size: 0.9rem;
       text-decoration: none;
       background: var(--ink);
       color: var(--paper);
-      transition: all 0.3s ease;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
     }
 
-    .btn:hover {
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
       background: var(--rust);
+      transition: left 0.4s ease;
+      z-index: 0;
+    }
+
+    .btn:hover::before {
+      left: 0;
+    }
+
+    .btn span {
+      position: relative;
+      z-index: 1;
     }
 
     /* Footer */
@@ -334,10 +526,19 @@
     @media (max-width: 1024px) {
       .page-header {
         padding: 8rem 2rem 3rem;
+        min-height: auto;
       }
 
       .process-step {
         grid-template-columns: 1fr;
+      }
+
+      .timeline {
+        left: 2rem;
+      }
+
+      .step-dot {
+        left: 2rem;
       }
 
       .step-number {
@@ -359,12 +560,20 @@
         align-items: flex-start;
       }
 
+      .process-step:nth-child(even) .step-content h3 {
+        transform: translateX(-30px);
+      }
+
       .quote-section {
         padding: 4rem 2rem;
       }
 
       .quote-section blockquote {
         font-size: 1.5rem;
+      }
+
+      .cta-section {
+        padding: 4rem 2rem;
       }
 
       footer {
@@ -399,13 +608,27 @@
 
   <!-- Page Header -->
   <header class="page-header">
-    <h1>How <em>Discovery</em> Unfolds</h1>
+    <h1>
+      <span class="word">How</span>
+      <span class="word"><em>Discovery</em></span>
+      <span class="word">Unfolds</span>
+    </h1>
     <p>This isn't a personality test or a skills assessment. It's a process of reflection, dialogue, and mutual recognition. The most meaningful insights emerge not from algorithms, but from conversations with people who see you clearly.</p>
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
   </header>
 
   <!-- Process Steps -->
   <section class="process-section">
-    <div class="process-step">
+    <!-- Timeline -->
+    <div class="timeline">
+      <div class="timeline-fill"></div>
+    </div>
+
+    <div class="process-step" data-step="1">
+      <div class="step-dot"></div>
       <div class="step-number">
         <span>1</span>
       </div>
@@ -415,7 +638,8 @@
         <div class="step-marker"></div>
       </div>
     </div>
-    <div class="process-step">
+    <div class="process-step" data-step="2">
+      <div class="step-dot"></div>
       <div class="step-number">
         <span>2</span>
       </div>
@@ -425,7 +649,8 @@
         <div class="step-marker"></div>
       </div>
     </div>
-    <div class="process-step">
+    <div class="process-step" data-step="3">
+      <div class="step-dot"></div>
       <div class="step-number">
         <span>3</span>
       </div>
@@ -435,7 +660,8 @@
         <div class="step-marker"></div>
       </div>
     </div>
-    <div class="process-step">
+    <div class="process-step" data-step="4">
+      <div class="step-dot"></div>
       <div class="step-number">
         <span>4</span>
       </div>
@@ -449,6 +675,8 @@
 
   <!-- Quote -->
   <section class="quote-section">
+    <div class="quote-decoration decoration-1"></div>
+    <div class="quote-decoration decoration-2"></div>
     <blockquote>
       "The real power of this work lives inside of <span>dialogue</span> — hearing affirming reflections from others, face to face or over the phone."
     </blockquote>
@@ -457,8 +685,8 @@
 
   <!-- CTA -->
   <section class="cta-section">
-    <h2>Ready to begin?</h2>
-    <a href="discover.html" class="btn">Explore the Questions</a>
+    <h2>Ready to <em>begin</em>?</h2>
+    <a href="discover.html" class="btn"><span>Explore the Questions</span></a>
   </section>
 
   <!-- Footer -->
@@ -482,6 +710,258 @@
     function toggleNav() {
       document.getElementById('navMenu').classList.toggle('active');
     }
+
+    // Register ScrollTrigger
+    gsap.registerPlugin(ScrollTrigger);
+
+    // ============================================
+    // HERO SECTION ANIMATIONS
+    // ============================================
+
+    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    heroTl
+      .to(".page-header h1 .word", {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        stagger: 0.2,
+        ease: "power4.out",
+        delay: 0.5
+      })
+      .to(".page-header p", {
+        opacity: 1,
+        duration: 0.8
+      }, "-=0.4")
+      .to(".scroll-indicator", {
+        opacity: 1,
+        duration: 0.6
+      }, "-=0.2");
+
+    // ============================================
+    // TIMELINE FILL ANIMATION
+    // ============================================
+
+    gsap.to(".timeline-fill", {
+      height: "100%",
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".process-section",
+        start: "top center",
+        end: "bottom center",
+        scrub: 0.3
+      }
+    });
+
+    // ============================================
+    // PROCESS STEPS - SEQUENTIAL REVEAL
+    // ============================================
+
+    const steps = gsap.utils.toArray(".process-step");
+
+    steps.forEach((step, index) => {
+      const isEven = index % 2 === 1;
+      const xDirection = isEven ? 30 : -30;
+
+      // Main step fade in
+      gsap.to(step, {
+        opacity: 1,
+        duration: 0.6,
+        scrollTrigger: {
+          trigger: step,
+          start: "top 75%",
+          toggleActions: "play none none reverse"
+        }
+      });
+
+      // Timeline for inner elements
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: step,
+          start: "top 70%",
+          end: "center center",
+          toggleActions: "play none none reverse",
+          onEnter: () => step.classList.add('active'),
+          onLeaveBack: () => step.classList.remove('active')
+        }
+      });
+
+      // Number reveal with parallax
+      tl.to(step.querySelector(".step-number span"), {
+        opacity: 0.5,
+        y: 0,
+        duration: 0.8,
+        ease: "power3.out"
+      })
+      // Title slides in
+      .to(step.querySelector("h3"), {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.5")
+      // Description fades up
+      .to(step.querySelector("p"), {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.4");
+
+      // Parallax effect on the number as you scroll
+      gsap.to(step.querySelector(".step-number span"), {
+        y: -30,
+        scrollTrigger: {
+          trigger: step,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1
+        }
+      });
+    });
+
+    // ============================================
+    // DECORATIVE CIRCLES ANIMATION
+    // ============================================
+
+    gsap.to(".decoration-1", {
+      rotation: 360,
+      scale: 1.1,
+      scrollTrigger: {
+        trigger: ".quote-section",
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 2
+      }
+    });
+
+    gsap.to(".decoration-2", {
+      rotation: -360,
+      scale: 1.2,
+      scrollTrigger: {
+        trigger: ".quote-section",
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 3
+      }
+    });
+
+    // ============================================
+    // QUOTE SECTION
+    // ============================================
+
+    const quoteTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".quote-section",
+        start: "top 65%",
+        toggleActions: "play none none reverse"
+      }
+    });
+
+    quoteTl
+      .to(".quote-section blockquote", {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power3.out"
+      })
+      .to(".quote-section blockquote span::after", {
+        width: "100%",
+        duration: 0.5
+      }, "-=0.3")
+      .to(".quote-section .attribution", {
+        opacity: 0.6,
+        duration: 0.6
+      }, "-=0.2");
+
+    // Animate underline on the keyword
+    ScrollTrigger.create({
+      trigger: ".quote-section",
+      start: "top 55%",
+      onEnter: () => {
+        gsap.to(".quote-section blockquote span::after", {
+          width: "100%",
+          duration: 0.6,
+          ease: "power2.out"
+        });
+      }
+    });
+
+    // ============================================
+    // CTA SECTION
+    // ============================================
+
+    const ctaTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".cta-section",
+        start: "top 75%",
+        toggleActions: "play none none reverse"
+      }
+    });
+
+    ctaTl
+      .to(".cta-section h2", {
+        opacity: 1,
+        duration: 0.8,
+        ease: "power2.out"
+      })
+      .to(".cta-section .btn", {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.4");
+
+    // ============================================
+    // SCROLL INDICATOR HIDE
+    // ============================================
+
+    ScrollTrigger.create({
+      trigger: ".process-section",
+      start: "top 80%",
+      onEnter: () => {
+        gsap.to(".scroll-indicator", {
+          opacity: 0,
+          duration: 0.3
+        });
+      },
+      onLeaveBack: () => {
+        gsap.to(".scroll-indicator", {
+          opacity: 1,
+          duration: 0.3
+        });
+      }
+    });
+
+    // ============================================
+    // HOVER EFFECTS
+    // ============================================
+
+    steps.forEach(step => {
+      step.addEventListener('mouseenter', () => {
+        gsap.to(step.querySelector(".step-number span"), {
+          scale: 1.05,
+          duration: 0.4,
+          ease: "power2.out"
+        });
+      });
+
+      step.addEventListener('mouseleave', () => {
+        gsap.to(step.querySelector(".step-number span"), {
+          scale: 1,
+          duration: 0.4,
+          ease: "power2.out"
+        });
+      });
+    });
+
+    // ============================================
+    // REFRESH ON LOAD
+    // ============================================
+
+    window.addEventListener('load', () => {
+      ScrollTrigger.refresh();
+    });
   </script>
 </body>
 </html>
