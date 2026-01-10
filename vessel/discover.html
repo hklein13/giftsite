@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Process — The Gift Site</title>
+  <title>Discover — The Gift Site</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -129,10 +129,18 @@
     /* Page Header */
     .page-header {
       padding: 12rem 6rem 4rem;
-      background: var(--paper);
+      background: var(--ink);
+      color: var(--paper);
       text-align: center;
-      max-width: 800px;
-      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--clay);
+      margin-bottom: 1rem;
     }
 
     .page-header h1 {
@@ -143,124 +151,57 @@
       margin-bottom: 1.5rem;
     }
 
-    .page-header h1 em {
-      font-style: italic;
-      color: var(--rust);
+    .page-header p {
+      color: var(--clay);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
     }
 
-    .page-header p {
-      font-size: 1.1rem;
-      color: var(--clay);
-      line-height: 1.8;
-      max-width: 600px;
+    /* Questions Section */
+    .questions-section {
+      padding: 6rem;
+      max-width: 900px;
       margin: 0 auto;
     }
 
-    /* Process Steps */
-    .process-section {
-      padding: 4rem 0;
-    }
-
-    .process-step {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 50vh;
-      border-top: 1px solid var(--stone);
-    }
-
-    .process-step:last-child {
+    .question-card {
+      margin-bottom: 3rem;
+      padding-bottom: 3rem;
       border-bottom: 1px solid var(--stone);
     }
 
-    .step-number {
-      background: var(--cream);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4rem;
+    .question-card:last-child {
+      border-bottom: none;
     }
 
-    .step-number span {
+    .question-num {
       font-family: var(--font-serif);
-      font-size: 10rem;
+      font-size: 5rem;
       color: var(--stone);
-      opacity: 0.5;
+      opacity: 0.4;
       line-height: 1;
+      margin-bottom: 1rem;
     }
 
-    .step-content {
-      padding: 4rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .step-content h3 {
+    .question-card h3 {
       font-family: var(--font-serif);
-      font-size: 2.5rem;
+      font-size: 1.8rem;
       font-weight: 400;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       color: var(--ink);
     }
 
-    .step-content p {
+    .question-card p {
+      color: var(--clay);
       font-size: 1.05rem;
-      color: var(--clay);
       line-height: 1.9;
-      max-width: 400px;
     }
 
-    .step-marker {
-      width: 12px;
-      height: 12px;
-      background: var(--rust);
-      border-radius: 50%;
-      margin-top: 2rem;
-    }
-
-    /* Alternate layout */
-    .process-step:nth-child(even) .step-number {
-      order: 2;
-    }
-
-    .process-step:nth-child(even) .step-content {
-      order: 1;
-      text-align: right;
-      align-items: flex-end;
-    }
-
-    /* Quote Section */
-    .quote-section {
-      background: var(--ink);
-      color: var(--paper);
-      padding: 6rem;
-      text-align: center;
-    }
-
-    .quote-section blockquote {
-      font-family: var(--font-serif);
-      font-size: 2rem;
-      font-style: italic;
-      max-width: 700px;
-      margin: 0 auto;
-      line-height: 1.5;
-    }
-
-    .quote-section blockquote span {
-      color: var(--rust);
-    }
-
-    .quote-section .attribution {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: var(--clay);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    /* CTA */
+    /* CTA Section */
     .cta-section {
-      background: var(--paper);
+      background: var(--moss);
       padding: 5rem 6rem;
       text-align: center;
     }
@@ -269,7 +210,16 @@
       font-family: var(--font-serif);
       font-size: 2rem;
       font-weight: 400;
+      color: var(--cream);
       margin-bottom: 1.5rem;
+    }
+
+    .cta-section p {
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .btn {
@@ -278,13 +228,14 @@
       font-family: var(--font-sans);
       font-size: 0.9rem;
       text-decoration: none;
-      background: var(--ink);
-      color: var(--paper);
+      border: 1px solid var(--cream);
+      color: var(--cream);
       transition: all 0.3s ease;
     }
 
     .btn:hover {
-      background: var(--rust);
+      background: var(--cream);
+      color: var(--moss);
     }
 
     /* Footer */
@@ -336,35 +287,16 @@
         padding: 8rem 2rem 3rem;
       }
 
-      .process-step {
-        grid-template-columns: 1fr;
-      }
-
-      .step-number {
-        padding: 2rem;
-      }
-
-      .step-number span {
-        font-size: 6rem;
-      }
-
-      .step-content {
-        padding: 2rem;
-      }
-
-      .process-step:nth-child(even) .step-number,
-      .process-step:nth-child(even) .step-content {
-        order: unset;
-        text-align: left;
-        align-items: flex-start;
-      }
-
-      .quote-section {
+      .questions-section {
         padding: 4rem 2rem;
       }
 
-      .quote-section blockquote {
-        font-size: 1.5rem;
+      .question-num {
+        font-size: 3rem;
+      }
+
+      .cta-section {
+        padding: 4rem 2rem;
       }
 
       footer {
@@ -399,66 +331,40 @@
 
   <!-- Page Header -->
   <header class="page-header">
-    <h1>How <em>Discovery</em> Unfolds</h1>
-    <p>This isn't a personality test or a skills assessment. It's a process of reflection, dialogue, and mutual recognition. The most meaningful insights emerge not from algorithms, but from conversations with people who see you clearly.</p>
+    <p class="section-label">The Four Questions</p>
+    <h1>Discover Your Gift</h1>
+    <p>These four questions form the foundation of the Gift Clarification Process. Take your time with each one, allowing space for honest reflection before moving to dialogue with others.</p>
   </header>
 
-  <!-- Process Steps -->
-  <section class="process-section">
-    <div class="process-step">
-      <div class="step-number">
-        <span>1</span>
-      </div>
-      <div class="step-content">
-        <h3>Reflection</h3>
-        <p>Begin with four core questions that help you look inward. Consider the moments when you've felt most alive, most useful, most yourself. What were you doing? Who were you with?</p>
-        <div class="step-marker"></div>
-      </div>
+  <!-- Questions Section -->
+  <section class="questions-section">
+    <div class="question-card">
+      <div class="question-num">1</div>
+      <h3>A Moment of Contribution</h3>
+      <p>Recall a time you helped another person or contributed to a project where you felt genuinely useful — where you knew you were making a real difference. What were you doing? What made it feel meaningful?</p>
     </div>
-    <div class="process-step">
-      <div class="step-number">
-        <span>2</span>
-      </div>
-      <div class="step-content">
-        <h3>Witnessing</h3>
-        <p>Share your reflections with people who know you well. Listen as they affirm and refine what you've sensed about yourself. This is where the real discovery happens — hearing from others.</p>
-        <div class="step-marker"></div>
-      </div>
+    <div class="question-card">
+      <div class="question-num">2</div>
+      <h3>Qualities You Admire</h3>
+      <p>Think about someone you admire. What are three qualities or attributes you truly appreciate about that person? Often, the qualities we notice in others reflect something we carry within ourselves.</p>
     </div>
-    <div class="process-step">
-      <div class="step-number">
-        <span>3</span>
-      </div>
-      <div class="step-content">
-        <h3>Integration</h3>
-        <p>Look for the themes that emerge from your reflections and the feedback from others. What patterns appear? What words keep surfacing? What truths resonate most deeply?</p>
-        <div class="step-marker"></div>
-      </div>
+    <div class="question-card">
+      <div class="question-num">3</div>
+      <h3>Qualities You Appreciate in Yourself</h3>
+      <p>Identify three qualities that you appreciate about yourself. This can be challenging — we're often quicker to name our weaknesses. Take your time. What do you genuinely value about who you are?</p>
     </div>
-    <div class="process-step">
-      <div class="step-number">
-        <span>4</span>
-      </div>
-      <div class="step-content">
-        <h3>The Gift Statement</h3>
-        <p>Name your Gift. Not as a label or a limitation, but as a compass — something you can return to when making decisions, building relationships, or finding your path forward.</p>
-        <div class="step-marker"></div>
-      </div>
+    <div class="question-card">
+      <div class="question-num">4</div>
+      <h3>Those Who See Your Best</h3>
+      <p>If we were to invite three people into this conversation who have seen the "best of you" — people who have witnessed you at your most helpful, most alive, most yourself — who would they be? What might they say about your Gift?</p>
     </div>
-  </section>
-
-  <!-- Quote -->
-  <section class="quote-section">
-    <blockquote>
-      "The real power of this work lives inside of <span>dialogue</span> — hearing affirming reflections from others, face to face or over the phone."
-    </blockquote>
-    <p class="attribution">The Heart of the Process</p>
   </section>
 
   <!-- CTA -->
   <section class="cta-section">
-    <h2>Who is this for?</h2>
-    <a href="audiences.html" class="btn">See Who It's For</a>
+    <h2>Ready to explore further?</h2>
+    <p>Learn about the full Gift Clarification Process and how these questions lead to deeper discovery.</p>
+    <a href="process.html" class="btn">See the Full Process</a>
   </section>
 
   <!-- Footer -->

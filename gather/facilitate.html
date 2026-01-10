@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Who It's For — The Gift Site</title>
+  <title>Facilitate — The Gift Site</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
@@ -131,8 +131,9 @@
     /* Page Header */
     .page-header {
       padding: 10rem 3rem 4rem;
-      background: var(--cream);
+      background: var(--sage);
       text-align: center;
+      color: var(--warm-white);
     }
 
     .section-tag {
@@ -146,14 +147,14 @@
       content: '';
       width: 40px;
       height: 2px;
-      background: var(--terracotta);
+      background: var(--warm-white);
     }
 
     .section-tag::after {
       content: '';
       width: 40px;
       height: 2px;
-      background: var(--terracotta);
+      background: var(--warm-white);
     }
 
     .section-tag span {
@@ -161,7 +162,7 @@
       font-weight: 500;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--terracotta);
+      color: var(--warm-white);
     }
 
     .page-header h1 {
@@ -170,89 +171,127 @@
       font-weight: 400;
       line-height: 1.15;
       max-width: 700px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .page-header p {
+      color: rgba(255,255,255,0.85);
+      font-size: 1.15rem;
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    /* Content Section */
+    .content-section {
+      padding: 5rem 3rem;
+      max-width: 900px;
       margin: 0 auto;
     }
 
-    /* Audience Cards */
-    .audiences-section {
-      padding: 5rem 3rem;
-      background: var(--warm-white);
+    .content-section h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      color: var(--midnight);
     }
 
-    .audience-grid {
+    .content-section > p {
+      color: var(--charcoal);
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+
+    .guide-card {
+      background: var(--cream);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .guide-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--midnight);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .guide-card h3::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--terracotta);
+      border-radius: 50%;
+    }
+
+    .guide-card p {
+      color: var(--charcoal);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .guide-card ul {
+      list-style: none;
+      padding-left: 1.5rem;
+    }
+
+    .guide-card li {
+      position: relative;
+      padding: 0.5rem 0;
+      color: var(--charcoal);
+    }
+
+    .guide-card li::before {
+      content: '—';
+      position: absolute;
+      left: -1.5rem;
+      color: var(--terracotta);
+    }
+
+    /* Tips Section */
+    .tips-section {
+      background: var(--midnight);
+      color: var(--warm-white);
+      padding: 5rem 3rem;
+    }
+
+    .tips-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 2rem;
       max-width: 1100px;
       margin: 0 auto;
     }
 
-    .audience-card {
-      background: var(--cream);
-      border: 1px solid rgba(0,0,0,0.06);
-      border-radius: 24px;
-      padding: 2.5rem;
-      transition: all 0.4s ease;
+    .tip-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 2rem;
     }
 
-    .audience-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-    }
-
-    .audience-emoji {
-      font-size: 2.5rem;
-      margin-bottom: 1.5rem;
-      display: block;
-    }
-
-    .audience-card h2 {
+    .tip-card h4 {
       font-family: var(--font-display);
-      font-size: 1.8rem;
+      font-size: 1.2rem;
       font-weight: 500;
       margin-bottom: 1rem;
-    }
-
-    .audience-card > p {
-      color: var(--charcoal);
-      margin-bottom: 1.5rem;
-      line-height: 1.8;
-    }
-
-    .audience-list {
-      list-style: none;
-      margin-bottom: 1.5rem;
-    }
-
-    .audience-list li {
-      padding: 0.5rem 0;
-      padding-left: 1.5rem;
-      position: relative;
-      color: var(--midnight);
-      font-size: 0.95rem;
-    }
-
-    .audience-list li::before {
-      content: '→';
-      position: absolute;
-      left: 0;
       color: var(--terracotta);
     }
 
-    .audience-note {
-      font-family: var(--font-display);
-      font-style: italic;
-      color: var(--charcoal);
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(0,0,0,0.08);
-      opacity: 0.85;
+    .tip-card p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.95rem;
       line-height: 1.7;
     }
 
     /* CTA Section */
     .cta-section {
-      background: var(--midnight);
-      color: var(--warm-white);
+      background: var(--warm-white);
       padding: 5rem 3rem;
       text-align: center;
     }
@@ -265,7 +304,7 @@
     }
 
     .cta-section p {
-      color: rgba(255,255,255,0.7);
+      color: var(--charcoal);
       margin-bottom: 2rem;
       max-width: 500px;
       margin-left: auto;
@@ -288,12 +327,12 @@
     }
 
     .btn-primary {
-      background: var(--terracotta);
+      background: var(--midnight);
       color: var(--warm-white);
     }
 
     .btn-primary:hover {
-      background: var(--burnt);
+      background: var(--terracotta);
       transform: translateY(-2px);
       box-shadow: 0 10px 30px rgba(212, 113, 78, 0.3);
     }
@@ -375,11 +414,15 @@
         padding: 8rem 1.5rem 3rem;
       }
 
-      .audiences-section {
+      .content-section {
         padding: 3rem 1.5rem;
       }
 
-      .audience-grid {
+      .tips-section {
+        padding: 3rem 1.5rem;
+      }
+
+      .tips-grid {
         grid-template-columns: 1fr;
       }
 
@@ -401,7 +444,7 @@
       <li><a href="why.html">Why We Exist</a></li>
       <li><a href="discover.html">Discover</a></li>
       <li><a href="process.html">The Process</a></li>
-      <li><a href="facilitate.html">Facilitate</a></li>
+      <li><a href="facilitate.html" class="active">Facilitate</a></li>
       <li><a href="companion.html">Companion</a></li>
     </ul>
   </nav>
@@ -409,45 +452,86 @@
   <!-- Page Header -->
   <header class="page-header">
     <div class="section-tag">
-      <span>Who This Is For</span>
+      <span>For Facilitators</span>
     </div>
-    <h1>Discover Together</h1>
+    <h1>Guide the Journey</h1>
+    <p>Whether you're leading a family gathering or a team workshop, these guidelines will help you create a safe, meaningful space for Gift discovery.</p>
   </header>
 
-  <!-- Audience Cards -->
-  <section class="audiences-section">
-    <div class="audience-grid">
-      <div class="audience-card">
-        <span class="audience-emoji">🌿</span>
-        <h2>For Families</h2>
-        <p>The Gift Process helps family members reflect on their own Gifts and appreciate the Gifts of one another. It offers a gentle way to:</p>
-        <ul class="audience-list">
-          <li>Prepare for family conversations</li>
-          <li>Find words for what you sense but haven't yet expressed</li>
-          <li>Listen more deeply to one another</li>
-        </ul>
-        <p class="audience-note">It does not replace family dialogue — it supports it, helping families create moments of understanding, appreciation, and connection.</p>
+  <!-- Content Section -->
+  <section class="content-section">
+    <h2>The Facilitator's Role</h2>
+    <p>As a facilitator, your job is not to analyze or interpret — it's to create the conditions for honest reflection and affirming dialogue. You are a guide, not an expert. The wisdom emerges from the participants themselves.</p>
+
+    <div class="guide-card">
+      <h3>Before You Begin</h3>
+      <p>Set the stage for meaningful conversation:</p>
+      <ul>
+        <li>Choose a comfortable, private space free from distractions</li>
+        <li>Allow adequate time — rushing defeats the purpose</li>
+        <li>Ensure all participants understand the process beforehand</li>
+        <li>Consider starting with a meal or casual conversation to build connection</li>
+      </ul>
+    </div>
+
+    <div class="guide-card">
+      <h3>During the Process</h3>
+      <p>Guide with gentleness and intention:</p>
+      <ul>
+        <li>Read each question slowly, giving space for reflection</li>
+        <li>Encourage participants to share without judgment</li>
+        <li>Listen more than you speak</li>
+        <li>When witnessing, focus on specific examples and genuine observations</li>
+        <li>Allow silence — it's where insight often emerges</li>
+      </ul>
+    </div>
+
+    <div class="guide-card">
+      <h3>The Witnessing Phase</h3>
+      <p>This is the heart of the process. When participants share what they see in each other:</p>
+      <ul>
+        <li>Encourage specificity: "Tell me about a time you saw this in action"</li>
+        <li>Keep the focus positive and affirming</li>
+        <li>Help the recipient truly receive what is being offered</li>
+        <li>Notice the themes that emerge across different witnesses</li>
+      </ul>
+    </div>
+
+    <div class="guide-card">
+      <h3>Closing the Session</h3>
+      <p>End with intention and forward momentum:</p>
+      <ul>
+        <li>Help participants articulate a draft Gift Statement</li>
+        <li>Remind them this is a beginning, not an end</li>
+        <li>Encourage them to continue reflecting on what they heard</li>
+        <li>Consider scheduling a follow-up conversation</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Tips Section -->
+  <section class="tips-section">
+    <div class="tips-grid">
+      <div class="tip-card">
+        <h4>Create Safety</h4>
+        <p>The most important thing you can do is create an atmosphere where people feel safe to be vulnerable and honest.</p>
       </div>
-      <div class="audience-card">
-        <span class="audience-emoji">🤝</span>
-        <h2>For Teams</h2>
-        <p>For teams, the Gift Process supports reflection and shared understanding before conversations take place. It helps team members:</p>
-        <ul class="audience-list">
-          <li>Clarify how they naturally contribute</li>
-          <li>Recognize the Gifts they bring to group efforts</li>
-          <li>Prepare for more meaningful, respectful dialogue</li>
-          <li>Gain insights about the Gifts found within fellow team members</li>
-        </ul>
-        <p class="audience-note">The process helps each member enter conversations with greater clarity and intentionality, setting the stage for mutual respect and appreciation.</p>
+      <div class="tip-card">
+        <h4>Trust the Process</h4>
+        <p>The questions work. The witnessing works. Your job is to hold space, not to manufacture insights.</p>
+      </div>
+      <div class="tip-card">
+        <h4>Model Presence</h4>
+        <p>Be fully present. Put away devices. Give your complete attention to each speaker.</p>
       </div>
     </div>
   </section>
 
   <!-- CTA -->
   <section class="cta-section">
-    <h2>Ready to prepare?</h2>
-    <p>The Gift Companion is an AI-assisted tool to help you reflect before the conversations that matter most.</p>
-    <a href="companion.html" class="btn btn-primary">Try the Companion</a>
+    <h2>Ready to explore the questions?</h2>
+    <p>Review the four core questions that form the foundation of the Gift Clarification Process.</p>
+    <a href="discover.html" class="btn btn-primary">See the Questions</a>
   </section>
 
   <!-- Footer -->

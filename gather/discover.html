@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Who It's For — The Gift Site</title>
+  <title>Discover — The Gift Site</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
@@ -170,83 +170,55 @@
       font-weight: 400;
       line-height: 1.15;
       max-width: 700px;
-      margin: 0 auto;
+      margin: 0 auto 1.5rem;
     }
 
-    /* Audience Cards */
-    .audiences-section {
-      padding: 5rem 3rem;
-      background: var(--warm-white);
-    }
-
-    .audience-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .audience-card {
-      background: var(--cream);
-      border: 1px solid rgba(0,0,0,0.06);
-      border-radius: 24px;
-      padding: 2.5rem;
-      transition: all 0.4s ease;
-    }
-
-    .audience-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-    }
-
-    .audience-emoji {
-      font-size: 2.5rem;
-      margin-bottom: 1.5rem;
-      display: block;
-    }
-
-    .audience-card h2 {
-      font-family: var(--font-display);
-      font-size: 1.8rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-    }
-
-    .audience-card > p {
+    .page-header p {
       color: var(--charcoal);
-      margin-bottom: 1.5rem;
+      font-size: 1.15rem;
+      max-width: 650px;
+      margin: 0 auto;
       line-height: 1.8;
     }
 
-    .audience-list {
-      list-style: none;
-      margin-bottom: 1.5rem;
+    /* Questions Section */
+    .questions-section {
+      padding: 5rem 3rem;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    .audience-list li {
-      padding: 0.5rem 0;
-      padding-left: 1.5rem;
+    .question-card {
+      background: var(--warm-white);
+      border-radius: 24px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      border-left: 4px solid var(--terracotta);
       position: relative;
-      color: var(--midnight);
-      font-size: 0.95rem;
     }
 
-    .audience-list li::before {
-      content: '→';
-      position: absolute;
-      left: 0;
-      color: var(--terracotta);
-    }
-
-    .audience-note {
+    .question-num {
       font-family: var(--font-display);
-      font-style: italic;
+      font-size: 3rem;
+      font-weight: 400;
+      color: var(--blush);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .question-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--midnight);
+    }
+
+    .question-card p {
       color: var(--charcoal);
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(0,0,0,0.08);
-      opacity: 0.85;
-      line-height: 1.7;
+      font-size: 1.05rem;
+      line-height: 1.8;
     }
 
     /* CTA Section */
@@ -375,12 +347,12 @@
         padding: 8rem 1.5rem 3rem;
       }
 
-      .audiences-section {
+      .questions-section {
         padding: 3rem 1.5rem;
       }
 
-      .audience-grid {
-        grid-template-columns: 1fr;
+      .question-card {
+        padding: 1.5rem;
       }
 
       .footer-grid {
@@ -399,7 +371,7 @@
     </a>
     <ul class="nav-links">
       <li><a href="why.html">Why We Exist</a></li>
-      <li><a href="discover.html">Discover</a></li>
+      <li><a href="discover.html" class="active">Discover</a></li>
       <li><a href="process.html">The Process</a></li>
       <li><a href="facilitate.html">Facilitate</a></li>
       <li><a href="companion.html">Companion</a></li>
@@ -409,45 +381,41 @@
   <!-- Page Header -->
   <header class="page-header">
     <div class="section-tag">
-      <span>Who This Is For</span>
+      <span>The Four Questions</span>
     </div>
-    <h1>Discover Together</h1>
+    <h1>Discover Your Gift</h1>
+    <p>These four questions form the foundation of the Gift Clarification Process. Take your time with each one, allowing space for honest reflection before moving to dialogue with others.</p>
   </header>
 
-  <!-- Audience Cards -->
-  <section class="audiences-section">
-    <div class="audience-grid">
-      <div class="audience-card">
-        <span class="audience-emoji">🌿</span>
-        <h2>For Families</h2>
-        <p>The Gift Process helps family members reflect on their own Gifts and appreciate the Gifts of one another. It offers a gentle way to:</p>
-        <ul class="audience-list">
-          <li>Prepare for family conversations</li>
-          <li>Find words for what you sense but haven't yet expressed</li>
-          <li>Listen more deeply to one another</li>
-        </ul>
-        <p class="audience-note">It does not replace family dialogue — it supports it, helping families create moments of understanding, appreciation, and connection.</p>
-      </div>
-      <div class="audience-card">
-        <span class="audience-emoji">🤝</span>
-        <h2>For Teams</h2>
-        <p>For teams, the Gift Process supports reflection and shared understanding before conversations take place. It helps team members:</p>
-        <ul class="audience-list">
-          <li>Clarify how they naturally contribute</li>
-          <li>Recognize the Gifts they bring to group efforts</li>
-          <li>Prepare for more meaningful, respectful dialogue</li>
-          <li>Gain insights about the Gifts found within fellow team members</li>
-        </ul>
-        <p class="audience-note">The process helps each member enter conversations with greater clarity and intentionality, setting the stage for mutual respect and appreciation.</p>
-      </div>
+  <!-- Questions Section -->
+  <section class="questions-section">
+    <div class="question-card">
+      <div class="question-num">01</div>
+      <h3>A Moment of Contribution</h3>
+      <p>Recall a time you helped another person or contributed to a project where you felt genuinely useful — where you knew you were making a real difference. What were you doing? What made it feel meaningful?</p>
+    </div>
+    <div class="question-card">
+      <div class="question-num">02</div>
+      <h3>Qualities You Admire</h3>
+      <p>Think about someone you admire. What are three qualities or attributes you truly appreciate about that person? Often, the qualities we notice in others reflect something we carry within ourselves.</p>
+    </div>
+    <div class="question-card">
+      <div class="question-num">03</div>
+      <h3>Qualities You Appreciate in Yourself</h3>
+      <p>Identify three qualities that you appreciate about yourself. This can be challenging — we're often quicker to name our weaknesses. Take your time. What do you genuinely value about who you are?</p>
+    </div>
+    <div class="question-card">
+      <div class="question-num">04</div>
+      <h3>Those Who See Your Best</h3>
+      <p>If we were to invite three people into this conversation who have seen the "best of you" — people who have witnessed you at your most helpful, most alive, most yourself — who would they be? What might they say about your Gift?</p>
     </div>
   </section>
 
   <!-- CTA -->
   <section class="cta-section">
-    <h2>Ready to prepare?</h2>
-    <p>The Gift Companion is an AI-assisted tool to help you reflect before the conversations that matter most.</p>
-    <a href="companion.html" class="btn btn-primary">Try the Companion</a>
+    <h2>Ready to explore further?</h2>
+    <p>Learn about the full Gift Clarification Process and how these questions lead to deeper discovery.</p>
+    <a href="process.html" class="btn btn-primary">See the Full Process</a>
   </section>
 
   <!-- Footer -->

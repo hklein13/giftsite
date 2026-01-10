@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Process — The Gift Site</title>
+  <title>Facilitate — The Gift Site</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -76,7 +76,7 @@
     .nav-toggle span {
       display: block;
       height: 2px;
-      background: var(--ink);
+      background: var(--paper);
       transition: all 0.3s ease;
     }
 
@@ -119,7 +119,7 @@
       left: 2rem;
       font-family: var(--font-serif);
       font-size: 1rem;
-      color: var(--ink);
+      color: var(--paper);
       text-decoration: none;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -129,10 +129,18 @@
     /* Page Header */
     .page-header {
       padding: 12rem 6rem 4rem;
-      background: var(--paper);
+      background: var(--moss);
+      color: var(--cream);
       text-align: center;
-      max-width: 800px;
-      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 1rem;
     }
 
     .page-header h1 {
@@ -143,122 +151,123 @@
       margin-bottom: 1.5rem;
     }
 
-    .page-header h1 em {
-      font-style: italic;
-      color: var(--rust);
+    .page-header p {
+      color: rgba(255,255,255,0.8);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
     }
 
-    .page-header p {
-      font-size: 1.1rem;
-      color: var(--clay);
-      line-height: 1.8;
-      max-width: 600px;
+    /* Content Section */
+    .content-section {
+      padding: 6rem;
+      max-width: 900px;
       margin: 0 auto;
     }
 
-    /* Process Steps */
-    .process-section {
-      padding: 4rem 0;
-    }
-
-    .process-step {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 50vh;
-      border-top: 1px solid var(--stone);
-    }
-
-    .process-step:last-child {
-      border-bottom: 1px solid var(--stone);
-    }
-
-    .step-number {
-      background: var(--cream);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4rem;
-    }
-
-    .step-number span {
+    .content-section h2 {
       font-family: var(--font-serif);
-      font-size: 10rem;
-      color: var(--stone);
-      opacity: 0.5;
-      line-height: 1;
-    }
-
-    .step-content {
-      padding: 4rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .step-content h3 {
-      font-family: var(--font-serif);
-      font-size: 2.5rem;
+      font-size: 1.8rem;
       font-weight: 400;
       margin-bottom: 1.5rem;
       color: var(--ink);
     }
 
-    .step-content p {
-      font-size: 1.05rem;
+    .content-section > p {
       color: var(--clay);
+      font-size: 1.1rem;
       line-height: 1.9;
-      max-width: 400px;
+      margin-bottom: 2rem;
     }
 
-    .step-marker {
-      width: 12px;
-      height: 12px;
+    .guide-card {
+      background: var(--cream);
+      border: 1px solid var(--stone);
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .guide-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
       background: var(--rust);
-      border-radius: 50%;
-      margin-top: 2rem;
     }
 
-    /* Alternate layout */
-    .process-step:nth-child(even) .step-number {
-      order: 2;
+    .guide-card h3 {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      font-weight: 400;
+      margin-bottom: 1rem;
+      color: var(--ink);
     }
 
-    .process-step:nth-child(even) .step-content {
-      order: 1;
-      text-align: right;
-      align-items: flex-end;
+    .guide-card p {
+      color: var(--clay);
+      line-height: 1.8;
+      margin-bottom: 1rem;
     }
 
-    /* Quote Section */
-    .quote-section {
+    .guide-card ul {
+      list-style: none;
+      padding-left: 1.5rem;
+    }
+
+    .guide-card li {
+      position: relative;
+      padding: 0.5rem 0;
+      color: var(--ink);
+    }
+
+    .guide-card li::before {
+      content: '·';
+      position: absolute;
+      left: -1rem;
+      color: var(--rust);
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    /* Tips Section */
+    .tips-section {
       background: var(--ink);
       color: var(--paper);
-      padding: 6rem;
-      text-align: center;
+      padding: 5rem 6rem;
     }
 
-    .quote-section blockquote {
-      font-family: var(--font-serif);
-      font-size: 2rem;
-      font-style: italic;
-      max-width: 700px;
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1000px;
       margin: 0 auto;
-      line-height: 1.5;
     }
 
-    .quote-section blockquote span {
+    .tip-card {
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 2rem;
+    }
+
+    .tip-card h4 {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 1rem;
       color: var(--rust);
     }
 
-    .quote-section .attribution {
-      margin-top: 2rem;
-      font-size: 0.85rem;
+    .tip-card p {
       color: var(--clay);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      font-size: 0.95rem;
+      line-height: 1.7;
     }
 
-    /* CTA */
+    /* CTA Section */
     .cta-section {
       background: var(--paper);
       padding: 5rem 6rem;
@@ -270,6 +279,14 @@
       font-size: 2rem;
       font-weight: 400;
       margin-bottom: 1.5rem;
+    }
+
+    .cta-section p {
+      color: var(--clay);
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .btn {
@@ -336,35 +353,20 @@
         padding: 8rem 2rem 3rem;
       }
 
-      .process-step {
-        grid-template-columns: 1fr;
-      }
-
-      .step-number {
-        padding: 2rem;
-      }
-
-      .step-number span {
-        font-size: 6rem;
-      }
-
-      .step-content {
-        padding: 2rem;
-      }
-
-      .process-step:nth-child(even) .step-number,
-      .process-step:nth-child(even) .step-content {
-        order: unset;
-        text-align: left;
-        align-items: flex-start;
-      }
-
-      .quote-section {
+      .content-section {
         padding: 4rem 2rem;
       }
 
-      .quote-section blockquote {
-        font-size: 1.5rem;
+      .tips-section {
+        padding: 4rem 2rem;
+      }
+
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-section {
+        padding: 4rem 2rem;
       }
 
       footer {
@@ -399,66 +401,85 @@
 
   <!-- Page Header -->
   <header class="page-header">
-    <h1>How <em>Discovery</em> Unfolds</h1>
-    <p>This isn't a personality test or a skills assessment. It's a process of reflection, dialogue, and mutual recognition. The most meaningful insights emerge not from algorithms, but from conversations with people who see you clearly.</p>
+    <p class="section-label">For Facilitators</p>
+    <h1>Guide the Journey</h1>
+    <p>Whether you're leading a family gathering or a team workshop, these guidelines will help you create a safe, meaningful space for Gift discovery.</p>
   </header>
 
-  <!-- Process Steps -->
-  <section class="process-section">
-    <div class="process-step">
-      <div class="step-number">
-        <span>1</span>
-      </div>
-      <div class="step-content">
-        <h3>Reflection</h3>
-        <p>Begin with four core questions that help you look inward. Consider the moments when you've felt most alive, most useful, most yourself. What were you doing? Who were you with?</p>
-        <div class="step-marker"></div>
-      </div>
+  <!-- Content Section -->
+  <section class="content-section">
+    <h2>The Facilitator's Role</h2>
+    <p>As a facilitator, your job is not to analyze or interpret — it's to create the conditions for honest reflection and affirming dialogue. You are a guide, not an expert. The wisdom emerges from the participants themselves.</p>
+
+    <div class="guide-card">
+      <h3>Before You Begin</h3>
+      <p>Set the stage for meaningful conversation:</p>
+      <ul>
+        <li>Choose a comfortable, private space free from distractions</li>
+        <li>Allow adequate time — rushing defeats the purpose</li>
+        <li>Ensure all participants understand the process beforehand</li>
+        <li>Consider starting with a meal or casual conversation to build connection</li>
+      </ul>
     </div>
-    <div class="process-step">
-      <div class="step-number">
-        <span>2</span>
-      </div>
-      <div class="step-content">
-        <h3>Witnessing</h3>
-        <p>Share your reflections with people who know you well. Listen as they affirm and refine what you've sensed about yourself. This is where the real discovery happens — hearing from others.</p>
-        <div class="step-marker"></div>
-      </div>
+
+    <div class="guide-card">
+      <h3>During the Process</h3>
+      <p>Guide with gentleness and intention:</p>
+      <ul>
+        <li>Read each question slowly, giving space for reflection</li>
+        <li>Encourage participants to share without judgment</li>
+        <li>Listen more than you speak</li>
+        <li>When witnessing, focus on specific examples and genuine observations</li>
+        <li>Allow silence — it's where insight often emerges</li>
+      </ul>
     </div>
-    <div class="process-step">
-      <div class="step-number">
-        <span>3</span>
-      </div>
-      <div class="step-content">
-        <h3>Integration</h3>
-        <p>Look for the themes that emerge from your reflections and the feedback from others. What patterns appear? What words keep surfacing? What truths resonate most deeply?</p>
-        <div class="step-marker"></div>
-      </div>
+
+    <div class="guide-card">
+      <h3>The Witnessing Phase</h3>
+      <p>This is the heart of the process. When participants share what they see in each other:</p>
+      <ul>
+        <li>Encourage specificity: "Tell me about a time you saw this in action"</li>
+        <li>Keep the focus positive and affirming</li>
+        <li>Help the recipient truly receive what is being offered</li>
+        <li>Notice the themes that emerge across different witnesses</li>
+      </ul>
     </div>
-    <div class="process-step">
-      <div class="step-number">
-        <span>4</span>
-      </div>
-      <div class="step-content">
-        <h3>The Gift Statement</h3>
-        <p>Name your Gift. Not as a label or a limitation, but as a compass — something you can return to when making decisions, building relationships, or finding your path forward.</p>
-        <div class="step-marker"></div>
-      </div>
+
+    <div class="guide-card">
+      <h3>Closing the Session</h3>
+      <p>End with intention and forward momentum:</p>
+      <ul>
+        <li>Help participants articulate a draft Gift Statement</li>
+        <li>Remind them this is a beginning, not an end</li>
+        <li>Encourage them to continue reflecting on what they heard</li>
+        <li>Consider scheduling a follow-up conversation</li>
+      </ul>
     </div>
   </section>
 
-  <!-- Quote -->
-  <section class="quote-section">
-    <blockquote>
-      "The real power of this work lives inside of <span>dialogue</span> — hearing affirming reflections from others, face to face or over the phone."
-    </blockquote>
-    <p class="attribution">The Heart of the Process</p>
+  <!-- Tips Section -->
+  <section class="tips-section">
+    <div class="tips-grid">
+      <div class="tip-card">
+        <h4>Create Safety</h4>
+        <p>The most important thing you can do is create an atmosphere where people feel safe to be vulnerable and honest.</p>
+      </div>
+      <div class="tip-card">
+        <h4>Trust the Process</h4>
+        <p>The questions work. The witnessing works. Your job is to hold space, not to manufacture insights.</p>
+      </div>
+      <div class="tip-card">
+        <h4>Model Presence</h4>
+        <p>Be fully present. Put away devices. Give your complete attention to each speaker.</p>
+      </div>
+    </div>
   </section>
 
   <!-- CTA -->
   <section class="cta-section">
-    <h2>Who is this for?</h2>
-    <a href="audiences.html" class="btn">See Who It's For</a>
+    <h2>Ready to explore the questions?</h2>
+    <p>Review the four core questions that form the foundation of the Gift Clarification Process.</p>
+    <a href="discover.html" class="btn">See the Questions</a>
   </section>
 
   <!-- Footer -->
