@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Process — The Gift Site</title>
+  <title>Discover — The Gift Site</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
@@ -131,7 +131,7 @@
     /* Page Header */
     .page-header {
       padding: 10rem 3rem 4rem;
-      background: var(--warm-white);
+      background: var(--cream);
       text-align: center;
     }
 
@@ -181,99 +181,50 @@
       line-height: 1.8;
     }
 
-    /* Process Steps */
-    .process-section {
+    /* Questions Section */
+    .questions-section {
       padding: 5rem 3rem;
-      background: var(--cream);
-    }
-
-    .process-steps {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
-      max-width: 1100px;
+      max-width: 900px;
       margin: 0 auto;
     }
 
-    .process-card {
+    .question-card {
       background: var(--warm-white);
       border-radius: 24px;
       padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      border-left: 4px solid var(--terracotta);
       position: relative;
-      overflow: hidden;
-      transition: all 0.4s ease;
     }
 
-    .process-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--terracotta), var(--gold));
-    }
-
-    .process-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-    }
-
-    .process-num {
+    .question-num {
       font-family: var(--font-display);
-      font-size: 4rem;
+      font-size: 3rem;
       font-weight: 400;
       color: var(--blush);
       line-height: 1;
       margin-bottom: 1rem;
     }
 
-    .process-card h3 {
+    .question-card h3 {
       font-family: var(--font-display);
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 500;
       margin-bottom: 1rem;
       color: var(--midnight);
     }
 
-    .process-card p {
+    .question-card p {
       color: var(--charcoal);
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       line-height: 1.8;
-    }
-
-    /* Quote Section */
-    .quote-section {
-      background: var(--midnight);
-      color: var(--warm-white);
-      padding: 6rem 3rem;
-      text-align: center;
-    }
-
-    .quote-section blockquote {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-style: italic;
-      max-width: 750px;
-      margin: 0 auto;
-      line-height: 1.5;
-    }
-
-    .quote-section blockquote em {
-      color: var(--terracotta);
-      font-style: italic;
-    }
-
-    .quote-section .note {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: var(--blush);
-      opacity: 0.8;
     }
 
     /* CTA Section */
     .cta-section {
-      background: var(--warm-white);
+      background: var(--midnight);
+      color: var(--warm-white);
       padding: 5rem 3rem;
       text-align: center;
     }
@@ -286,7 +237,7 @@
     }
 
     .cta-section p {
-      color: var(--charcoal);
+      color: rgba(255,255,255,0.7);
       margin-bottom: 2rem;
       max-width: 500px;
       margin-left: auto;
@@ -309,12 +260,12 @@
     }
 
     .btn-primary {
-      background: var(--midnight);
+      background: var(--terracotta);
       color: var(--warm-white);
     }
 
     .btn-primary:hover {
-      background: var(--terracotta);
+      background: var(--burnt);
       transform: translateY(-2px);
       box-shadow: 0 10px 30px rgba(212, 113, 78, 0.3);
     }
@@ -396,16 +347,12 @@
         padding: 8rem 1.5rem 3rem;
       }
 
-      .process-section {
+      .questions-section {
         padding: 3rem 1.5rem;
       }
 
-      .process-steps {
-        grid-template-columns: 1fr;
-      }
-
-      .quote-section blockquote {
-        font-size: 1.5rem;
+      .question-card {
+        padding: 1.5rem;
       }
 
       .footer-grid {
@@ -424,8 +371,8 @@
     </a>
     <ul class="nav-links">
       <li><a href="why.html">Why We Exist</a></li>
-      <li><a href="discover.html">Discover</a></li>
-      <li><a href="process.html" class="active">The Process</a></li>
+      <li><a href="discover.html" class="active">Discover</a></li>
+      <li><a href="process.html">The Process</a></li>
       <li><a href="facilitate.html">Facilitate</a></li>
       <li><a href="companion.html">Companion</a></li>
     </ul>
@@ -434,51 +381,41 @@
   <!-- Page Header -->
   <header class="page-header">
     <div class="section-tag">
-      <span>The Gift Clarification Process</span>
+      <span>The Four Questions</span>
     </div>
-    <h1>How Discovery Unfolds</h1>
-    <p>This isn't a personality test or a skills assessment. It's a process of reflection, dialogue, and mutual recognition. The most meaningful insights emerge not from algorithms, but from conversations with people who see you clearly.</p>
+    <h1>Discover Your Gift</h1>
+    <p>These four questions form the foundation of the Gift Clarification Process. Take your time with each one, allowing space for honest reflection before moving to dialogue with others.</p>
   </header>
 
-  <!-- Process Steps -->
-  <section class="process-section">
-    <div class="process-steps">
-      <div class="process-card">
-        <div class="process-num">01</div>
-        <h3>Reflection</h3>
-        <p>Begin with four core questions that help you look inward. Consider the moments when you've felt most alive, most useful, most yourself. What were you doing? Who were you with?</p>
-      </div>
-      <div class="process-card">
-        <div class="process-num">02</div>
-        <h3>Witnessing</h3>
-        <p>Share your reflections with people who know you well. Listen as they affirm and refine what you've sensed about yourself. This is where the real discovery happens — hearing from others.</p>
-      </div>
-      <div class="process-card">
-        <div class="process-num">03</div>
-        <h3>Integration</h3>
-        <p>Look for the themes that emerge from your reflections and the feedback from others. What patterns appear? What words keep surfacing? What truths resonate most deeply?</p>
-      </div>
-      <div class="process-card">
-        <div class="process-num">04</div>
-        <h3>The Gift Statement</h3>
-        <p>Name your Gift. Not as a label or a limitation, but as a compass — something you can return to when making decisions, building relationships, or finding your path forward.</p>
-      </div>
+  <!-- Questions Section -->
+  <section class="questions-section">
+    <div class="question-card">
+      <div class="question-num">01</div>
+      <h3>A Moment of Contribution</h3>
+      <p>Recall a time you helped another person or contributed to a project where you felt genuinely useful — where you knew you were making a real difference. What were you doing? What made it feel meaningful?</p>
     </div>
-  </section>
-
-  <!-- Quote -->
-  <section class="quote-section">
-    <blockquote>
-      "The real power of this work lives inside of <em>dialogue</em> — hearing affirming reflections from others, face to face or over the phone."
-    </blockquote>
-    <p class="note">The heart of the Gift Process</p>
+    <div class="question-card">
+      <div class="question-num">02</div>
+      <h3>Qualities You Admire</h3>
+      <p>Think about someone you admire. What are three qualities or attributes you truly appreciate about that person? Often, the qualities we notice in others reflect something we carry within ourselves.</p>
+    </div>
+    <div class="question-card">
+      <div class="question-num">03</div>
+      <h3>Qualities You Appreciate in Yourself</h3>
+      <p>Identify three qualities that you appreciate about yourself. This can be challenging — we're often quicker to name our weaknesses. Take your time. What do you genuinely value about who you are?</p>
+    </div>
+    <div class="question-card">
+      <div class="question-num">04</div>
+      <h3>Those Who See Your Best</h3>
+      <p>If we were to invite three people into this conversation who have seen the "best of you" — people who have witnessed you at your most helpful, most alive, most yourself — who would they be? What might they say about your Gift?</p>
+    </div>
   </section>
 
   <!-- CTA -->
   <section class="cta-section">
-    <h2>Ready to begin?</h2>
-    <p>Start with the four core questions that help you reflect on your unique Gift.</p>
-    <a href="discover.html" class="btn btn-primary">Explore the Questions</a>
+    <h2>Ready to explore further?</h2>
+    <p>Learn about the full Gift Clarification Process and how these questions lead to deeper discovery.</p>
+    <a href="process.html" class="btn btn-primary">See the Full Process</a>
   </section>
 
   <!-- Footer -->
