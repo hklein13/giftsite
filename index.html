@@ -3,420 +3,1019 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Gift Site — Template Preview</title>
+  <title>The Gift Site — Discover Your Gift</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --midnight: #1e1e2e;
+      --charcoal: #2d2d3a;
+      --warm-white: #faf8f5;
+      --cream: #f0ebe3;
+      --terracotta: #d4714e;
+      --burnt: #b85d3d;
+      --gold: #d4a853;
+      --sage: #7d9a7d;
+      --lavender: #a8a3c7;
+      --blush: #e8c4b8;
+      
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Outfit', -apple-system, sans-serif;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
+    ::selection {
+      background: var(--terracotta);
+      color: var(--warm-white);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      font-family: 'DM Sans', -apple-system, sans-serif;
-      background: #1a1a18;
-      overflow: hidden;
+      font-family: var(--font-body);
+      font-weight: 400;
+      background: var(--warm-white);
+      color: var(--midnight);
+      line-height: 1.75;
+      font-size: 17px;
     }
 
-    /* Template iframe */
-    .template-frame {
+    /* Navigation */
+    nav {
       position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      transition: opacity 0.4s ease;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      transition: all 0.4s ease;
     }
 
-    .template-frame.hidden {
-      opacity: 0;
-      pointer-events: none;
+    nav.scrolled {
+      background: rgba(250, 248, 245, 0.95);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.05);
     }
 
-    /* Floating switcher */
-    .switcher {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--midnight);
+      text-decoration: none;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(26, 26, 24, 0.95);
-      backdrop-filter: blur(20px);
-      padding: 0.5rem;
-      border-radius: 50px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
-      animation: slideUp 0.6s ease 0.5s backwards;
     }
 
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
-    }
-
-    .switcher-label {
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.75);
-      padding: 0 0.75rem;
-    }
-
-    .switcher-btn {
-      padding: 0.75rem 1.25rem;
-      border: none;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.8);
-      font-family: inherit;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .switcher-btn:hover {
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .switcher-btn.active {
-      background: #b85a3b;
-      color: #fff;
-    }
-
-    /* Info tooltip */
-    .info-btn {
+    .logo-mark {
       width: 32px;
       height: 32px;
-      border: none;
-      background: rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 0.85);
+      background: var(--terracotta);
       border-radius: 50%;
-      cursor: pointer;
+      position: relative;
+    }
+
+    .logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 2px solid var(--warm-white);
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--charcoal);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--terracotta);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--midnight);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero - layered, dynamic */
+    .hero {
+      min-height: 100vh;
       display: flex;
       align-items: center;
-      justify-content: center;
+      padding: 8rem 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-shapes {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .shape-1 {
+      width: 500px;
+      height: 500px;
+      background: var(--blush);
+      top: -100px;
+      right: -100px;
+      opacity: 0.6;
+    }
+
+    .shape-2 {
+      width: 300px;
+      height: 300px;
+      background: var(--sage);
+      bottom: 10%;
+      right: 20%;
+      opacity: 0.4;
+    }
+
+    .shape-3 {
+      width: 200px;
+      height: 200px;
+      background: var(--lavender);
+      top: 30%;
+      right: 35%;
+      opacity: 0.5;
+    }
+
+    .shape-4 {
+      width: 150px;
+      height: 150px;
+      background: var(--gold);
+      bottom: 20%;
+      left: 10%;
+      opacity: 0.3;
+    }
+
+    .hero-content {
+      max-width: 650px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--cream);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
       font-size: 0.85rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      margin-left: 0.25rem;
+      color: var(--charcoal);
+      margin-bottom: 2rem;
+      animation: fadeSlide 0.8s ease forwards;
     }
 
-    .info-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 0.9);
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Info panel */
-    .info-panel {
-      position: fixed;
-      bottom: 6rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(10px);
-      z-index: 9998;
-      background: rgba(26, 26, 24, 0.98);
-      backdrop-filter: blur(20px);
-      padding: 1.5rem;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-      max-width: 400px;
-      width: calc(100% - 2rem);
+    .hero-badge span {
+      width: 8px;
+      height: 8px;
+      background: var(--sage);
+      border-radius: 50%;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 8vw, 5.5rem);
+      font-weight: 400;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      animation: fadeSlide 0.8s ease 0.1s forwards;
       opacity: 0;
-      visibility: hidden;
+    }
+
+    .hero h1 .highlight {
+      color: var(--terracotta);
+      font-style: italic;
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero h1 .highlight::after {
+      content: '';
+      position: absolute;
+      bottom: 0.1em;
+      left: 0;
+      right: 0;
+      height: 0.15em;
+      background: var(--gold);
+      opacity: 0.4;
+      z-index: -1;
+    }
+
+    .hero-text {
+      font-size: 1.2rem;
+      color: var(--charcoal);
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+      animation: fadeSlide 0.8s ease 0.2s forwards;
+      opacity: 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      animation: fadeSlide 0.8s ease 0.3s forwards;
+      opacity: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.75rem;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 50px;
       transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
     }
 
-    .info-panel.visible {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(-50%) translateY(0);
+    .btn-primary {
+      background: var(--midnight);
+      color: var(--warm-white);
     }
 
-    .info-panel h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 0.75rem;
+    .btn-primary:hover {
+      background: var(--terracotta);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(212, 113, 78, 0.3);
     }
 
-    .info-panel p {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.6;
+    .btn-ghost {
+      background: transparent;
+      color: var(--midnight);
+      border: 1.5px solid var(--charcoal);
+    }
+
+    .btn-ghost:hover {
+      background: var(--midnight);
+      color: var(--warm-white);
+      border-color: var(--midnight);
+    }
+
+    /* Why section - card overlap */
+    .why-section {
+      background: var(--cream);
+      padding: 8rem 3rem;
+    }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+      align-items: start;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .why-content {
+      position: sticky;
+      top: 8rem;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-tag::before {
+      content: '';
+      width: 40px;
+      height: 2px;
+      background: var(--terracotta);
+    }
+
+    .section-tag span {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+    }
+
+    .why-content h2 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 2rem;
+    }
+
+    .why-content h2 em {
+      font-style: italic;
+      color: var(--terracotta);
+    }
+
+    .why-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .why-card {
+      background: var(--warm-white);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      position: relative;
+      transform: rotate(-1deg);
+      transition: transform 0.4s ease;
+    }
+
+    .why-card:nth-child(2) {
+      transform: rotate(0.5deg);
+      margin-left: 1rem;
+    }
+
+    .why-card:nth-child(3) {
+      transform: rotate(-0.5deg);
+      margin-left: 0.5rem;
+    }
+
+    .why-card:hover {
+      transform: rotate(0deg) translateY(-4px);
+    }
+
+    .why-card p {
+      color: var(--charcoal);
+      font-size: 1.05rem;
+    }
+
+    /* Process - THE MAIN EVENT */
+    .process-section {
+      padding: 8rem 3rem;
+      background: var(--warm-white);
+    }
+
+    .process-intro {
+      max-width: 700px;
+      margin: 0 auto 5rem;
+      text-align: center;
+    }
+
+    .process-intro h2 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+    }
+
+    .process-intro p {
+      color: var(--charcoal);
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .process-card {
+      background: var(--cream);
+      border-radius: 24px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .process-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--terracotta), var(--gold));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .process-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .process-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    .process-num {
+      font-family: var(--font-display);
+      font-size: 4rem;
+      font-weight: 400;
+      color: var(--blush);
+      line-height: 1;
       margin-bottom: 1rem;
     }
 
-    .info-panel p:last-child {
-      margin-bottom: 0;
+    .process-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--midnight);
     }
 
-    .template-name {
-      color: #b85a3b;
-      font-weight: 600;
+    .process-card p {
+      color: var(--charcoal);
+      font-size: 0.95rem;
     }
 
-    .info-close {
+    /* Core truth callout */
+    .truth-section {
+      background: var(--midnight);
+      color: var(--warm-white);
+      padding: 6rem 3rem;
+      text-align: center;
+    }
+
+    .truth-section blockquote {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-style: italic;
+      max-width: 750px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .truth-section blockquote span {
+      color: var(--terracotta);
+    }
+
+    .truth-section .note {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: var(--blush);
+      opacity: 0.8;
+    }
+
+    /* Audiences */
+    .audiences-section {
+      background: var(--cream);
+      padding: 8rem 3rem;
+      position: relative;
+    }
+
+    .audiences-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .audiences-header {
+      margin-bottom: 4rem;
+    }
+
+    .audiences-header h2 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 400;
+      color: var(--midnight);
+    }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .audience-card {
+      background: var(--warm-white);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 24px;
+      padding: 2.5rem;
+      transition: all 0.4s ease;
+    }
+
+    .audience-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+    }
+
+    .audience-emoji {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
+    .audience-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .audience-card > p {
+      color: var(--charcoal);
+      margin-bottom: 1.5rem;
+    }
+
+    .audience-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .audience-list li {
+      padding: 0.4rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+      color: var(--midnight);
+      font-size: 0.95rem;
+    }
+
+    .audience-list li::before {
+      content: '→';
       position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.6);
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 1;
-      transition: all 0.2s ease;
+      left: 0;
+      color: var(--terracotta);
     }
 
-    .info-close:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
+    .audience-note {
+      font-family: var(--font-display);
+      font-style: italic;
+      color: var(--charcoal);
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      opacity: 0.8;
     }
 
-    /* Loading state */
-    .loader {
-      position: fixed;
-      inset: 0;
-      background: #1a1a18;
+    /* Tools section - subdued utility */
+    .tools-section {
+      padding: 5rem 3rem;
+      background: var(--warm-white);
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .tools-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .tools-text {
+      padding-top: 1rem;
+    }
+
+    .tools-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      opacity: 0.6;
+      margin-bottom: 0.75rem;
+    }
+
+    .tools-text h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--midnight);
+    }
+
+    .tools-text p {
+      color: var(--charcoal);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    .tool-preview {
+      background: var(--cream);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .tool-preview-header {
+      background: var(--charcoal);
+      padding: 0.75rem 1.25rem;
       display: flex;
       align-items: center;
-      justify-content: center;
-      z-index: 9997;
-      transition: opacity 0.4s ease;
+      gap: 0.5rem;
     }
 
-    .loader.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .loader-spinner {
-      width: 32px;
-      height: 32px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      border-top-color: #b85a3b;
+    .tool-preview-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--terracotta);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .tool-preview-header span {
+      font-size: 0.85rem;
+      color: var(--warm-white);
+      opacity: 0.8;
     }
 
-    /* Screen reader only */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+    .tool-preview-body {
+      padding: 2.5rem 1.5rem;
+      text-align: center;
     }
 
-    /* Focus indicators */
-    .switcher-btn:focus-visible,
-    .info-btn:focus-visible,
-    .info-close:focus-visible {
-      outline: 2px solid #fff;
-      outline-offset: 2px;
+    .tool-preview-body p {
+      color: var(--charcoal);
+      font-style: italic;
+      font-size: 0.9rem;
+      opacity: 0.7;
     }
 
-    .info-btn:focus-visible,
-    .info-close:focus-visible {
-      outline-color: rgba(255, 255, 255, 0.8);
+    /* Footer */
+    footer {
+      background: var(--midnight);
+      color: var(--warm-white);
+      padding: 4rem 3rem 2rem;
     }
 
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .switcher {
-        animation: none;
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-brand .logo {
+      color: var(--warm-white);
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+      max-width: 300px;
+    }
+
+    .footer-col h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+      color: var(--warm-white);
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-col a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-col a:hover {
+      color: var(--terracotta);
+    }
+
+    .footer-bottom {
+      max-width: 1100px;
+      margin: 3rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+    }
+
+    /* Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
       }
 
-      .template-frame,
-      .loader,
-      .info-panel,
-      .switcher-btn,
-      .info-btn,
-      .info-close {
-        transition: none;
-      }
-
-      .loader-spinner {
-        animation: none;
-        border-top-color: #b85a3b;
-        border-right-color: #b85a3b;
-        border-bottom-color: #b85a3b;
-      }
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 500px) {
-      .switcher {
-        bottom: 1rem;
-        padding: 0.4rem;
-      }
-
-      .switcher-label {
+      .nav-links {
         display: none;
       }
 
-      .switcher-btn {
-        padding: 0.65rem 1rem;
-        font-size: 0.85rem;
+      .hero {
+        padding: 7rem 1.5rem 4rem;
       }
 
-      .info-panel {
-        bottom: 5rem;
+      .hero h1 {
+        font-size: 3rem;
+      }
+
+      .why-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+
+      .why-content {
+        position: relative;
+        top: auto;
+      }
+
+      .process-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .audience-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tools-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      section {
+        padding: 5rem 1.5rem;
+      }
+
+      .truth-section blockquote {
+        font-size: 1.5rem;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Loading state -->
-  <div class="loader" id="loader" role="status" aria-label="Loading template">
-    <div class="loader-spinner" aria-hidden="true"></div>
-  </div>
+  <!-- Navigation -->
+  <nav>
+    <a href="#" class="logo">
+      <div class="logo-mark"></div>
+      The Gift Site
+    </a>
+    <ul class="nav-links">
+      <li><a href="why.html">Why We Exist</a></li>
+      <li><a href="discover.html">Discover</a></li>
+      <li><a href="process.html">The Process</a></li>
+      <li><a href="facilitate.html">Facilitate</a></li>
+      <li><a href="companion.html">Companion</a></li>
+    </ul>
+  </nav>
 
-  <!-- Live region for announcements -->
-  <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span></span>
+        A Framework for Discovery
+      </div>
+      <h1>Uncover Your <span class="highlight">Gift</span></h1>
+      <p class="hero-text">A gentle guide that supports reflection — and deepens interpersonal connection.</p>
+      <div class="hero-actions">
+        <a href="process.html" class="btn btn-primary">Explore the Process</a>
+        <a href="why.html" class="btn btn-ghost">Why This Matters</a>
+      </div>
+    </div>
+  </section>
 
-  <!-- Template iframes -->
-  <iframe
-    src="./vessel/"
-    class="template-frame"
-    id="frame-vessel"
-    title="Vessel template - Contemplative, gallery-like design"
-    onload="hideLoader()"
-  ></iframe>
-  <iframe
-    src="./gather/"
-    class="template-frame hidden"
-    id="frame-gather"
-    title="Gather template - Warm, handcrafted design"
-  ></iframe>
+  <!-- Why -->
+  <section class="why-section" id="why">
+    <div class="why-grid">
+      <div class="why-content">
+        <div class="section-tag">
+          <span>Why We Exist</span>
+        </div>
+        <h2>Naming What Has <em>Always</em> Been True</h2>
+      </div>
+      <div class="why-cards">
+        <div class="why-card reveal">
+          <p>Every person carries within them a unique Gift — an innate way of contributing to the world that brings life to others and fulfillment to themselves.</p>
+        </div>
+        <div class="why-card reveal">
+          <p>Yet many of us move through life without ever naming this Gift. We sense it in moments of flow, in the gratitude of others, in the quiet satisfaction of work that feels meaningful. But we haven't found the words.</p>
+        </div>
+        <div class="why-card reveal">
+          <p>The Gift Site exists to help you — and the people you care about — discover and articulate what has always been true about you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <!-- Floating switcher -->
-  <div class="switcher" role="group" aria-label="Template switcher">
-    <span class="switcher-label" id="switcher-label">Template</span>
-    <button class="switcher-btn active" data-template="vessel" onclick="switchTemplate('vessel')" aria-pressed="true">Vessel</button>
-    <button class="switcher-btn" data-template="gather" onclick="switchTemplate('gather')" aria-pressed="false">Gather</button>
-    <button class="info-btn" onclick="toggleInfo()" aria-expanded="false" aria-controls="infoPanel" aria-label="Show template information">?</button>
-  </div>
+  <!-- Process - MAIN EVENT -->
+  <section class="process-section" id="process">
+    <div class="process-intro">
+      <div class="section-tag" style="justify-content: center;">
+        <span>The Gift Clarification Process</span>
+      </div>
+      <h2 class="reveal">How Discovery Unfolds</h2>
+      <p class="reveal">This isn't a personality test or a skills assessment. It's a process of reflection, dialogue, and mutual recognition. The most meaningful insights emerge not from algorithms, but from conversations with people who see you clearly.</p>
+    </div>
+    <div class="process-steps">
+      <div class="process-card reveal">
+        <div class="process-num">01</div>
+        <h3>Reflect</h3>
+        <p>Begin by looking inward. Consider the moments when you've felt most alive, most useful, most yourself. What were you doing? Who were you with? What felt effortless?</p>
+      </div>
+      <div class="process-card reveal">
+        <div class="process-num">02</div>
+        <h3>Dialogue</h3>
+        <p>Share your reflections with people who know you well. Listen as they affirm and refine what you've sensed about yourself. This is where the real discovery happens — face to face.</p>
+      </div>
+      <div class="process-card reveal">
+        <div class="process-num">03</div>
+        <h3>Clarify</h3>
+        <p>Name your Gift. Not as a label or a limitation, but as a compass — something you can return to when making decisions, building relationships, or finding your path forward.</p>
+      </div>
+    </div>
+  </section>
 
-  <!-- Info panel -->
-  <div class="info-panel" id="infoPanel" role="dialog" aria-labelledby="info-title" aria-hidden="true">
-    <button class="info-close" onclick="toggleInfo()" aria-label="Close information panel">×</button>
-    <h3 id="info-title">Template Preview</h3>
-    <p>You're viewing two design directions for The Gift Site. Use the toggle below to switch between them.</p>
-    <p><span class="template-name">Vessel</span> — Contemplative, gallery-like. Dramatic dark/light contrast with generous negative space.</p>
-    <p><span class="template-name">Gather</span> — Warm, layered, handcrafted feel. Soft shapes and inviting color palette.</p>
-  </div>
+  <!-- Core truth -->
+  <section class="truth-section">
+    <blockquote class="reveal">
+      "The real power of this work lives inside of <span>dialogue</span> — hearing affirming reflections from others, face to face or over the phone."
+    </blockquote>
+    <p class="note reveal">The heart of the Gift Process</p>
+  </section>
+
+  <!-- Audiences -->
+  <section class="audiences-section" id="audiences">
+    <div class="audiences-inner">
+      <div class="audiences-header">
+        <div class="section-tag">
+          <span>Who This Is For</span>
+        </div>
+        <h2 class="reveal">Discover Together</h2>
+      </div>
+      <div class="audience-grid">
+        <div class="audience-card reveal">
+          <span class="audience-emoji">🌿</span>
+          <h3>For Families</h3>
+          <p>The Gift Process helps family members reflect on their own Gifts and appreciate the Gifts of one another. It offers a gentle way to:</p>
+          <ul class="audience-list">
+            <li>Prepare for family conversations</li>
+            <li>Find words for what you sense but haven't yet expressed</li>
+            <li>Listen more deeply to one another</li>
+          </ul>
+          <p class="audience-note">It does not replace family dialogue — it supports it, helping families create moments of understanding, appreciation, and connection.</p>
+        </div>
+        <div class="audience-card reveal">
+          <span class="audience-emoji">🤝</span>
+          <h3>For Teams</h3>
+          <p>For teams, the Gift Process supports reflection and shared understanding before conversations take place. It helps team members:</p>
+          <ul class="audience-list">
+            <li>Clarify how they naturally contribute</li>
+            <li>Recognize the Gifts they bring to group efforts</li>
+            <li>Prepare for more meaningful, respectful dialogue</li>
+            <li>Gain insights about the Gifts found within fellow team members</li>
+          </ul>
+          <p class="audience-note">The process helps each member enter conversations with greater clarity and intentionality, setting the stage for mutual respect and appreciation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools - subdued -->
+  <section class="tools-section" id="tools">
+    <div class="tools-inner">
+      <div class="tools-text">
+        <p class="tools-label">Preparation Tool</p>
+        <h3>Gift Companion</h3>
+        <p>An AI-assisted companion to help you prepare for the Gift Process. It supports your reflection and helps clarify your thinking before the conversations that matter most. The companion is just a tool — the real work happens between people.</p>
+      </div>
+      <div class="tool-preview reveal">
+        <div class="tool-preview-header">
+          <div class="tool-preview-dot"></div>
+          <span>Gift Companion</span>
+        </div>
+        <div class="tool-preview-body">
+          <p>Coming soon.<br>A guided reflection experience to help you prepare.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-mark"></div>
+          The Gift Site
+        </a>
+        <p>A gentle guide that supports reflection — and deepens interpersonal connection.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="why.html">Why We Exist</a></li>
+          <li><a href="discover.html">Discover</a></li>
+          <li><a href="process.html">The Process</a></li>
+          <li><a href="facilitate.html">Facilitate</a></li>
+          <li><a href="companion.html">Companion</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 The Gift Site. All Rights Reserved.</p>
+    </div>
+  </footer>
 
   <script>
-    function announce(message) {
-      const announcer = document.getElementById('announcer');
-      announcer.textContent = message;
-      // Clear after announcement to allow repeat announcements
-      setTimeout(() => { announcer.textContent = ''; }, 1000);
-    }
-
-    function switchTemplate(template) {
-      const vesselFrame = document.getElementById('frame-vessel');
-      const gatherFrame = document.getElementById('frame-gather');
-      const buttons = document.querySelectorAll('.switcher-btn');
-
-      // Update buttons and aria-pressed
-      buttons.forEach(btn => {
-        const isActive = btn.dataset.template === template;
-        btn.classList.toggle('active', isActive);
-        btn.setAttribute('aria-pressed', isActive);
-      });
-
-      // Swap visibility
-      if (template === 'vessel') {
-        vesselFrame.classList.remove('hidden');
-        gatherFrame.classList.add('hidden');
-        announce('Now viewing Vessel template');
-      } else {
-        gatherFrame.classList.remove('hidden');
-        vesselFrame.classList.add('hidden');
-        announce('Now viewing Gather template');
-      }
-
-      // Close info panel if open
-      closeInfoPanel();
-    }
-
-    function toggleInfo() {
-      const panel = document.getElementById('infoPanel');
-      const infoBtn = document.querySelector('.info-btn');
-      const isVisible = panel.classList.contains('visible');
-
-      if (isVisible) {
-        closeInfoPanel();
-      } else {
-        panel.classList.add('visible');
-        panel.setAttribute('aria-hidden', 'false');
-        infoBtn.setAttribute('aria-expanded', 'true');
-        infoBtn.setAttribute('aria-label', 'Hide template information');
-        // Focus the close button for accessibility
-        panel.querySelector('.info-close').focus();
-      }
-    }
-
-    function closeInfoPanel() {
-      const panel = document.getElementById('infoPanel');
-      const infoBtn = document.querySelector('.info-btn');
-      panel.classList.remove('visible');
-      panel.setAttribute('aria-hidden', 'true');
-      infoBtn.setAttribute('aria-expanded', 'false');
-      infoBtn.setAttribute('aria-label', 'Show template information');
-    }
-
-    function hideLoader() {
-      setTimeout(() => {
-        const loader = document.getElementById('loader');
-        loader.classList.add('hidden');
-        loader.setAttribute('aria-hidden', 'true');
-      }, 300);
-    }
-
-    // Close info panel when clicking outside
-    document.addEventListener('click', (e) => {
-      const panel = document.getElementById('infoPanel');
-      const infoBtn = document.querySelector('.info-btn');
-      if (panel.classList.contains('visible') && !panel.contains(e.target) && !infoBtn.contains(e.target)) {
-        closeInfoPanel();
-      }
+    // Navigation scroll
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 100);
     });
 
-    // Close info panel on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const panel = document.getElementById('infoPanel');
-        if (panel.classList.contains('visible')) {
-          closeInfoPanel();
-          document.querySelector('.info-btn').focus();
+    // Reveal animations
+    const reveals = document.querySelectorAll('.reveal');
+    const revealOnScroll = () => {
+      reveals.forEach(el => {
+        const top = el.getBoundingClientRect().top;
+        if (top < window.innerHeight - 80) {
+          el.classList.add('visible');
         }
-      }
-    });
+      });
+    };
+    window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll();
   </script>
 </body>
 </html>
