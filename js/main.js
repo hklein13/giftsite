@@ -27,8 +27,18 @@ window.RenderPass = RenderPass;
 window.UnrealBloomPass = UnrealBloomPass;
 window.ShaderPass = ShaderPass;
 
-// Initialize Theatre.js Studio
-studio.initialize();
+// Initialize Theatre.js Studio (development only)
+if (import.meta.env.DEV) {
+  studio.initialize();
+  console.log('Theatre.js Studio initialized. Press Ctrl+\\ to toggle.');
+
+  // Keyboard shortcut to toggle studio
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === '\\') {
+      studio.ui.isHidden ? studio.ui.restore() : studio.ui.hide();
+    }
+  });
+}
 
 // Create Theatre.js project and sheet
 const project = getProject('GiftSite');
@@ -38,15 +48,6 @@ const sheet = project.sheet('SolarSystem');
 window.theatreProject = project;
 window.theatreSheet = sheet;
 window.theatreTypes = types;
-
-console.log('Theatre.js Studio initialized. Press Ctrl+\\ to toggle.');
-
-// Keyboard shortcut to toggle studio
-document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.key === '\\') {
-    studio.ui.isHidden ? studio.ui.restore() : studio.ui.hide();
-  }
-});
 
 // Import application modules
 import { SolarSystemScene } from './solar-system.js';
