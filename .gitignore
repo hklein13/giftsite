@@ -1,6 +1,9 @@
 # Time tracker data (local only)
 .timetrack.json
 
+# Git worktrees (isolated workspaces)
+.worktrees/
+
 node_modules/
 dist/
 js/theatre-state.json
