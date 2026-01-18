@@ -13,8 +13,14 @@
   <!-- Styles -->
   <link rel="stylesheet" href="css/main.css">
 
-  <!-- Three.js -->
+  <!-- Three.js + Post-Processing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/shaders/CopyShader.js"></script>
 
   <!-- GSAP + Plugins -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -24,166 +30,72 @@
   <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 </head>
 <body>
-  <!-- WebGL Background -->
-  <canvas id="webgl-canvas"></canvas>
+  <!-- WebGL Canvas -->
+  <canvas id="solar-system-canvas"></canvas>
 
-  <!-- Content Wrapper -->
-  <div class="content-wrapper">
+  <!-- Scroll Container (creates scroll height) -->
+  <div id="scroll-container"></div>
 
-    <!-- Navigation -->
-    <nav>
-      <a href="index.html" class="logo">
-        <div class="logo-mark"></div>
-        The Gift Site
-      </a>
-      <ul class="nav-links">
-        <li><a href="why.html">Why We Exist</a></li>
-        <li><a href="discover.html">Discover</a></li>
-        <li><a href="process.html">The Process</a></li>
-        <li><a href="facilitate.html">Facilitate</a></li>
-        <li><a href="companion.html">Companion</a></li>
-      </ul>
-    </nav>
+  <!-- Navigation (always visible) -->
+  <nav>
+    <a href="index.html" class="logo">
+      <div class="logo-mark"></div>
+      The Gift Site
+    </a>
+    <ul class="nav-links">
+      <li><a href="why.html" data-planet="why">Why We Exist</a></li>
+      <li><a href="discover.html" data-planet="discover">Discover</a></li>
+      <li><a href="process.html" data-planet="process">The Process</a></li>
+      <li><a href="facilitate.html" data-planet="facilitate">Facilitate</a></li>
+      <li><a href="companion.html">Companion</a></li>
+    </ul>
+  </nav>
 
-    <!-- Hero Section -->
-    <section class="section hero">
-      <span class="section-tag">Welcome</span>
-      <h1>Uncover Your <span class="accent-italic">Gift</span></h1>
-      <p class="subtitle">A gentle guide that supports reflection — and deepens interpersonal connection.</p>
-      <div class="hero-actions">
-        <a href="process.html" class="btn btn-primary btn-magnetic">Explore the Process</a>
-        <a href="why.html" class="btn btn-ghost">Why This Matters</a>
-      </div>
-      <div class="scroll-indicator">
-        <span>Scroll</span>
-        <div class="scroll-line"></div>
-      </div>
-    </section>
+  <!-- Planet Preview Cards -->
+  <div class="planet-cards">
+    <!-- Why Planet Card -->
+    <div class="planet-card" id="card-why">
+      <h2>Why We Exist</h2>
+      <p>Every person carries within them a unique Gift. Yet many of us move through life without ever naming it.</p>
+      <a href="why.html" class="btn btn-primary">Visit Why We Exist</a>
+    </div>
 
-    <!-- Problem/Why Section -->
-    <section class="section problem-section">
-      <div class="problem-content">
-        <p class="reveal-line large">Every person carries within them a unique Gift.</p>
-        <p class="reveal-line large">Yet many of us move through life without ever naming it.</p>
-        <p class="reveal-line">We sense it in moments of flow, in the gratitude of others, in the quiet satisfaction of work that feels meaningful.</p>
-        <p class="reveal-line muted">But we haven't found the words.</p>
-      </div>
-      <div class="shift-text">
-        <p class="accent large">The Gift Site exists to help you discover and articulate what has always been true about you.</p>
-      </div>
-    </section>
+    <!-- Discover Planet Card -->
+    <div class="planet-card" id="card-discover">
+      <h2>Discover Your Gift</h2>
+      <p>Begin the journey of uncovering what has always been true about you.</p>
+      <a href="discover.html" class="btn btn-primary">Visit Discover</a>
+    </div>
 
-    <!-- Process Section -->
-    <section class="section process-section">
-      <div class="section-header">
-        <span class="section-tag">The Process</span>
-        <h2>How Discovery Unfolds</h2>
-        <p class="section-subtitle">This isn't a personality test. It's a process of reflection, dialogue, and mutual recognition.</p>
-      </div>
-      <div class="process-grid">
-        <div class="progress-line"></div>
-        <div class="process-card card">
-          <span class="process-num">01</span>
-          <h3>Reflect</h3>
-          <p>Begin by looking inward. Consider the moments when you've felt most alive, most useful, most yourself.</p>
-        </div>
-        <div class="process-card card">
-          <span class="process-num">02</span>
-          <h3>Dialogue</h3>
-          <p>Share your reflections with people who know you well. Listen as they affirm and refine what you've sensed about yourself.</p>
-        </div>
-        <div class="process-card card">
-          <span class="process-num">03</span>
-          <h3>Clarify</h3>
-          <p>Name your Gift. Not as a label, but as a compass — something you can return to when making decisions.</p>
-        </div>
-      </div>
-      <a href="process.html" class="btn btn-ghost process-cta">Explore the full process →</a>
-    </section>
+    <!-- Process Planet Card -->
+    <div class="planet-card" id="card-process">
+      <h2>The Process</h2>
+      <p>A method of reflection, dialogue, and mutual recognition that reveals your Gift.</p>
+      <a href="process.html" class="btn btn-primary">Visit The Process</a>
+    </div>
 
-    <!-- Quote Section -->
-    <section class="section quote-section">
-      <div class="quote-mark">"</div>
-      <blockquote>
-        The real power of this work lives inside of <em>dialogue</em> — hearing affirming reflections from others, face to face.
-      </blockquote>
-      <cite>— The heart of the Gift Process</cite>
-    </section>
+    <!-- Facilitate Planet Card -->
+    <div class="planet-card" id="card-facilitate">
+      <h2>Facilitate</h2>
+      <p>For those called to guide others through their own Gift discovery journey.</p>
+      <a href="facilitate.html" class="btn btn-primary">Visit Facilitate</a>
+    </div>
+  </div>
 
-    <!-- Audiences Section -->
-    <section class="section audiences-section">
-      <div class="section-header">
-        <span class="section-tag">Who It's For</span>
-        <h2>Discover Together</h2>
-      </div>
-      <div class="audience-grid">
-        <div class="audience-card card">
-          <span class="audience-emoji">🌿</span>
-          <h3>For Families</h3>
-          <p>The Gift Process helps family members reflect on their own Gifts and appreciate the Gifts of one another.</p>
-          <ul class="audience-list">
-            <li>Prepare for family conversations</li>
-            <li>Find words for what you sense but haven't expressed</li>
-            <li>Listen more deeply to one another</li>
-          </ul>
-        </div>
-        <div class="audience-card card">
-          <span class="audience-emoji">🤝</span>
-          <h3>For Teams</h3>
-          <p>For teams, the Gift Process supports reflection and shared understanding before conversations take place.</p>
-          <ul class="audience-list">
-            <li>Clarify how you naturally contribute</li>
-            <li>Recognize the Gifts you bring to group efforts</li>
-            <li>Prepare for more meaningful dialogue</li>
-          </ul>
-        </div>
-      </div>
-      <a href="audiences.html" class="btn btn-ghost">Learn more about who this is for →</a>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="section cta-section">
-      <h2>Ready to begin?</h2>
-      <p>The Gift Process is designed to guide you through reflection, dialogue, and discovery.</p>
-      <a href="discover.html" class="btn btn-primary btn-magnetic btn-large">Discover Your Gift</a>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a href="index.html" class="logo">
-            <div class="logo-mark"></div>
-            The Gift Site
-          </a>
-          <p>A gentle guide that supports reflection — and deepens interpersonal connection.</p>
-        </div>
-        <div class="footer-col">
-          <h4>Explore</h4>
-          <ul>
-            <li><a href="why.html">Why We Exist</a></li>
-            <li><a href="discover.html">Discover</a></li>
-            <li><a href="process.html">The Process</a></li>
-            <li><a href="facilitate.html">Facilitate</a></li>
-            <li><a href="companion.html">Companion</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Connect</h4>
-          <ul>
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 The Gift Site. All Rights Reserved.</p>
-      </div>
-    </footer>
-
+  <!-- Scroll Progress Indicator -->
+  <div class="scroll-indicator">
+    <div class="planet-dots">
+      <span class="dot active" data-planet="overview"></span>
+      <span class="dot" data-planet="why"></span>
+      <span class="dot" data-planet="discover"></span>
+      <span class="dot" data-planet="process"></span>
+      <span class="dot" data-planet="facilitate"></span>
+    </div>
   </div>
 
   <!-- Scripts -->
   <script src="js/ambient.js"></script>
+  <script src="js/solar-system.js"></script>
   <script src="js/animations.js"></script>
 </body>
 </html>
