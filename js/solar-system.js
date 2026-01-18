@@ -689,7 +689,7 @@ export class SolarSystemScene {
     this.currentStopIndex = 0;
     this.isSnapped = true;
     this.scrollAccumulator = 0;
-    this.scrollThreshold = 150; // Pixels of scroll needed to move to next stop
+    this.scrollThreshold = 80; // Pixels of scroll needed to move to next stop
     this.isTransitioning = false;
 
     // Listen to wheel events directly for snap behavior
@@ -731,7 +731,7 @@ export class SolarSystemScene {
 
       const touchY = e.touches[0].clientY;
       const deltaY = touchStartY - touchY;
-      this.scrollAccumulator += deltaY * 0.5;
+      this.scrollAccumulator += deltaY * 1.0;
       touchStartY = touchY;
 
       if (this.scrollAccumulator > this.scrollThreshold) {
@@ -769,7 +769,7 @@ export class SolarSystemScene {
     setTimeout(() => {
       this.isTransitioning = false;
       this.showClickPrompt();
-    }, 1200);
+    }, 800);
   }
 
   showClickPrompt() {
