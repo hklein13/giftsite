@@ -201,3 +201,25 @@ npm run preview  # Test production build locally
 - `js/solar-system.js` - Main Three.js scene, all 3D elements
 - `js/main.js` - Module imports, Theatre.js setup, global exports
 - `css/main.css` - All styles including solar system UI elements
+
+---
+
+## MCP Tools
+
+### Context7 - Documentation Lookup
+Use Context7 for accurate, up-to-date documentation on:
+- Three.js (shaders, materials, geometries, post-processing)
+- GSAP + ScrollTrigger (scrub, pinning, callbacks)
+- Lenis (velocity, direction, events)
+- Theatre.js (sheets, objects, sequences)
+
+**Usage:** Add "use context7" to prompts, e.g., "use context7 to show GSAP ScrollTrigger scrub examples"
+
+### Playwright - Browser Automation
+Use Playwright for:
+- Visual testing of scroll animations
+- Verifying 60fps performance
+- Screenshots at each planet stop
+- Mobile viewport testing
+
+**Usage:** "Use playwright to scroll through the homepage and verify smoothness"
