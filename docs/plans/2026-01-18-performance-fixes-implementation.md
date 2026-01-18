@@ -1,12 +1,14 @@
 # Phase 1: Performance Fixes Implementation Plan
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+> **Status: COMPLETE** (2026-01-18)
 
 **Goal:** Fix performance issues to achieve solid 60fps scrolling and reduce CPU/GPU load.
 
 **Architecture:** Remove duplicate Lenis RAF loop, throttle expensive star animations, debounce resize handler, and optimize bloom post-processing settings.
 
 **Tech Stack:** JavaScript, GSAP, Lenis, Three.js
+
+**Branch:** `performance-fixes` (7 commits)
 
 ---
 
@@ -225,9 +227,23 @@ git commit -m "perf: Phase 1 performance optimizations complete"
 
 ## Verification Checklist
 
-- [ ] Lenis double RAF removed from process.html
-- [ ] Star animation throttled to every 3rd frame
-- [ ] Resize handler debounced with 200ms delay
-- [ ] Bloom reduced to half resolution, strength 0.8, threshold 0.65
-- [ ] All pages scroll smoothly at 60fps
-- [ ] Production build works correctly
+- [x] Lenis double RAF removed from process.html
+- [x] Star animation throttled to every 3rd frame
+- [x] Resize handler debounced with 200ms delay
+- [x] Bloom reduced to half resolution, strength 0.8, threshold 0.65
+- [x] Bloom resolution updated on resize (bonus fix)
+- [x] onResize() called during init for proper mobile FOV (bug fix)
+- [x] All pages scroll smoothly at 60fps
+- [x] Production build works correctly
+
+## Implementation Notes
+
+**Commits:**
+1. `d565b2f` - perf: remove duplicate Lenis RAF loop in process.html
+2. `fe5f12d` - perf: throttle star animation to every 3rd frame
+3. `76522bc` - perf: debounce resize handler with 200ms delay
+4. `8056560` - perf: optimize bloom - half resolution, reduced strength
+5. `ae98184` - fix: update bloom resolution on window resize
+6. `a98329d` - fix: call onResize during init for proper mobile FOV
+
+**Bug discovered during implementation:** Debouncing resize handler caused mobile FOV to not apply correctly on initial load. Fixed by calling `onResize()` during `init()`.
