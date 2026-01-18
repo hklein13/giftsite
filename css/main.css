@@ -78,6 +78,21 @@ html.lenis, html.lenis body {
   z-index: 1;
 }
 
+/* Film grain overlay - CSS layer for consistent texture */
+.content-wrapper::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
 /* Full viewport sections */
 .section {
   min-height: 100vh;
@@ -568,10 +583,16 @@ footer {
   text-align: left;
 }
 
-.audience-emoji {
-  font-size: 2.5rem;
+.audience-icon {
+  width: 48px;
+  height: 48px;
   margin-bottom: 1.5rem;
-  display: block;
+  color: var(--blush);
+}
+
+.audience-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .audience-card h3 {
@@ -677,5 +698,150 @@ footer {
 
   .shift-text .large {
     font-size: 1.3rem;
+  }
+}
+
+/* ===================== */
+/* SOLAR SYSTEM HOMEPAGE */
+/* ===================== */
+
+/* Canvas fills viewport */
+#solar-system-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* Scroll container creates scrollable height */
+#scroll-container {
+  height: 500vh; /* 5x viewport for scroll travel */
+  pointer-events: none;
+}
+
+/* Planet Preview Cards */
+.planet-cards {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.planet-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(13, 25, 41, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(232, 196, 184, 0.15);
+  border-radius: 24px;
+  padding: 3rem;
+  max-width: 420px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.planet-card.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.planet-card h2 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  color: var(--off-white);
+}
+
+.planet-card p {
+  color: var(--soft-gray);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.planet-card .btn {
+  pointer-events: auto;
+}
+
+/* Scroll Progress Indicator - Override for solar system */
+.scroll-indicator {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  bottom: auto;
+  left: auto;
+}
+
+.planet-dots {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.planet-dots .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.planet-dots .dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.planet-dots .dot.active {
+  background: var(--blush);
+  box-shadow: 0 0 10px var(--blush);
+}
+
+/* Navigation updates for solar system */
+nav {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+nav.scrolled {
+  background: rgba(13, 25, 41, 0.9);
+  backdrop-filter: blur(20px);
+}
+
+/* Mobile adjustments for solar system */
+@media (max-width: 768px) {
+  .planet-card {
+    max-width: 90%;
+    padding: 2rem;
+  }
+
+  .planet-card h2 {
+    font-size: 1.6rem;
+  }
+
+  .scroll-indicator {
+    right: 1rem;
+  }
+
+  .planet-dots .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  #scroll-container {
+    height: 400vh; /* Less scroll on mobile */
   }
 }
