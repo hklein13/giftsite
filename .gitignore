@@ -1,0 +1,5 @@
+# Time tracker data (local only)
+.timetrack.json
+
+node_modules/
+js/theatre-state.json
