@@ -130,6 +130,35 @@ The homepage (`index.html`) features an immersive 3D solar system navigation:
 
 ---
 
+## Mobile Optimization
+
+Primary target device: Modern iPhone (12+). Site should feel snappy and responsive.
+
+### Touch Navigation
+- **Scroll threshold**: 80px (reduced from 150px for snappier response)
+- **Touch multiplier**: 1.0 (direct 1:1 swipe response)
+- **Transition delay**: 800ms (reduced from 1200ms)
+- Camera FOV increases to 85° on mobile (vs 60° desktop) so planets appear smaller
+
+### Mobile Navigation
+- Header shows logo only (nav links hidden below 900px)
+- Logo returns to homepage solar system
+- No hamburger menu - solar system IS the navigation
+- Content pages have next/prev links at bottom for sequential reading
+
+### Page Navigation Flow
+```
+Why We Exist → Discover → The Process → Facilitate
+     ↑                                        ↓
+     └──────────── (via logo/home) ───────────┘
+```
+
+### Touch Targets
+- All interactive elements minimum 44x44px (Apple guideline)
+- Visit button, nav dots, next/prev links all verified
+
+---
+
 ## Development
 
 ### Setup
