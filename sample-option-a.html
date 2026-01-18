@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Option A: Blue + Gold Sample</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Option A: Blue + Gold Palette */
+            --royal-blue: #1a2a4a;
+            --deep-navy: #0d1929;
+            --midnight: #060d18;
+            --gold: #d4a853;
+            --gold-light: #e8c078;
+            --gold-dim: #a8863f;
+            --off-white: #faf8f5;
+            --soft-gray: #b8c4d4;
+
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'Outfit', system-ui, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--deep-navy);
+            color: var(--off-white);
+            font-size: 17px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--midnight), transparent);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--off-white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--soft-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2rem;
+            position: relative;
+            background: radial-gradient(ellipse at 50% 0%, var(--royal-blue) 0%, var(--deep-navy) 60%, var(--midnight) 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--gold);
+            margin-bottom: 2rem;
+        }
+
+        .section-tag::before,
+        .section-tag::after {
+            content: '';
+            width: 40px;
+            height: 1px;
+            background: var(--gold);
+            opacity: 0.5;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 400;
+            line-height: 1.1;
+            max-width: 900px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--soft-gray);
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2.5rem;
+            background: var(--gold);
+            color: var(--deep-navy);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 100px;
+            transition: all 0.3s ease;
+            border: 2px solid var(--gold);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(212, 168, 83, 0.2);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--soft-gray);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--gold), transparent);
+            animation: scrollPulse 2s infinite;
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 1; transform: scaleY(1); }
+            50% { opacity: 0.5; transform: scaleY(0.8); }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 8rem 3rem;
+            background: var(--midnight);
+            position: relative;
+        }
+
+        .features::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+            opacity: 0.3;
+        }
+
+        .features-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 5rem;
+        }
+
+        .features-header h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .features-header p {
+            color: var(--soft-gray);
+            font-size: 1.1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, var(--royal-blue), var(--deep-navy));
+            border: 1px solid rgba(212, 168, 83, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, var(--gold), var(--gold-light));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(212, 168, 83, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-number {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 600;
+            color: var(--gold);
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--soft-gray);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Quote Section */
+        .quote-section {
+            padding: 10rem 3rem;
+            background: var(--deep-navy);
+            text-align: center;
+            position: relative;
+        }
+
+        .quote-section::before {
+            content: '"';
+            position: absolute;
+            top: 4rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-display);
+            font-size: 15rem;
+            color: var(--gold);
+            opacity: 0.05;
+            line-height: 1;
+        }
+
+        blockquote {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 400;
+            font-style: italic;
+            max-width: 900px;
+            margin: 0 auto 2rem;
+            line-height: 1.4;
+        }
+
+        blockquote em {
+            color: var(--gold);
+            font-style: normal;
+            text-decoration: underline;
+            text-decoration-color: var(--gold);
+            text-underline-offset: 4px;
+        }
+
+        cite {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-style: normal;
+            color: var(--soft-gray);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 8rem 3rem;
+            background: linear-gradient(135deg, var(--royal-blue), var(--deep-navy));
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+            opacity: 0.08;
+        }
+
+        .cta h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            color: var(--soft-gray);
+            max-width: 500px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 3rem 2rem;
+            background: var(--midnight);
+            border-top: 1px solid rgba(212, 168, 83, 0.1);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            color: var(--off-white);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--soft-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 4rem;
+            }
+
+            .features {
+                padding: 4rem 1.5rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quote-section {
+                padding: 6rem 1.5rem;
+            }
+
+            .cta {
+                padding: 4rem 1.5rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 2rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <div class="logo-mark"></div>
+            Gift
+        </div>
+        <ul class="nav-links">
+            <li><a href="#">Why We Exist</a></li>
+            <li><a href="#">The Process</a></li>
+            <li><a href="#">Who It's For</a></li>
+            <li><a href="#">Discover</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <span class="section-tag">Welcome</span>
+        <h1>Discover the <em>gift</em> of meaningful connection</h1>
+        <p>A guided journey to uncover what matters most, creating space for reflection, growth, and authentic giving.</p>
+        <a href="#" class="btn-primary">
+            Begin Your Journey
+            <span>→</span>
+        </a>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="features-header">
+            <h2>A thoughtful process</h2>
+            <p>Three stages designed to help you give with intention and meaning.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-number">01</div>
+                <h3>Discover</h3>
+                <p>Begin with guided questions that help you reflect on relationships, values, and the deeper meaning behind giving.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-number">02</div>
+                <h3>Reflect</h3>
+                <p>Take time to consider what you've uncovered. Let insights emerge naturally through contemplation.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-number">03</div>
+                <h3>Give</h3>
+                <p>Transform your reflections into meaningful action. Create gifts that truly resonate.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="quote-section">
+        <blockquote>
+            "The greatest gift is not found in a store, but in the <em>hearts</em> of those who give with intention."
+        </blockquote>
+        <cite>— The Gift Philosophy</cite>
+    </section>
+
+    <section class="cta">
+        <h2>Ready to begin?</h2>
+        <p>Start your journey toward more meaningful giving today.</p>
+        <a href="#" class="btn-primary">
+            Start Discovering
+            <span>→</span>
+        </a>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Gift</div>
+            <ul class="footer-links">
+                <li><a href="#">Why We Exist</a></li>
+                <li><a href="#">The Process</a></li>
+                <li><a href="#">Who It's For</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>
