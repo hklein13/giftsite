@@ -37,6 +37,12 @@ export class SolarSystemScene {
 
     // Theatre.js animation objects (will be set up after sheet is ready)
     this.theatreObjects = {};
+    this.atmosphereSettings = {
+      bgBrightness: 0.7,
+      bgGradientStrength: 0.4,
+      bloomStrength: 0.9,
+      bloomThreshold: 0.6
+    };
 
     // Planet configurations - LINEAR PATH into the distance
     // Planets arranged along z-axis with slight x/y offsets for visual interest
@@ -847,10 +853,47 @@ export class SolarSystemScene {
     };
   }
 
-  setupTheatreControls() {
-    // Animation config now handled by window.animationConfig
-    // Theatre.js will be added when bundler is introduced
-    console.log('Animation config loaded from window.animationConfig');
+  setupTheatreControls(retryCount = 0) {
+    const sheet = window.theatreSheet;
+    const types = window.theatreTypes;
+
+    if (!sheet || !types) {
+      if (retryCount < 10) {
+        setTimeout(() => this.setupTheatreControls(retryCount + 1), 500);
+      } else {
+        console.warn('Theatre.js failed to initialize after 5s');
+      }
+      return;
+    }
+
+    // Atmosphere controls
+    this.theatreObjects.atmosphere = sheet.object('Atmosphere', {
+      bgBrightness: types.number(0.7, { range: [0, 1] }),
+      bgGradientStrength: types.number(0.4, { range: [0, 1] }),
+      bloomStrength: types.number(0.9, { range: [0.4, 1.5] }),
+      bloomThreshold: types.number(0.6, { range: [0.4, 0.8] })
+    });
+
+    // Subscribe to atmosphere changes
+    this.theatreObjects.atmosphere.onValuesChange((values) => {
+      this.atmosphereSettings = values;
+      this.updateAtmosphere();
+    });
+
+    // Initialize with current values
+    this.atmosphereSettings = this.theatreObjects.atmosphere.value;
+
+    console.log('Theatre.js controls initialized');
+  }
+
+  updateAtmosphere() {
+    // Update bloom settings
+    if (this.bloomPass) {
+      this.bloomPass.strength = this.atmosphereSettings.bloomStrength;
+      this.bloomPass.threshold = this.atmosphereSettings.bloomThreshold;
+    }
+
+    // Background shader will be updated here after Task 2
   }
 
   updateCamera() {
