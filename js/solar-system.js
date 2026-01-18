@@ -24,6 +24,7 @@ export class SolarSystemScene {
     this.currentPlanet = 'overview';
     this.planets = {};
     this.time = 0;
+    this.starFrameCounter = 0;
 
     // Theatre.js animation objects (will be set up after sheet is ready)
     this.theatreObjects = {};
@@ -1010,8 +1011,11 @@ export class SolarSystemScene {
       });
     }
 
-    // Animate stars (drift and twinkle)
-    this.animateStars();
+    // Animate stars (drift and twinkle) - throttled to every 3rd frame
+    this.starFrameCounter++;
+    if (this.starFrameCounter % 3 === 0) {
+      this.animateStars();
+    }
 
     // Update shader uniforms
     if (this.atmospherePass) {
