@@ -1,7 +1,7 @@
 // js/solar-system.js - Solar System Navigation Scene
 // Main scene with planets, sun, camera path, and navigation
 
-class SolarSystemScene {
+export class SolarSystemScene {
   constructor() {
     this.canvas = document.getElementById('solar-system-canvas');
     if (!this.canvas) return;
@@ -483,8 +483,3 @@ class SolarSystemScene {
     this.composer.render();
   }
 }
-
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  window.solarSystem = new SolarSystemScene();
-});

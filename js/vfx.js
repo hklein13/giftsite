@@ -1,15 +1,39 @@
 // js/vfx.js - Text Effects
-// GSAP-based reveal effects for planet card headlines
-// VFX-JS requires bundler - will be added when bundler is introduced
+// Now using VFX-JS with bundler support
 
-class TextEffects {
+import { VFX } from '@vfx-js/core';
+
+export class TextEffects {
   constructor() {
+    this.vfx = null;
     this.init();
   }
 
   init() {
+    // Initialize VFX-JS
+    try {
+      this.vfx = new VFX();
+      this.setupCardEffects();
+      console.log('VFX-JS text effects initialized');
+    } catch (e) {
+      console.warn('VFX-JS initialization failed, falling back to GSAP:', e);
+    }
+
     this.observeCards();
-    console.log('Text effects loaded (GSAP-based, VFX-JS planned for bundler)');
+  }
+
+  setupCardEffects() {
+    if (!this.vfx) return;
+
+    // Apply subtle RGB shift effect to headlines
+    document.querySelectorAll('.planet-card h2').forEach(headline => {
+      this.vfx.add(headline, {
+        shader: 'rgbShift',
+        overflow: 30,
+        amplitude: 0.015,
+        speed: 1.5
+      });
+    });
   }
 
   observeCards() {
@@ -75,11 +99,3 @@ class TextEffects {
     }
   }
 }
-
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  // Small delay to ensure GSAP is loaded
-  setTimeout(() => {
-    window.textEffects = new TextEffects();
-  }, 100);
-});

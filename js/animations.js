@@ -1,14 +1,12 @@
 // js/animations.js - GSAP Animations for Solar System Homepage
 // Handles nav state and basic UI animations
 
-class AnimationController {
+export class AnimationController {
   constructor() {
     this.init();
   }
 
   init() {
-    gsap.registerPlugin(ScrollTrigger);
-
     setTimeout(() => {
       this.initNavigation();
       this.initIntroAnimation();
@@ -47,8 +45,3 @@ class AnimationController {
     }, '-=0.5');
   }
 }
-
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  window.animationController = new AnimationController();
-});

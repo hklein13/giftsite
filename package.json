@@ -1,13 +1,12 @@
 {
   "name": "giftsite-main",
   "version": "1.0.0",
-  "description": "Two design directions for The Gift Site redesign, presented as a single switchable demo.",
-  "main": "track.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "description": "The Gift Site - Discover Your Gift",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -16,7 +15,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/hklein13/giftsite/issues"
   },
@@ -24,6 +22,12 @@
   "dependencies": {
     "@theatre/core": "^0.7.2",
     "@theatre/studio": "^0.7.2",
-    "@vfx-js/core": "^0.8.0"
+    "@vfx-js/core": "^0.8.0",
+    "gsap": "^3.14.2",
+    "lenis": "^1.3.17",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
   }
 }
