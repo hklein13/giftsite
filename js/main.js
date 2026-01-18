@@ -17,13 +17,15 @@ gsap.registerPlugin(ScrollTrigger);
 
 // Make libraries available globally for other modules
 window.THREE = THREE;
+window.gsap = gsap;
+window.ScrollTrigger = ScrollTrigger;
+window.Lenis = Lenis;
+
+// Post-processing classes available globally
 window.EffectComposer = EffectComposer;
 window.RenderPass = RenderPass;
 window.UnrealBloomPass = UnrealBloomPass;
 window.ShaderPass = ShaderPass;
-window.gsap = gsap;
-window.ScrollTrigger = ScrollTrigger;
-window.Lenis = Lenis;
 
 // Initialize Theatre.js Studio
 studio.initialize();

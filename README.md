@@ -1,59 +1,84 @@
-# The Gift Site — Template Demos
+# The Gift Site
 
-Two design directions for The Gift Site redesign, presented as a single switchable demo.
+An immersive 3D solar system navigation experience for discovering your gift.
 
-## Templates
+## Overview
 
-### Vessel
-Contemplative, gallery-like aesthetic. Features dramatic dark/light vertical splits, generous negative space, subtle paper grain texture, and large typographic numbers. Feels like an art space or meditation guide.
+The homepage features a WebGL-powered journey through space. Users scroll through a linear path visiting planets, each representing a different aspect of the gift discovery process.
 
-### Gather
-Warm, layered, handcrafted feel. Features soft overlapping shapes, inviting terracotta and sage color palette, and slightly rotated "note card" elements. More approachable while still refined.
+### Navigation Flow
+1. **Hero Section** - "Uncover Your Gift" title at scroll position 0
+2. **Planet Stops** - Camera travels linearly to each planet:
+   - Why We Exist
+   - Discover
+   - The Process
+   - Facilitate
+3. **Sun** - Subtle warm glow in the far background
 
-## Structure
+### Features
+- **Snap Scroll** - Hard stops at each planet, requires scroll to continue
+- **Bottom Caption Bar** - Shows planet title and description
+- **Centered "Visit" Button** - Appears after arriving at planet, navigates to page
+- **Enhanced Starfield** - Multi-layered stars with twinkling and drift movement
+- **Post-Processing** - Bloom, film grain, vignette, chromatic aberration
+
+## Tech Stack
+
+### Core
+- **Vite** - Build tool and dev server
+- **Three.js** - WebGL 3D graphics
+- **GSAP + ScrollTrigger** - Animations
+- **Lenis** - Smooth scrolling (on content pages)
+
+### Visual Effects
+- **Theatre.js** - Animation timeline editor (Ctrl+\ to toggle studio)
+- **VFX-JS** - WebGL text effects
+- Custom GLSL shaders for planets, stars, and post-processing
+
+### Fonts
+- **Fraunces** (display)
+- **Outfit** (body)
+
+## Project Structure
 
 ```
-gift-site-demos/
-├── index.html          ← Switcher (entry point)
-├── vessel/
-│   └── index.html      ← Vessel template
-├── gather/
-│   └── index.html      ← Gather template
+giftsite/
+├── index.html           # Homepage - Solar system navigation
+├── why.html             # Why We Exist
+├── discover.html        # Discover page
+├── process.html         # The Process (has GSAP animations)
+├── facilitate.html      # Facilitate page
+├── audiences.html       # Who It's For
+├── companion.html       # Gift Companion (Coming Soon)
+├── css/
+│   └── main.css         # All styles
+├── js/
+│   ├── main.js          # Entry point - imports & initializes all modules
+│   ├── solar-system.js  # Three.js solar system scene & navigation
+│   ├── animations.js    # GSAP animation controller
+│   └── vfx.js           # VFX-JS text effects
+├── package.json         # NPM dependencies
 └── README.md
+```
+
+## Development
+
+### Setup
+```bash
+npm install
+npm run dev
+```
+
+### Build for Production
+```bash
+npm run build
+npm run preview  # Test production build locally
 ```
 
 ## Deployment
 
-### GitHub Pages (Recommended)
-
-1. Create a new repository on GitHub
-2. Upload these files maintaining the folder structure
-3. Go to Settings → Pages
-4. Set source to `main` branch, `/ (root)` folder
-5. Your site will be live at `https://yourusername.github.io/repo-name/`
-
-### Netlify Drop (Fastest)
-
-1. Go to [app.netlify.com/drop](https://app.netlify.com/drop)
-2. Drag the entire `gift-site-demos` folder onto the page
-3. Instant live URL
-
-## Usage
-
-- Visit the root URL to see the switcher interface
-- Use the floating toggle at the bottom to switch between templates
-- Click the `?` button for template descriptions
-- Each template is also accessible directly:
-  - `/vessel/` — Vessel template
-  - `/gather/` — Gather template
-
-## Notes
-
-- Both templates are fully responsive
-- No build process required — pure HTML/CSS/JS
-- Bot integration placeholder included (marked "Coming soon")
-- All original site language preserved
+Deployed via GitHub Pages from `main` branch.
 
 ---
 
-*Created as a redesign proposal for [giftsite.org](https://giftsite.org)*
+*A journey of discovery awaits.*

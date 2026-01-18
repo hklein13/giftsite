@@ -62,18 +62,88 @@ The user is not always right, but neither is Claude - collaborative verification
 
 ```
 giftsite/
-├── index.html        # Main homepage
-├── why.html          # Why We Exist
-├── discover.html     # Discover page
-├── process.html      # The Process (has GSAP animations)
-├── facilitate.html   # Facilitate page
-├── audiences.html    # Who It's For
-├── companion.html    # Gift Companion (Coming Soon)
+├── index.html           # Homepage - Solar system navigation
+├── why.html             # Why We Exist
+├── discover.html        # Discover page
+├── process.html         # The Process (has GSAP animations)
+├── facilitate.html      # Facilitate page
+├── audiences.html       # Who It's For
+├── companion.html       # Gift Companion (Coming Soon)
+├── css/
+│   └── main.css         # All styles
+├── js/
+│   ├── main.js          # Entry point - imports & initializes all modules
+│   ├── solar-system.js  # Three.js solar system scene & navigation
+│   ├── animations.js    # GSAP animation controller
+│   └── vfx.js           # VFX-JS text effects
+├── package.json         # NPM dependencies
 └── README.md
 ```
 
 ## Tech Stack
-- Pure HTML/CSS/JavaScript (no build process)
-- Google Fonts: Fraunces (display), Outfit (body)
-- GSAP + ScrollTrigger + Lenis (on process.html)
-- Deployed via GitHub Pages from `main` branch
+
+### Core
+- **Vite** - Build tool and dev server (`npm run dev`)
+- **Three.js** - WebGL 3D graphics for solar system homepage
+- **GSAP + ScrollTrigger** - Animations
+- **Lenis** - Smooth scrolling
+
+### Visual Effects
+- **Theatre.js** - Animation timeline editor (Ctrl+\ to toggle studio)
+- **VFX-JS** - WebGL text effects
+- Custom GLSL shaders for planets, stars, and post-processing
+
+### Fonts
+- **Fraunces** (display)
+- **Outfit** (body)
+
+### Deployment
+- GitHub Pages from `main` branch
+
+---
+
+## Homepage Architecture (Solar System)
+
+The homepage (`index.html`) features an immersive 3D solar system navigation:
+
+### Navigation Flow
+1. **Hero Section** - "Uncover Your Gift" title, visible at scroll position 0
+2. **Planet Stops** - Camera travels linearly through space to each planet:
+   - Why We Exist (planet with moon)
+   - Discover (planet with rings)
+   - The Process (planet with rings)
+   - Facilitate (planet with moon)
+3. **Sun** - Subtle warm glow in the far background
+
+### Key Features
+- **Snap Scroll** - Hard stops at each planet, requires scroll to continue
+- **Bottom Caption Bar** - Shows planet title and description
+- **Centered "Visit" Button** - Appears after arriving at planet, clicks navigate to page
+- **Scroll Indicator Dots** - Right side navigation dots
+
+### Visual Elements
+- Procedural planet shaders with noise-based surface detail
+- Multi-layered animated starfield with twinkling and drift
+- Nebula clouds between planets
+- Post-processing: bloom, film grain, vignette, chromatic aberration
+
+---
+
+## Development
+
+### Setup
+```bash
+npm install
+npm run dev
+```
+
+### Build for Production
+```bash
+npm run build
+npm run preview  # Test production build locally
+```
+
+### Key Files to Know
+- `js/solar-system.js` - Main Three.js scene, all 3D elements
+- `js/main.js` - Module imports, Theatre.js setup, global exports
+- `css/main.css` - All styles including solar system UI elements

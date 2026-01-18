@@ -35,45 +35,35 @@
     </ul>
   </nav>
 
-  <!-- Planet Preview Cards -->
-  <div class="planet-cards">
-    <!-- Why Planet Card -->
-    <div class="planet-card" id="card-why">
-      <h2>Why We Exist</h2>
-      <p>Every person carries within them a unique Gift. Yet many of us move through life without ever naming it.</p>
-      <a href="why.html" class="btn btn-primary">Visit Why We Exist</a>
+  <!-- Hero Section (visible at start) -->
+  <section class="hero-overlay" id="hero-section">
+    <div class="hero-content">
+      <h1>Uncover Your <span class="accent-italic">Gift</span></h1>
+      <p class="subtitle">A journey of discovery awaits. Scroll to begin.</p>
     </div>
+  </section>
 
-    <!-- Discover Planet Card -->
-    <div class="planet-card" id="card-discover">
-      <h2>Discover Your Gift</h2>
-      <p>Begin the journey of uncovering what has always been true about you.</p>
-      <a href="discover.html" class="btn btn-primary">Visit Discover</a>
+  <!-- Bottom Caption Bar -->
+  <div class="caption-bar" id="caption-bar">
+    <div class="caption-content">
+      <h3 class="caption-title"></h3>
+      <p class="caption-description"></p>
     </div>
+  </div>
 
-    <!-- Process Planet Card -->
-    <div class="planet-card" id="card-process">
-      <h2>The Process</h2>
-      <p>A method of reflection, dialogue, and mutual recognition that reveals your Gift.</p>
-      <a href="process.html" class="btn btn-primary">Visit The Process</a>
-    </div>
-
-    <!-- Facilitate Planet Card -->
-    <div class="planet-card" id="card-facilitate">
-      <h2>Facilitate</h2>
-      <p>For those called to guide others through their own Gift discovery journey.</p>
-      <a href="facilitate.html" class="btn btn-primary">Visit Facilitate</a>
-    </div>
+  <!-- Planet Click Indicator (centered on screen) -->
+  <div class="planet-click-prompt" id="planet-click-prompt">
+    <span class="click-text">Visit</span>
   </div>
 
   <!-- Scroll Progress Indicator -->
   <div class="scroll-indicator">
     <div class="planet-dots">
-      <span class="dot active" data-planet="overview"></span>
-      <span class="dot" data-planet="why"></span>
-      <span class="dot" data-planet="discover"></span>
-      <span class="dot" data-planet="process"></span>
-      <span class="dot" data-planet="facilitate"></span>
+      <span class="dot active" data-planet="overview" title="Home"></span>
+      <span class="dot" data-planet="why" title="Why We Exist"></span>
+      <span class="dot" data-planet="discover" title="Discover"></span>
+      <span class="dot" data-planet="process" title="The Process"></span>
+      <span class="dot" data-planet="facilitate" title="Facilitate"></span>
     </div>
   </div>
 

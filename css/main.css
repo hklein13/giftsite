@@ -713,6 +713,7 @@ footer {
   width: 100%;
   height: 100%;
   z-index: 0;
+  pointer-events: none;
 }
 
 /* Scroll container creates scrollable height */
@@ -721,61 +722,132 @@ footer {
   pointer-events: none;
 }
 
-/* Planet Preview Cards */
-.planet-cards {
+/* Hero Overlay - visible at start */
+.hero-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 15;
   pointer-events: none;
-  z-index: 10;
+  transition: opacity 0.8s ease;
 }
 
-.planet-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(13, 25, 41, 0.85);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(232, 196, 184, 0.15);
-  border-radius: 24px;
-  padding: 3rem;
-  max-width: 420px;
-  text-align: center;
+.hero-overlay.hidden {
   opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.6s ease, visibility 0.6s ease;
 }
 
-.planet-card.active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+.hero-content {
+  text-align: center;
+  max-width: 700px;
+  padding: 0 2rem;
 }
 
-.planet-card h2 {
+.hero-content h1 {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
   font-weight: 400;
-  margin-bottom: 1rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
   color: var(--off-white);
 }
 
-.planet-card p {
+.hero-content .subtitle {
+  font-size: 1.2rem;
   color: var(--soft-gray);
-  font-size: 1.05rem;
-  line-height: 1.7;
-  margin-bottom: 2rem;
+  max-width: 450px;
+  margin: 0 auto;
 }
 
-.planet-card .btn {
+/* Bottom Caption Bar */
+.caption-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 2rem 0 2.5rem;
+  background: linear-gradient(to top, rgba(13, 25, 41, 0.95) 0%, rgba(13, 25, 41, 0.7) 60%, transparent 100%);
+  z-index: 15;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+
+.caption-bar.visible {
+  opacity: 1;
+  transform: translateY(0);
   pointer-events: auto;
 }
 
-/* Scroll Progress Indicator - Override for solar system */
+.caption-content {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 0 2rem;
+}
+
+.caption-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+  color: var(--off-white);
+}
+
+.caption-description {
+  font-size: 1rem;
+  color: var(--soft-gray);
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+/* Planet Click Prompt - centered "Visit" indicator */
+.planet-click-prompt {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.planet-click-prompt.visible {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.click-text {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--off-white);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.8rem 2rem;
+  background: rgba(13, 25, 41, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(232, 196, 184, 0.3);
+  border-radius: 30px;
+  transition: all 0.3s ease;
+}
+
+.planet-click-prompt:hover .click-text {
+  background: rgba(232, 196, 184, 0.15);
+  border-color: var(--blush);
+  color: var(--blush);
+  transform: scale(1.05);
+}
+
+/* Scroll Progress Indicator */
 .scroll-indicator {
   position: fixed;
   right: 2rem;
@@ -823,13 +895,20 @@ nav.scrolled {
 
 /* Mobile adjustments for solar system */
 @media (max-width: 768px) {
-  .planet-card {
-    max-width: 90%;
-    padding: 2rem;
+  .hero-content h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
   }
 
-  .planet-card h2 {
-    font-size: 1.6rem;
+  .caption-bar {
+    padding: 1.5rem 0 2rem;
+  }
+
+  .caption-title {
+    font-size: 1.4rem;
+  }
+
+  .caption-description {
+    font-size: 0.9rem;
   }
 
   .scroll-indicator {
@@ -842,6 +921,6 @@ nav.scrolled {
   }
 
   #scroll-container {
-    height: 400vh; /* Less scroll on mobile */
+    height: 400vh;
   }
 }
