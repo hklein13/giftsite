@@ -2,6 +2,15 @@
 // Main scene with planets, sun, camera path, and navigation
 
 export class SolarSystemScene {
+  // Debounce utility
+  debounce(func, wait) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
   constructor() {
     this.canvas = document.getElementById('solar-system-canvas');
     if (!this.canvas) return;
@@ -88,7 +97,7 @@ export class SolarSystemScene {
     this.setupPostProcessing();
 
     // Event listeners
-    window.addEventListener('resize', () => this.onResize());
+    window.addEventListener('resize', this.debounce(() => this.onResize(), 200));
     this.setupScrollListener();
     this.setupClickListeners();
 
