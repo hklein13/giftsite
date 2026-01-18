@@ -100,6 +100,7 @@ export class SolarSystemScene {
     this.createPlanets();
     this.createOrbitalPaths();
     this.createStarfield();
+    this.createBackgroundGradient();
     this.setupPostProcessing();
 
     // Event listeners
@@ -147,6 +148,72 @@ export class SolarSystemScene {
     sunGroup.position.set(0, 0, -900);
     this.sun = sunGroup;
     this.scene.add(sunGroup);
+  }
+
+  createBackgroundGradient() {
+    // Full-screen background plane with gradient shader
+    const bgGeometry = new THREE.PlaneGeometry(2, 2);
+
+    const bgMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uBrightness: { value: 0.7 },
+        uGradientStrength: { value: 0.4 },
+        uColorDark: { value: new THREE.Color(0x1a2a4a) },    // Steel blue dark
+        uColorMid: { value: new THREE.Color(0x2a3a5a) },     // Steel blue mid
+        uColorLight: { value: new THREE.Color(0x3a4a6a) },   // Steel blue light (horizon)
+        uSunPosition: { value: new THREE.Vector2(0.5, 0.3) } // Sun glow center
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.9999, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uBrightness;
+        uniform float uGradientStrength;
+        uniform vec3 uColorDark;
+        uniform vec3 uColorMid;
+        uniform vec3 uColorLight;
+        uniform vec2 uSunPosition;
+        varying vec2 vUv;
+
+        void main() {
+          // Base vertical gradient (darker at top, lighter toward center)
+          float vertGradient = 1.0 - abs(vUv.y - 0.4) * 1.5;
+          vertGradient = clamp(vertGradient, 0.0, 1.0);
+
+          // Radial gradient from sun position
+          float distToSun = distance(vUv, uSunPosition);
+          float sunGlow = 1.0 - smoothstep(0.0, 0.8, distToSun);
+          sunGlow *= uGradientStrength;
+
+          // Combine gradients
+          float gradientMix = vertGradient * 0.5 + sunGlow * 0.5;
+
+          // Three-color blend based on gradient
+          vec3 color = mix(uColorDark, uColorMid, smoothstep(0.0, 0.5, gradientMix));
+          color = mix(color, uColorLight, smoothstep(0.5, 1.0, gradientMix) * uGradientStrength);
+
+          // Apply brightness
+          color *= uBrightness + 0.3;
+
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+      depthWrite: false,
+      depthTest: false
+    });
+
+    this.backgroundMesh = new THREE.Mesh(bgGeometry, bgMaterial);
+    this.backgroundMesh.frustumCulled = false;
+    this.backgroundMesh.renderOrder = -1000;
+
+    // Add to separate scene for background rendering
+    this.bgScene = new THREE.Scene();
+    this.bgScene.add(this.backgroundMesh);
+    this.bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   }
 
   createPlanets() {
@@ -893,7 +960,11 @@ export class SolarSystemScene {
       this.bloomPass.threshold = this.atmosphereSettings.bloomThreshold;
     }
 
-    // Background shader will be updated here after Task 2
+    // Update background shader
+    if (this.backgroundMesh) {
+      this.backgroundMesh.material.uniforms.uBrightness.value = this.atmosphereSettings.bgBrightness;
+      this.backgroundMesh.material.uniforms.uGradientStrength.value = this.atmosphereSettings.bgGradientStrength;
+    }
   }
 
   updateCamera() {
@@ -1077,6 +1148,13 @@ export class SolarSystemScene {
     // Update shader uniforms
     if (this.atmospherePass) {
       this.atmospherePass.uniforms.time.value = this.time;
+    }
+
+    // Render background gradient first
+    if (this.bgScene && this.bgCamera) {
+      this.renderer.autoClear = false;
+      this.renderer.clear();
+      this.renderer.render(this.bgScene, this.bgCamera);
     }
 
     // Render with post-processing
