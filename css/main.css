@@ -204,6 +204,7 @@ nav {
   align-items: center;
   z-index: 100;
   transition: all 0.4s ease;
+  background: linear-gradient(to bottom, rgba(13, 25, 41, 0.8) 0%, transparent 100%);
 }
 
 nav.scrolled {
