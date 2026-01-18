@@ -28,20 +28,29 @@ export class AnimationController {
   }
 
   initIntroAnimation() {
+    // Check if gsap is available
+    if (typeof gsap === 'undefined') {
+      console.warn('GSAP not loaded, skipping intro animation');
+      return;
+    }
+
     // Fade in nav and UI elements on load
-    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+    // Use set() first to ensure initial state, then animate
+    const nav = document.querySelector('nav');
+    const scrollIndicator = document.querySelector('.scroll-indicator');
 
-    tl.from('nav', {
-      opacity: 0,
-      y: -20,
-      duration: 1,
-      delay: 0.5
-    });
+    if (nav) {
+      gsap.fromTo(nav,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 1, delay: 0.5, ease: 'power2.out' }
+      );
+    }
 
-    tl.from('.scroll-indicator', {
-      opacity: 0,
-      x: 20,
-      duration: 0.8
-    }, '-=0.5');
+    if (scrollIndicator) {
+      gsap.fromTo(scrollIndicator,
+        { opacity: 0, x: 20 },
+        { opacity: 1, x: 0, duration: 0.8, delay: 0.8, ease: 'power2.out' }
+      );
+    }
   }
 }

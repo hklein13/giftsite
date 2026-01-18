@@ -8,7 +8,10 @@ export class SolarSystemScene {
 
     // Three.js basics
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+    // Use wider FOV on mobile so planets appear smaller/more distant
+    const isMobile = window.innerWidth < 768;
+    const baseFOV = isMobile ? 85 : 60;
+    this.camera = new THREE.PerspectiveCamera(baseFOV, window.innerWidth / window.innerHeight, 0.1, 2000);
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       alpha: true,
@@ -689,14 +692,13 @@ export class SolarSystemScene {
     this.currentStopIndex = 0;
     this.isSnapped = true;
     this.scrollAccumulator = 0;
-    this.scrollThreshold = 150; // Pixels of scroll needed to move to next stop
+    this.scrollThreshold = 80; // Pixels of scroll needed to move to next stop
     this.isTransitioning = false;
 
     // Listen to wheel events directly for snap behavior
     window.addEventListener('wheel', (e) => {
       if (this.isTransitioning) {
-        e.preventDefault();
-        return;
+        return; // Just ignore during transition, no need to preventDefault
       }
 
       // Accumulate scroll
@@ -731,7 +733,7 @@ export class SolarSystemScene {
 
       const touchY = e.touches[0].clientY;
       const deltaY = touchStartY - touchY;
-      this.scrollAccumulator += deltaY * 0.5;
+      this.scrollAccumulator += deltaY * 1.0;
       touchStartY = touchY;
 
       if (this.scrollAccumulator > this.scrollThreshold) {
@@ -769,7 +771,7 @@ export class SolarSystemScene {
     setTimeout(() => {
       this.isTransitioning = false;
       this.showClickPrompt();
-    }, 1200);
+    }, 800);
   }
 
   showClickPrompt() {
@@ -954,6 +956,9 @@ export class SolarSystemScene {
   }
 
   onResize() {
+    // Adjust FOV for mobile
+    const isMobile = window.innerWidth < 768;
+    this.camera.fov = isMobile ? 85 : 60;
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
