@@ -609,10 +609,10 @@ export class SolarSystemScene {
 
     // Bloom pass
     this.bloomPass = new window.UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      1.0,   // strength
-      0.8,   // radius
-      0.6    // threshold
+      new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2), // Half resolution
+      0.8,   // strength (reduced from 1.0)
+      0.8,   // radius (unchanged)
+      0.65   // threshold (increased from 0.6 - less bloom on mid-tones)
     );
     this.composer.addPass(this.bloomPass);
 
