@@ -104,6 +104,9 @@ export class SolarSystemScene {
     // Theatre.js controls (with delay to ensure sheet is ready)
     setTimeout(() => this.setupTheatreControls(), 500);
 
+    // Ensure proper initial sizing (handles mobile viewport quirks)
+    this.onResize();
+
     // Start render loop
     this.animate();
   }
