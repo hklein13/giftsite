@@ -973,6 +973,8 @@ export class SolarSystemScene {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.composer.setSize(window.innerWidth, window.innerHeight);
+    // Update bloom pass to maintain half-resolution optimization
+    this.bloomPass.resolution.set(window.innerWidth / 2, window.innerHeight / 2);
   }
 
   animate() {
