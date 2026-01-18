@@ -832,7 +832,9 @@ footer {
   color: var(--off-white);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  padding: 0.8rem 2rem;
+  padding: 1rem 2.5rem;
+  min-height: 44px;
+  min-width: 44px;
   background: rgba(13, 25, 41, 0.6);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(232, 196, 184, 0.3);
