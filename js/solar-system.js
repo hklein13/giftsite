@@ -43,6 +43,18 @@ export class SolarSystemScene {
       bloomStrength: 0.9,
       bloomThreshold: 0.6
     };
+    this.particleSettings = {
+      starDensityMultiplier: 1.0,
+      starBrightnessMin: 0.3,
+      starBrightnessMax: 1.0,
+      twinkleIntensity: 0.6,
+      nebulaOpacity: 0.15,
+      dustOpacity: 0.2
+    };
+    this.motionSettings = {
+      mouseParallaxStrength: 0.5,
+      scrollVelocityEffect: 0.6
+    };
 
     // Planet configurations - LINEAR PATH into the distance
     // Planets arranged along z-axis with slight x/y offsets for visual interest
@@ -949,6 +961,35 @@ export class SolarSystemScene {
 
     // Initialize with current values
     this.atmosphereSettings = this.theatreObjects.atmosphere.value;
+
+    // Particles controls (prep for Phase B)
+    this.theatreObjects.particles = sheet.object('Particles', {
+      starDensityMultiplier: types.number(1.0, { range: [0.5, 2.0] }),
+      starBrightnessMin: types.number(0.3, { range: [0.1, 0.5] }),
+      starBrightnessMax: types.number(1.0, { range: [0.6, 1.0] }),
+      twinkleIntensity: types.number(0.6, { range: [0, 1] }),
+      nebulaOpacity: types.number(0.15, { range: [0, 0.3] }),
+      dustOpacity: types.number(0.2, { range: [0, 0.4] })
+    });
+
+    this.theatreObjects.particles.onValuesChange((values) => {
+      this.particleSettings = values;
+      // Phase B will implement updateParticles()
+    });
+
+    this.particleSettings = this.theatreObjects.particles.value;
+
+    // Motion controls (prep for Phase B parallax)
+    this.theatreObjects.motion = sheet.object('Motion', {
+      mouseParallaxStrength: types.number(0.5, { range: [0, 1] }),
+      scrollVelocityEffect: types.number(0.6, { range: [0, 1] })
+    });
+
+    this.theatreObjects.motion.onValuesChange((values) => {
+      this.motionSettings = values;
+    });
+
+    this.motionSettings = this.theatreObjects.motion.value;
 
     console.log('Theatre.js controls initialized');
   }
