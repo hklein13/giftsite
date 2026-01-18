@@ -665,6 +665,11 @@ footer {
     display: none;
   }
 
+  .logo {
+    padding: 0.5rem;
+    margin: -0.5rem;
+  }
+
   .section {
     padding: 4rem 1.5rem;
   }
