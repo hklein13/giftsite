@@ -285,42 +285,27 @@ class SolarSystemScene {
     this.lenis.scrollTo(targetScroll, { duration: 1.5 });
   }
 
+  getConfig() {
+    // Use window.animationConfig if available, otherwise defaults
+    return window.animationConfig || {
+      camera: { easeStrength: 0.05, transitionDuration: 1.5 },
+      planets: { glowIntensity: 0.2, bobAmount: 0.5, rotationSpeed: 0.002 },
+      sun: { pulseAmount: 0.02, pulseSpeed: 1 }
+    };
+  }
+
   setupTheatreControls() {
-    if (!window.theatreSheet) {
-      console.log('Theatre.js sheet not ready - using default values');
-      return;
-    }
-
-    const sheet = window.theatreSheet;
-
-    // Camera flight controls
-    this.theatreObjects.camera = sheet.object('Camera', {
-      transitionDuration: TheatreCore.types.number(1.5, { range: [0.5, 4] }),
-      easeStrength: TheatreCore.types.number(0.05, { range: [0.01, 0.2] })
-    });
-
-    // Planet glow controls
-    this.theatreObjects.planets = sheet.object('Planets', {
-      glowIntensity: TheatreCore.types.number(0.2, { range: [0.05, 0.5] }),
-      bobAmount: TheatreCore.types.number(0.5, { range: [0, 2] }),
-      rotationSpeed: TheatreCore.types.number(0.002, { range: [0, 0.01] })
-    });
-
-    // Sun controls
-    this.theatreObjects.sun = sheet.object('Sun', {
-      pulseAmount: TheatreCore.types.number(0.02, { range: [0, 0.1] }),
-      pulseSpeed: TheatreCore.types.number(1, { range: [0.5, 3] })
-    });
-
-    console.log('Theatre.js controls connected');
+    // Animation config now handled by window.animationConfig
+    // Theatre.js will be added when bundler is introduced
+    console.log('Animation config loaded from window.animationConfig');
   }
 
   updateCamera() {
-    // Get Theatre.js values (with fallbacks)
-    const cameraValues = this.theatreObjects.camera?.value || { easeStrength: 0.05 };
+    // Get config values
+    const config = this.getConfig();
 
     // Smooth interpolation toward target
-    this.scrollProgress += (this.targetProgress - this.scrollProgress) * cameraValues.easeStrength;
+    this.scrollProgress += (this.targetProgress - this.scrollProgress) * config.camera.easeStrength;
 
     // Determine which stop we're at or between
     const numStops = this.cameraStops.length;
@@ -389,26 +374,21 @@ class SolarSystemScene {
 
     this.time += 0.016;
 
-    // Get Theatre.js values (with fallbacks)
-    const planetValues = this.theatreObjects.planets?.value || {
-      glowIntensity: 0.2, bobAmount: 0.5, rotationSpeed: 0.002
-    };
-    const sunValues = this.theatreObjects.sun?.value || {
-      pulseAmount: 0.02, pulseSpeed: 1
-    };
+    // Get config values
+    const config = this.getConfig();
 
     // Update camera based on scroll
     this.updateCamera();
 
-    // Animate planets with Theatre.js values
+    // Animate planets
     Object.values(this.planets).forEach((planet, i) => {
-      planet.position.y = planet.userData.baseY + Math.sin(this.time * 0.5 + i) * planetValues.bobAmount;
-      planet.rotation.y += planetValues.rotationSpeed;
+      planet.position.y = planet.userData.baseY + Math.sin(this.time * 0.5 + i) * config.planets.bobAmount;
+      planet.rotation.y += config.planets.rotationSpeed;
     });
 
-    // Animate sun with Theatre.js values
+    // Animate sun
     if (this.sun) {
-      const pulse = 1 + Math.sin(this.time * sunValues.pulseSpeed) * sunValues.pulseAmount;
+      const pulse = 1 + Math.sin(this.time * config.sun.pulseSpeed) * config.sun.pulseAmount;
       this.sun.scale.set(pulse, pulse, pulse);
     }
 
