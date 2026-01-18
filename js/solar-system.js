@@ -2,6 +2,15 @@
 // Main scene with planets, sun, camera path, and navigation
 
 export class SolarSystemScene {
+  // Debounce utility
+  debounce(func, wait) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
   constructor() {
     this.canvas = document.getElementById('solar-system-canvas');
     if (!this.canvas) return;
@@ -24,6 +33,7 @@ export class SolarSystemScene {
     this.currentPlanet = 'overview';
     this.planets = {};
     this.time = 0;
+    this.starFrameCounter = 0;
 
     // Theatre.js animation objects (will be set up after sheet is ready)
     this.theatreObjects = {};
@@ -87,12 +97,15 @@ export class SolarSystemScene {
     this.setupPostProcessing();
 
     // Event listeners
-    window.addEventListener('resize', () => this.onResize());
+    window.addEventListener('resize', this.debounce(() => this.onResize(), 200));
     this.setupScrollListener();
     this.setupClickListeners();
 
     // Theatre.js controls (with delay to ensure sheet is ready)
     setTimeout(() => this.setupTheatreControls(), 500);
+
+    // Ensure proper initial sizing (handles mobile viewport quirks)
+    this.onResize();
 
     // Start render loop
     this.animate();
@@ -599,10 +612,10 @@ export class SolarSystemScene {
 
     // Bloom pass
     this.bloomPass = new window.UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      1.0,   // strength
-      0.8,   // radius
-      0.6    // threshold
+      new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2), // Half resolution
+      0.8,   // strength (reduced from 1.0)
+      0.8,   // radius (unchanged)
+      0.65   // threshold (increased from 0.6 - less bloom on mid-tones)
     );
     this.composer.addPass(this.bloomPass);
 
@@ -963,6 +976,8 @@ export class SolarSystemScene {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.composer.setSize(window.innerWidth, window.innerHeight);
+    // Update bloom pass to maintain half-resolution optimization
+    this.bloomPass.resolution.set(window.innerWidth / 2, window.innerHeight / 2);
   }
 
   animate() {
@@ -1010,8 +1025,11 @@ export class SolarSystemScene {
       });
     }
 
-    // Animate stars (drift and twinkle)
-    this.animateStars();
+    // Animate stars (drift and twinkle) - throttled to every 3rd frame
+    this.starFrameCounter++;
+    if (this.starFrameCounter % 3 === 0) {
+      this.animateStars();
+    }
 
     // Update shader uniforms
     if (this.atmospherePass) {

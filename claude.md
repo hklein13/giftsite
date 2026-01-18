@@ -159,6 +159,30 @@ Why We Exist → Discover → The Process → Facilitate
 
 ---
 
+## Performance Optimizations
+
+The solar system homepage has several performance optimizations:
+
+### Lenis + GSAP Integration
+- Lenis smooth scroll is driven by GSAP ticker (not standalone RAF loop)
+- `process.html` uses: `gsap.ticker.add((time) => lenis.raf(time * 1000))`
+
+### Animation Throttling
+- Star drift/twinkle runs every 3rd frame (~20fps) - visually identical, saves CPU
+- Uses `starFrameCounter % 3 === 0` pattern
+
+### Resize Handling
+- Resize handler debounced with 200ms delay
+- `onResize()` called during `init()` for proper initial state on mobile
+- Bloom resolution updated on resize to maintain half-resolution optimization
+
+### Bloom Post-Processing
+- Half resolution (processes 75% fewer pixels)
+- Strength: 0.8, Threshold: 0.65
+- Resolution updated in `onResize()` to stay at half
+
+---
+
 ## Development
 
 ### Setup
