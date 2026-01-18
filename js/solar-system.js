@@ -211,16 +211,98 @@ class SolarSystemScene {
   setupPostProcessing() {
     this.composer = new THREE.EffectComposer(this.renderer);
 
+    // Render pass
     const renderPass = new THREE.RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
 
+    // Bloom pass
     this.bloomPass = new THREE.UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      1.0,
-      0.8,
-      0.6
+      1.0,   // strength
+      0.8,   // radius
+      0.6    // threshold
     );
     this.composer.addPass(this.bloomPass);
+
+    // Custom film grain + vignette + noise distortion shader
+    const atmosphereShader = {
+      uniforms: {
+        tDiffuse: { value: null },
+        time: { value: 0 },
+        grainIntensity: { value: 0.06 },
+        vignetteIntensity: { value: 0.35 },
+        noiseDistortion: { value: 0.001 },
+        tintColor: { value: new THREE.Vector3(0.1, 0.15, 0.25) },
+        tintIntensity: { value: 0.08 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float time;
+        uniform float grainIntensity;
+        uniform float vignetteIntensity;
+        uniform float noiseDistortion;
+        uniform vec3 tintColor;
+        uniform float tintIntensity;
+        varying vec2 vUv;
+
+        // Noise function
+        float random(vec2 co) {
+          return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+
+        // Simplex-ish noise for distortion
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          float a = random(i);
+          float b = random(i + vec2(1.0, 0.0));
+          float c = random(i + vec2(0.0, 1.0));
+          float d = random(i + vec2(1.0, 1.0));
+          return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+        }
+
+        void main() {
+          // Subtle noise-based UV distortion
+          vec2 distortedUv = vUv;
+          distortedUv.x += noise(vUv * 10.0 + time * 0.1) * noiseDistortion;
+          distortedUv.y += noise(vUv * 10.0 + time * 0.1 + 100.0) * noiseDistortion;
+
+          vec4 color = texture2D(tDiffuse, distortedUv);
+
+          // Film grain
+          float grain = random(vUv + time * 0.01) * grainIntensity;
+          color.rgb += grain - grainIntensity * 0.5;
+
+          // Vignette
+          vec2 center = vUv - 0.5;
+          float dist = length(center);
+          float vignette = smoothstep(0.7, 0.3, dist);
+          vignette = mix(1.0 - vignetteIntensity, 1.0, vignette);
+          color.rgb *= vignette;
+
+          // Subtle blue tint
+          color.rgb = mix(color.rgb, color.rgb + tintColor, tintIntensity);
+
+          // Subtle chromatic aberration at edges
+          float aberration = dist * 0.002;
+          color.r = texture2D(tDiffuse, distortedUv + vec2(aberration, 0.0)).r;
+          color.b = texture2D(tDiffuse, distortedUv - vec2(aberration, 0.0)).b;
+
+          gl_FragColor = color;
+        }
+      `
+    };
+
+    this.atmospherePass = new THREE.ShaderPass(atmosphereShader);
+    this.composer.addPass(this.atmospherePass);
   }
 
   setupScrollListener() {
@@ -390,6 +472,11 @@ class SolarSystemScene {
     if (this.sun) {
       const pulse = 1 + Math.sin(this.time * config.sun.pulseSpeed) * config.sun.pulseAmount;
       this.sun.scale.set(pulse, pulse, pulse);
+    }
+
+    // Update shader uniforms
+    if (this.atmospherePass) {
+      this.atmospherePass.uniforms.time.value = this.time;
     }
 
     // Render with post-processing
