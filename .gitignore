@@ -2,4 +2,5 @@
 .timetrack.json
 
 node_modules/
+dist/
 js/theatre-state.json

@@ -77,7 +77,7 @@ npm run preview  # Test production build locally
 
 ## Deployment
 
-Deployed via GitHub Pages from `main` branch.
+Deployed via GitHub Pages using GitHub Actions. Pushing to `main` triggers automatic build and deploy.
 
 ---
 

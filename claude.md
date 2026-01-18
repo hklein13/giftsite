@@ -98,7 +98,8 @@ giftsite/
 - **Outfit** (body)
 
 ### Deployment
-- GitHub Pages from `main` branch
+- GitHub Pages via GitHub Actions (auto-builds on push to `main`)
+- Vite builds to `dist/` folder with base path `/giftsite/`
 
 ---
 
