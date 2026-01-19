@@ -970,7 +970,7 @@ nav.scrolled {
   }
 
   #scroll-container {
-    height: 400vh;
+    height: 100vh; /* No phantom scroll on mobile - gestures control navigation */
   }
 
   /* Mobile: Treat solar system as gesture-controlled app, not scrollable page */
