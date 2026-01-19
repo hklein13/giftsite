@@ -414,13 +414,23 @@ export class SolarSystemScene {
   }
 
   createNebulae() {
-    // Nebula positions between planet stops
-    const nebulaPositions = [
+    // Reduce nebula count on mobile for performance
+    let nebulaPositions = [
       { pos: new THREE.Vector3(-30, 20, -80), color: 0x3a6aee, scale: 60 },
       { pos: new THREE.Vector3(40, -15, -220), color: 0x5abaff, scale: 80 },
       { pos: new THREE.Vector3(-50, 25, -380), color: 0x7a6aee, scale: 70 },
       { pos: new THREE.Vector3(35, -20, -520), color: 0x4abaaa, scale: 65 }
     ];
+
+    // Add extra nebulae on desktop only
+    if (!this.isMobile) {
+      nebulaPositions = nebulaPositions.concat([
+        { pos: new THREE.Vector3(60, 30, -150), color: 0x4a7aee, scale: 55 },
+        { pos: new THREE.Vector3(-40, -25, -280), color: 0x6aaaff, scale: 75 },
+        { pos: new THREE.Vector3(20, 35, -450), color: 0x5a5aee, scale: 60 },
+        { pos: new THREE.Vector3(-55, 10, -580), color: 0x5ababa, scale: 70 }
+      ]);
+    }
 
     this.nebulae = [];
 
@@ -1309,10 +1319,14 @@ export class SolarSystemScene {
       this.sun.scale.set(pulse, pulse, pulse);
     }
 
-    // Subtle nebula movement
+    // Subtle nebula movement and opacity from Theatre.js
     if (this.nebulae) {
-      this.nebulae.forEach((nebula, i) => {
-        nebula.rotation.z = Math.sin(this.time * 0.1 + i) * 0.02;
+      this.nebulae.forEach((nebulaGroup, i) => {
+        nebulaGroup.rotation.z = Math.sin(this.time * 0.1 + i) * 0.02;
+        // Update opacity from Theatre.js
+        nebulaGroup.children.forEach(sprite => {
+          sprite.material.opacity = this.particleSettings.nebulaOpacity;
+        });
       });
     }
 
