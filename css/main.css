@@ -973,6 +973,17 @@ nav.scrolled {
     height: 400vh;
   }
 
+  /* Hide scrollbar on mobile - solar system uses gesture navigation with dot indicators */
+  html, body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
   .page-nav {
     flex-direction: column;
     gap: 0.75rem;
