@@ -331,8 +331,12 @@ export class SolarSystemScene {
         // Fresnel rim lighting - sharpened for crisp silhouettes
         float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.5);
 
-        // Combine base color with detail and rim
-        vec3 surfaceColor = mix(baseColor * 0.7, baseColor * 1.3, detail);
+        // Add subtle hue variation based on position for terrain-like appearance
+        float hueShift = snoise(vPosition * 0.3) * 0.1;
+        vec3 variedBase = baseColor + vec3(hueShift, hueShift * 0.5, -hueShift * 0.3);
+
+        // Combine varied base with detail and rim
+        vec3 surfaceColor = mix(variedBase * 0.7, variedBase * 1.3, detail);
         vec3 finalColor = mix(surfaceColor, glowColor, fresnel * 0.7);
 
         gl_FragColor = vec4(finalColor, 0.95);
