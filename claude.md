@@ -178,8 +178,21 @@ The solar system homepage has several performance optimizations:
 
 ### Bloom Post-Processing
 - Half resolution (processes 75% fewer pixels)
-- Strength: 0.8, Threshold: 0.65
+- Strength: 0.85, Threshold: 0.7
 - Resolution updated in `onResize()` to stay at half
+
+### Additional Optimizations (Phase C)
+- Config object cached in constructor (avoids per-frame function calls)
+- Reusable Vector3 for camera lookAt (reduces GC pressure)
+- Delta time for frame-rate independent animations (works on 120Hz displays)
+- Atmosphere pass runs at half resolution
+
+### Visual Polish
+- Distance fog (FogExp2, 0x0d1929, density 0.0008) for atmospheric depth
+- Planet fresnel sharpened (power 3.5) for crisp silhouettes
+- Sun corona rays with animated rotation
+- Distance-adaptive camera easing (smoother arrivals)
+- Camera-based star parallax (depth perception while scrolling)
 
 ---
 
