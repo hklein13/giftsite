@@ -314,7 +314,6 @@ export class SolarSystemScene {
       uniform vec3 baseColor;
       uniform vec3 glowColor;
       uniform float time;
-      uniform vec3 seed;
       varying vec3 vNormal;
       varying vec3 vPosition;
       varying vec2 vUv;
@@ -369,37 +368,17 @@ export class SolarSystemScene {
       }
 
       void main() {
-        // Seed-based character variation (B: octave weights, C: turbulence)
-        // seed.x varies -50 to +50 across planets, giving real variety
-        float detailBias = clamp(seed.x * 0.005, -0.2, 0.2); // Shifts weight to fine detail
-        float turbulence = clamp((seed.z + 50.0) * 0.006, 0.0, 0.5); // Adds sharp ridged features
-
-        // Multi-layered noise with turbulence on dominant octaves
-        // turbulence=0: smooth, turbulence>0: sharper ridged features
-        float n1raw = snoise(vPosition * 0.15 + seed + time * 0.02);
-        float n1 = mix(n1raw, abs(n1raw) * 2.0 - 1.0, turbulence) * 0.5 + 0.5;
-
-        float n2raw = snoise(vPosition * 0.4 + seed + time * 0.01);
-        float n2 = mix(n2raw, abs(n2raw) * 2.0 - 1.0, turbulence) * 0.5 + 0.5;
-
-        float n3 = snoise(vPosition * 0.8 + seed) * 0.5 + 0.5;
-        float n4 = snoise(vPosition * 1.6 + seed) * 0.5 + 0.5;
-        float n5 = snoise(vPosition * 3.2 + seed) * 0.5 + 0.5;
-
-        // Varied octave weights: detailBias shifts emphasis from large features to fine detail
-        float detail = n1 * (0.35 - detailBias) + n2 * (0.25 - detailBias * 0.5) + n3 * 0.2 + n4 * (0.12 + detailBias * 0.75) + n5 * (0.08 + detailBias * 0.75);
+        // Multi-layered noise for surface detail
+        float n1 = snoise(vPosition * 0.15 + time * 0.02) * 0.5 + 0.5;
+        float n2 = snoise(vPosition * 0.4 + time * 0.01) * 0.5 + 0.5;
+        float n3 = snoise(vPosition * 0.8) * 0.5 + 0.5;
+        float detail = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
 
         // Fresnel rim lighting - sharpened for crisp silhouettes
         float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.5);
 
-        // Add subtle hue variation based on position for terrain-like appearance
-        // Each planet shifts colors in a unique direction based on its seed
-        float hueShift = snoise(vPosition * 0.3 + seed) * 0.12;
-        vec3 shiftDirection = normalize(seed);
-        vec3 variedBase = baseColor + shiftDirection * hueShift;
-
-        // Combine varied base with detail and rim
-        vec3 surfaceColor = mix(variedBase * 0.7, variedBase * 1.3, detail);
+        // Combine base color with detail and rim
+        vec3 surfaceColor = mix(baseColor * 0.7, baseColor * 1.3, detail);
         vec3 finalColor = mix(surfaceColor, glowColor, fresnel * 0.7);
 
         gl_FragColor = vec4(finalColor, 0.95);
@@ -411,18 +390,11 @@ export class SolarSystemScene {
 
       // Planet core with shader material
       const geometry = new THREE.SphereGeometry(config.radius, 64, 64);
-      // Generate unique seed for each planet's noise pattern
-      const planetSeed = new THREE.Vector3(
-        Math.sin(config.position.x * 0.1) * 50,
-        Math.cos(config.position.y * 0.1) * 50,
-        Math.sin(config.position.z * 0.05) * 50
-      );
       const material = new THREE.ShaderMaterial({
         uniforms: {
           baseColor: { value: new THREE.Color(config.color) },
           glowColor: { value: new THREE.Color(config.glowColor) },
-          time: { value: 0 },
-          seed: { value: planetSeed }
+          time: { value: 0 }
         },
         vertexShader: planetVertexShader,
         fragmentShader: planetFragmentShader,
