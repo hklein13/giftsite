@@ -18,8 +18,8 @@ export class SolarSystemScene {
     // Three.js basics
     this.scene = new THREE.Scene();
     // Use wider FOV on mobile so planets appear smaller/more distant
-    const isMobile = window.innerWidth < 768;
-    const baseFOV = isMobile ? 85 : 60;
+    this.isMobile = window.innerWidth < 768;
+    const baseFOV = this.isMobile ? 85 : 60;
     this.camera = new THREE.PerspectiveCamera(baseFOV, window.innerWidth / window.innerHeight, 0.1, 2000);
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -37,6 +37,28 @@ export class SolarSystemScene {
 
     // Theatre.js animation objects (will be set up after sheet is ready)
     this.theatreObjects = {};
+    this.atmosphereSettings = {
+      bgBrightness: 0.7,
+      bgGradientStrength: 0.4,
+      bloomStrength: 0.9,
+      bloomThreshold: 0.6
+    };
+    this.particleSettings = {
+      starDensityMultiplier: 1.0,
+      starBrightnessMin: 0.3,
+      starBrightnessMax: 1.0,
+      twinkleIntensity: 0.6,
+      nebulaOpacity: 0.15,
+      dustOpacity: 0.2
+    };
+    this.motionSettings = {
+      mouseParallaxStrength: 0.5,
+      scrollVelocityEffect: 0.6
+    };
+
+    // Mouse position for parallax (normalized -1 to 1)
+    this.mousePosition = { x: 0, y: 0 };
+    this.targetMousePosition = { x: 0, y: 0 };
 
     // Planet configurations - LINEAR PATH into the distance
     // Planets arranged along z-axis with slight x/y offsets for visual interest
@@ -94,12 +116,22 @@ export class SolarSystemScene {
     this.createPlanets();
     this.createOrbitalPaths();
     this.createStarfield();
+    this.createDustMotes();
+    this.createBackgroundGradient();
     this.setupPostProcessing();
 
     // Event listeners
     window.addEventListener('resize', this.debounce(() => this.onResize(), 200));
     this.setupScrollListener();
     this.setupClickListeners();
+
+    // Mouse tracking for parallax (desktop only)
+    if (!this.isMobile) {
+      window.addEventListener('mousemove', (e) => {
+        this.targetMousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+        this.targetMousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      });
+    }
 
     // Theatre.js controls (with delay to ensure sheet is ready)
     setTimeout(() => this.setupTheatreControls(), 500);
@@ -141,6 +173,72 @@ export class SolarSystemScene {
     sunGroup.position.set(0, 0, -900);
     this.sun = sunGroup;
     this.scene.add(sunGroup);
+  }
+
+  createBackgroundGradient() {
+    // Full-screen background plane with gradient shader
+    const bgGeometry = new THREE.PlaneGeometry(2, 2);
+
+    const bgMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uBrightness: { value: 0.7 },
+        uGradientStrength: { value: 0.4 },
+        uColorDark: { value: new THREE.Color(0x1a2a4a) },    // Steel blue dark
+        uColorMid: { value: new THREE.Color(0x2a3a5a) },     // Steel blue mid
+        uColorLight: { value: new THREE.Color(0x3a4a6a) },   // Steel blue light (horizon)
+        uSunPosition: { value: new THREE.Vector2(0.5, 0.3) } // Sun glow center
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.9999, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uBrightness;
+        uniform float uGradientStrength;
+        uniform vec3 uColorDark;
+        uniform vec3 uColorMid;
+        uniform vec3 uColorLight;
+        uniform vec2 uSunPosition;
+        varying vec2 vUv;
+
+        void main() {
+          // Base vertical gradient (darker at top, lighter toward center)
+          float vertGradient = 1.0 - abs(vUv.y - 0.4) * 1.5;
+          vertGradient = clamp(vertGradient, 0.0, 1.0);
+
+          // Radial gradient from sun position
+          float distToSun = distance(vUv, uSunPosition);
+          float sunGlow = 1.0 - smoothstep(0.0, 0.8, distToSun);
+          sunGlow *= uGradientStrength;
+
+          // Combine gradients
+          float gradientMix = vertGradient * 0.5 + sunGlow * 0.5;
+
+          // Three-color blend based on gradient
+          vec3 color = mix(uColorDark, uColorMid, smoothstep(0.0, 0.5, gradientMix));
+          color = mix(color, uColorLight, smoothstep(0.5, 1.0, gradientMix) * uGradientStrength);
+
+          // Apply brightness
+          color *= uBrightness + 0.3;
+
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+      depthWrite: false,
+      depthTest: false
+    });
+
+    this.backgroundMesh = new THREE.Mesh(bgGeometry, bgMaterial);
+    this.backgroundMesh.frustumCulled = false;
+    this.backgroundMesh.renderOrder = -1000;
+
+    // Add to separate scene for background rendering
+    this.bgScene = new THREE.Scene();
+    this.bgScene.add(this.backgroundMesh);
+    this.bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   }
 
   createPlanets() {
@@ -316,13 +414,29 @@ export class SolarSystemScene {
   }
 
   createNebulae() {
-    // Nebula positions between planet stops
-    const nebulaPositions = [
+    // Reduce nebula count on mobile
+    let nebulaPositions = [
       { pos: new THREE.Vector3(-30, 20, -80), color: 0x3a6aee, scale: 60 },
       { pos: new THREE.Vector3(40, -15, -220), color: 0x5abaff, scale: 80 },
       { pos: new THREE.Vector3(-50, 25, -380), color: 0x7a6aee, scale: 70 },
-      { pos: new THREE.Vector3(35, -20, -520), color: 0x4abaaa, scale: 65 }
+      { pos: new THREE.Vector3(35, -20, -520), color: 0x4abaaa, scale: 65 },
+      // Deep nebulae visible at Facilitate
+      { pos: new THREE.Vector3(-40, 15, -650), color: 0x5a8aee, scale: 70 },
+      { pos: new THREE.Vector3(30, -10, -720), color: 0x4ababa, scale: 60 }
     ];
+
+    // Add extra nebulae on desktop only
+    if (!this.isMobile) {
+      nebulaPositions = nebulaPositions.concat([
+        { pos: new THREE.Vector3(60, 30, -150), color: 0x4a7aee, scale: 55 },
+        { pos: new THREE.Vector3(-40, -25, -280), color: 0x6aaaff, scale: 75 },
+        { pos: new THREE.Vector3(20, 35, -450), color: 0x5a5aee, scale: 60 },
+        { pos: new THREE.Vector3(-55, 10, -580), color: 0x5ababa, scale: 70 },
+        // Extra deep nebulae for desktop
+        { pos: new THREE.Vector3(45, 20, -680), color: 0x6a9aee, scale: 65 },
+        { pos: new THREE.Vector3(-35, -15, -750), color: 0x5acaca, scale: 55 }
+      ]);
+    }
 
     this.nebulae = [];
 
@@ -418,11 +532,13 @@ export class SolarSystemScene {
     // Create star texture with glow
     const starTexture = this.createStarTexture();
 
+    // Reduce particle counts on mobile for performance
+
     // Multi-layered starfield with varying sizes, speeds, and brightness
     const starLayers = [
-      { count: 600, size: 3, opacity: 0.5, spread: 500, speed: 0.02 },    // Distant dim stars
-      { count: 300, size: 5, opacity: 0.7, spread: 400, speed: 0.035 },   // Medium stars
-      { count: 80, size: 8, opacity: 0.9, spread: 300, speed: 0.05 }      // Bright nearby stars
+      { count: this.isMobile ? 400 : 800, size: 2.5, opacity: 0.4, spread: 900, speed: 0.015, parallaxFactor: 0.2 },
+      { count: this.isMobile ? 300 : 600, size: 4, opacity: 0.6, spread: 700, speed: 0.025, parallaxFactor: 0.5 },
+      { count: this.isMobile ? 150 : 400, size: 7, opacity: 0.85, spread: 500, speed: 0.04, parallaxFactor: 1.0 }
     ];
 
     this.starGroups = [];
@@ -440,7 +556,7 @@ export class SolarSystemScene {
         // Initial positions
         positions[i * 3] = (Math.random() - 0.5) * layer.spread;
         positions[i * 3 + 1] = (Math.random() - 0.5) * layer.spread;
-        positions[i * 3 + 2] = Math.random() * -1200 + 100;
+        positions[i * 3 + 2] = Math.random() * -1600 + 100;  // Extended for deeper camera travel
 
         // Size variation
         sizes[i] = layer.size * (0.5 + Math.random() * 0.8);
@@ -488,17 +604,31 @@ export class SolarSystemScene {
       const material = new THREE.ShaderMaterial({
         uniforms: {
           starTexture: { value: starTexture },
-          time: { value: 0 }
+          time: { value: 0 },
+          uMousePosition: { value: new THREE.Vector2(0, 0) },
+          uParallaxStrength: { value: 0.5 },
+          uParallaxFactor: { value: layer.parallaxFactor || 1.0 }
         },
         vertexShader: `
           attribute float size;
           attribute vec3 color;
+          uniform vec2 uMousePosition;
+          uniform float uParallaxStrength;
+          uniform float uParallaxFactor;
           varying vec3 vColor;
           varying float vSize;
           void main() {
             vColor = color;
             vSize = size;
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+            // Apply parallax offset based on mouse position
+            vec3 parallaxOffset = vec3(
+              uMousePosition.x * 20.0 * uParallaxStrength * uParallaxFactor,
+              uMousePosition.y * 20.0 * uParallaxStrength * uParallaxFactor,
+              0.0
+            );
+
+            vec4 mvPosition = modelViewMatrix * vec4(position + parallaxOffset, 1.0);
             gl_PointSize = size * (300.0 / -mvPosition.z);
             gl_Position = projectionMatrix * mvPosition;
           }
@@ -573,6 +703,83 @@ export class SolarSystemScene {
     return texture;
   }
 
+  createDustMotes() {
+    // Reduce dust on mobile for performance
+    const dustCount = this.isMobile ? 80 : 200;
+
+    const positions = new Float32Array(dustCount * 3);
+    const sizes = new Float32Array(dustCount);
+
+    for (let i = 0; i < dustCount; i++) {
+      // Spread dust throughout the scene
+      positions[i * 3] = (Math.random() - 0.5) * 800;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 400;
+      positions[i * 3 + 2] = Math.random() * -1400;  // Extended for deeper camera travel
+
+      // Very small particles
+      sizes[i] = 1 + Math.random() * 2;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uOpacity: { value: 0.2 },
+        uMousePosition: { value: new THREE.Vector2(0, 0) },
+        uParallaxStrength: { value: 0.5 }
+      },
+      vertexShader: `
+        attribute float size;
+        uniform float uTime;
+        uniform vec2 uMousePosition;
+        uniform float uParallaxStrength;
+        varying float vOpacity;
+
+        void main() {
+          // Gentle curl-noise-like drift
+          vec3 pos = position;
+          float drift = sin(uTime * 0.3 + position.x * 0.01) * 5.0;
+          pos.y += drift;
+          pos.x += cos(uTime * 0.2 + position.y * 0.01) * 3.0;
+
+          // Parallax offset (strong - dust is in foreground)
+          pos.x += uMousePosition.x * 30.0 * uParallaxStrength;
+          pos.y += uMousePosition.y * 30.0 * uParallaxStrength;
+
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = size * (200.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+
+          // Fade based on distance
+          vOpacity = smoothstep(1000.0, 200.0, -mvPosition.z);
+        }
+      `,
+      fragmentShader: `
+        uniform float uOpacity;
+        varying float vOpacity;
+
+        void main() {
+          // Soft circular particle
+          vec2 center = gl_PointCoord - vec2(0.5);
+          float dist = length(center);
+          float alpha = smoothstep(0.5, 0.2, dist) * uOpacity * vOpacity;
+
+          // Warm dust color
+          gl_FragColor = vec4(0.9, 0.85, 0.8, alpha);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    this.dustMotes = new THREE.Points(geometry, material);
+    this.scene.add(this.dustMotes);
+  }
+
   animateStars() {
     if (!this.starData) return;
 
@@ -590,9 +797,10 @@ export class SolarSystemScene {
         positions[i * 3 + 2] = data.originalPositions[i * 3 + 2] +
           Math.sin(this.time * 0.08 + i * 0.3) * data.driftOffsets[i * 3 + 2] * 30;
 
-        // Twinkle effect on size
+        // Twinkle effect on size - controlled by Theatre.js
         const twinkle = Math.sin(this.time * data.twinkleSpeeds[i] + data.twinklePhases[i]);
-        sizes[i] = data.originalSizes[i] * (0.7 + twinkle * 0.3);
+        const twinkleAmount = twinkle * 0.3 * this.particleSettings.twinkleIntensity;
+        sizes[i] = data.originalSizes[i] * (1 + twinkleAmount);
       }
 
       geometry.attributes.position.needsUpdate = true;
@@ -847,10 +1055,112 @@ export class SolarSystemScene {
     };
   }
 
-  setupTheatreControls() {
-    // Animation config now handled by window.animationConfig
-    // Theatre.js will be added when bundler is introduced
-    console.log('Animation config loaded from window.animationConfig');
+  setupTheatreControls(retryCount = 0) {
+    const sheet = window.theatreSheet;
+    const types = window.theatreTypes;
+
+    if (!sheet || !types) {
+      if (retryCount < 10) {
+        setTimeout(() => this.setupTheatreControls(retryCount + 1), 500);
+      } else {
+        console.warn('Theatre.js failed to initialize after 5s');
+      }
+      return;
+    }
+
+    // Atmosphere controls
+    this.theatreObjects.atmosphere = sheet.object('Atmosphere', {
+      bgBrightness: types.number(0.7, { range: [0, 1] }),
+      bgGradientStrength: types.number(0.4, { range: [0, 1] }),
+      bloomStrength: types.number(0.9, { range: [0.4, 1.5] }),
+      bloomThreshold: types.number(0.6, { range: [0.4, 0.8] })
+    });
+
+    // Subscribe to atmosphere changes
+    this.theatreObjects.atmosphere.onValuesChange((values) => {
+      this.atmosphereSettings = values;
+      this.updateAtmosphere();
+    });
+
+    // Initialize with current values
+    this.atmosphereSettings = this.theatreObjects.atmosphere.value;
+
+    // Particles controls (prep for Phase B)
+    this.theatreObjects.particles = sheet.object('Particles', {
+      starDensityMultiplier: types.number(1.0, { range: [0.5, 2.0] }),
+      starBrightnessMin: types.number(0.3, { range: [0.1, 0.5] }),
+      starBrightnessMax: types.number(1.0, { range: [0.6, 1.0] }),
+      twinkleIntensity: types.number(0.6, { range: [0, 1] }),
+      nebulaOpacity: types.number(0.15, { range: [0, 0.3] }),
+      dustOpacity: types.number(0.2, { range: [0, 0.4] })
+    });
+
+    this.theatreObjects.particles.onValuesChange((values) => {
+      this.particleSettings = values;
+      this.updateParticles();
+    });
+
+    this.particleSettings = this.theatreObjects.particles.value;
+
+    // Motion controls (prep for Phase B parallax)
+    this.theatreObjects.motion = sheet.object('Motion', {
+      mouseParallaxStrength: types.number(0.5, { range: [0, 1] }),
+      scrollVelocityEffect: types.number(0.6, { range: [0, 1] })
+    });
+
+    this.theatreObjects.motion.onValuesChange((values) => {
+      this.motionSettings = values;
+    });
+
+    this.motionSettings = this.theatreObjects.motion.value;
+
+    console.log('Theatre.js controls initialized');
+  }
+
+  updateAtmosphere() {
+    // Update bloom settings
+    if (this.bloomPass) {
+      this.bloomPass.strength = this.atmosphereSettings.bloomStrength;
+      this.bloomPass.threshold = this.atmosphereSettings.bloomThreshold;
+    }
+
+    // Update background shader
+    if (this.backgroundMesh) {
+      this.backgroundMesh.material.uniforms.uBrightness.value = this.atmosphereSettings.bgBrightness;
+      this.backgroundMesh.material.uniforms.uGradientStrength.value = this.atmosphereSettings.bgGradientStrength;
+    }
+  }
+
+  updateParticles() {
+    // Update star brightness based on Theatre.js settings
+    if (!this.starGroups || !this.starData) return;
+
+    this.starData.forEach((data, layerIndex) => {
+      const geometry = this.starGroups[layerIndex].geometry;
+      const sizes = geometry.attributes.size.array;
+
+      for (let i = 0; i < data.layer.count; i++) {
+        // Apply brightness multiplier from Theatre.js
+        const baseBrightness = data.originalSizes[i];
+        const minBright = this.particleSettings.starBrightnessMin;
+        const maxBright = this.particleSettings.starBrightnessMax;
+
+        // Scale size based on brightness range and layer opacity
+        sizes[i] = baseBrightness * (minBright + (maxBright - minBright) * data.layer.opacity);
+      }
+
+      geometry.attributes.size.needsUpdate = true;
+    });
+
+    // Update nebula opacity from Theatre.js
+    if (this.nebulae) {
+      const opacity = this.particleSettings.nebulaOpacity;
+      this.nebulae.forEach((nebulaGroup) => {
+        nebulaGroup.children.forEach(sprite => {
+          sprite.material.opacity = opacity;
+        });
+      });
+    }
   }
 
   updateCamera() {
@@ -985,6 +1295,12 @@ export class SolarSystemScene {
 
     this.time += 0.016;
 
+    // Smooth mouse position for parallax (desktop only)
+    if (!this.isMobile) {
+      this.mousePosition.x += (this.targetMousePosition.x - this.mousePosition.x) * 0.05;
+      this.mousePosition.y += (this.targetMousePosition.y - this.mousePosition.y) * 0.05;
+    }
+
     // Get config values
     const config = this.getConfig();
 
@@ -1020,9 +1336,28 @@ export class SolarSystemScene {
 
     // Subtle nebula movement
     if (this.nebulae) {
-      this.nebulae.forEach((nebula, i) => {
-        nebula.rotation.z = Math.sin(this.time * 0.1 + i) * 0.02;
+      this.nebulae.forEach((nebulaGroup, i) => {
+        nebulaGroup.rotation.z = Math.sin(this.time * 0.1 + i) * 0.02;
       });
+    }
+
+    // Update star parallax uniforms (desktop only)
+    if (!this.isMobile && this.starGroups) {
+      this.starGroups.forEach((stars) => {
+        stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
+        stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+      });
+    }
+
+    // Update dust motes
+    if (this.dustMotes) {
+      this.dustMotes.material.uniforms.uTime.value = this.time;
+      this.dustMotes.material.uniforms.uOpacity.value = this.particleSettings.dustOpacity;
+      // Only update parallax on desktop
+      if (!this.isMobile) {
+        this.dustMotes.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
+        this.dustMotes.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+      }
     }
 
     // Animate stars (drift and twinkle) - throttled to every 3rd frame
@@ -1034,6 +1369,13 @@ export class SolarSystemScene {
     // Update shader uniforms
     if (this.atmospherePass) {
       this.atmospherePass.uniforms.time.value = this.time;
+    }
+
+    // Render background gradient first
+    if (this.bgScene && this.bgCamera) {
+      this.renderer.autoClear = false;
+      this.renderer.clear();
+      this.renderer.render(this.bgScene, this.bgCamera);
     }
 
     // Render with post-processing

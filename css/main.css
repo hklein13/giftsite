@@ -1,14 +1,14 @@
 /* css/main.css - Gift Site Redesign */
 
 :root {
-  /* Color Palette: Royal Blue + Soft Warmth */
-  --royal-blue: #1a2a4a;
-  --deep-navy: #0d1929;
-  --midnight: #060d18;
+  /* Color Palette: Cosmic Dawn (brighter blue-dominated) */
+  --royal-blue: #2a3a5a;    /* Was #1a2a4a - lifted for twilight feel */
+  --deep-navy: #1a2a4a;     /* Was #0d1929 - lifted one step */
+  --midnight: #0d1929;      /* Was #060d18 - lifted one step */
   --blush: #e8c4b8;
   --cream: #f0ebe3;
   --off-white: #faf8f5;
-  --soft-gray: #b8c4d4;
+  --soft-gray: #c8d4e4;     /* Was #b8c4d4 - slightly brighter */
   --gold: #d4a853;
 
   /* Typography */
