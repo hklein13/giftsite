@@ -948,9 +948,12 @@ export class SolarSystemScene {
     window.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
       this.scrollAccumulator = 0; // Fresh start for each gesture
-    }, { passive: true });
+    }, { passive: false }); // Non-passive to allow preventDefault in touchmove
 
     window.addEventListener('touchmove', (e) => {
+      // Prevent native scroll/bounce on iOS Safari - our handler controls navigation
+      e.preventDefault();
+
       if (this.isTransitioning) return;
 
       const touchY = e.touches[0].clientY;
@@ -971,7 +974,7 @@ export class SolarSystemScene {
         }
         this.scrollAccumulator = 0;
       }
-    }, { passive: true });
+    }, { passive: false }); // Non-passive required for preventDefault
   }
 
   transitionToStop(index) {
