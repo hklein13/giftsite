@@ -382,8 +382,10 @@ export class SolarSystemScene {
         float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.5);
 
         // Add subtle hue variation based on position for terrain-like appearance
-        float hueShift = snoise(vPosition * 0.3 + seed) * 0.1;
-        vec3 variedBase = baseColor + vec3(hueShift, hueShift * 0.5, -hueShift * 0.3);
+        // Each planet shifts colors in a unique direction based on its seed
+        float hueShift = snoise(vPosition * 0.3 + seed) * 0.12;
+        vec3 shiftDirection = normalize(seed);
+        vec3 variedBase = baseColor + shiftDirection * hueShift;
 
         // Combine varied base with detail and rim
         vec3 surfaceColor = mix(variedBase * 0.7, variedBase * 1.3, detail);
