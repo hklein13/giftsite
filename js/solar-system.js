@@ -533,13 +533,12 @@ export class SolarSystemScene {
     const starTexture = this.createStarTexture();
 
     // Reduce particle counts on mobile for performance
-    const isMobile = window.innerWidth < 768;
 
     // Multi-layered starfield with varying sizes, speeds, and brightness
     const starLayers = [
-      { count: isMobile ? 400 : 800, size: 2.5, opacity: 0.4, spread: 900, speed: 0.015, parallaxFactor: 0.2 },  // Was 600
-      { count: isMobile ? 300 : 600, size: 4, opacity: 0.6, spread: 700, speed: 0.025, parallaxFactor: 0.5 },   // Was 450
-      { count: isMobile ? 150 : 400, size: 7, opacity: 0.85, spread: 500, speed: 0.04, parallaxFactor: 1.0 }    // Was 350
+      { count: this.isMobile ? 400 : 800, size: 2.5, opacity: 0.4, spread: 900, speed: 0.015, parallaxFactor: 0.2 },
+      { count: this.isMobile ? 300 : 600, size: 4, opacity: 0.6, spread: 700, speed: 0.025, parallaxFactor: 0.5 },
+      { count: this.isMobile ? 150 : 400, size: 7, opacity: 0.85, spread: 500, speed: 0.04, parallaxFactor: 1.0 }
     ];
 
     this.starGroups = [];
@@ -1152,6 +1151,16 @@ export class SolarSystemScene {
 
       geometry.attributes.size.needsUpdate = true;
     });
+
+    // Update nebula opacity from Theatre.js
+    if (this.nebulae) {
+      const opacity = this.particleSettings.nebulaOpacity;
+      this.nebulae.forEach((nebulaGroup) => {
+        nebulaGroup.children.forEach(sprite => {
+          sprite.material.opacity = opacity;
+        });
+      });
+    }
   }
 
   updateCamera() {
@@ -1325,14 +1334,10 @@ export class SolarSystemScene {
       this.sun.scale.set(pulse, pulse, pulse);
     }
 
-    // Subtle nebula movement and opacity from Theatre.js
+    // Subtle nebula movement
     if (this.nebulae) {
       this.nebulae.forEach((nebulaGroup, i) => {
         nebulaGroup.rotation.z = Math.sin(this.time * 0.1 + i) * 0.02;
-        // Update opacity from Theatre.js
-        nebulaGroup.children.forEach(sprite => {
-          sprite.material.opacity = this.particleSettings.nebulaOpacity;
-        });
       });
     }
 
