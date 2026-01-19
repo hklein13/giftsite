@@ -970,18 +970,26 @@ nav.scrolled {
   }
 
   #scroll-container {
-    height: 400vh;
+    height: 100vh; /* No phantom scroll on mobile - gestures control navigation */
   }
 
-  /* Hide scrollbar on mobile - solar system uses gesture navigation with dot indicators */
+  /* Mobile: Treat solar system as gesture-controlled app, not scrollable page */
   html, body {
+    /* Hide scrollbar */
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
+    /* Prevent scroll chaining and pull-to-refresh (Chrome/Firefox) */
+    overscroll-behavior: none;
   }
 
   html::-webkit-scrollbar,
   body::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
+  }
+
+  /* Prevent double-tap zoom delay, allow our JS to handle gestures */
+  body {
+    touch-action: manipulation;
   }
 
   .page-nav {

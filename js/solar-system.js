@@ -948,7 +948,7 @@ export class SolarSystemScene {
     window.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
       this.scrollAccumulator = 0; // Fresh start for each gesture
-    }, { passive: true });
+    }, { passive: true }); // No preventDefault needed here
 
     window.addEventListener('touchmove', (e) => {
       if (this.isTransitioning) return;
@@ -957,6 +957,12 @@ export class SolarSystemScene {
       const deltaY = touchStartY - touchY;
       this.scrollAccumulator += deltaY * 1.0;
       touchStartY = touchY;
+
+      // Only preventDefault once clearly scrolling (not tapping) - preserves click events
+      // Threshold of 15px distinguishes scroll intent from tap wobble
+      if (Math.abs(this.scrollAccumulator) > 15) {
+        e.preventDefault();
+      }
 
       if (this.scrollAccumulator > this.scrollThreshold) {
         if (this.currentStopIndex < this.cameraStops.length - 1) {
@@ -971,7 +977,7 @@ export class SolarSystemScene {
         }
         this.scrollAccumulator = 0;
       }
-    }, { passive: true });
+    }, { passive: false }); // Non-passive required for preventDefault
   }
 
   transitionToStop(index) {
