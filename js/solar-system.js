@@ -370,8 +370,9 @@ export class SolarSystemScene {
 
       void main() {
         // Seed-based character variation (B: octave weights, C: turbulence)
-        float detailBias = clamp(seed.y * 0.003, -0.12, 0.12); // Shifts weight to fine detail
-        float turbulence = clamp(abs(seed.z) * 0.012, 0.0, 0.35); // Adds sharp ridged features
+        // seed.x varies -50 to +50 across planets, giving real variety
+        float detailBias = clamp(seed.x * 0.005, -0.2, 0.2); // Shifts weight to fine detail
+        float turbulence = clamp((seed.z + 50.0) * 0.006, 0.0, 0.5); // Adds sharp ridged features
 
         // Multi-layered noise with turbulence on dominant octaves
         // turbulence=0: smooth, turbulence>0: sharper ridged features
