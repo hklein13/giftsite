@@ -1180,8 +1180,9 @@ export class SolarSystemScene {
   }
 
   updateCamera() {
-    // Smooth interpolation toward target (higher value = faster snap)
-    const easeStrength = 0.04;
+    // Distance-adaptive easing: faster for larger jumps, smoother arrival
+    const distance = Math.abs(this.targetProgress - this.scrollProgress);
+    const easeStrength = 0.03 + distance * 0.05;
     this.scrollProgress += (this.targetProgress - this.scrollProgress) * easeStrength;
 
     // Determine which stop we're at or between
