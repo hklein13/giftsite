@@ -947,6 +947,7 @@ export class SolarSystemScene {
     let touchStartY = 0;
     window.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
+      this.scrollAccumulator = 0; // Fresh start for each gesture
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
@@ -991,6 +992,7 @@ export class SolarSystemScene {
     // Show click prompt after animation completes
     setTimeout(() => {
       this.isTransitioning = false;
+      this.scrollAccumulator = 0; // Prevent residual accumulation from triggering
       this.showClickPrompt();
     }, 800);
   }
