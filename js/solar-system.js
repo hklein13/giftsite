@@ -116,6 +116,7 @@ export class SolarSystemScene {
     this.createPlanets();
     this.createOrbitalPaths();
     this.createStarfield();
+    this.createDustMotes();
     this.createBackgroundGradient();
     this.setupPostProcessing();
 
@@ -687,6 +688,83 @@ export class SolarSystemScene {
     return texture;
   }
 
+  createDustMotes() {
+    // Reduce dust on mobile for performance
+    const dustCount = this.isMobile ? 80 : 200;
+
+    const positions = new Float32Array(dustCount * 3);
+    const sizes = new Float32Array(dustCount);
+
+    for (let i = 0; i < dustCount; i++) {
+      // Spread dust throughout the scene
+      positions[i * 3] = (Math.random() - 0.5) * 800;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 400;
+      positions[i * 3 + 2] = Math.random() * -1000;
+
+      // Very small particles
+      sizes[i] = 1 + Math.random() * 2;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uOpacity: { value: 0.2 },
+        uMousePosition: { value: new THREE.Vector2(0, 0) },
+        uParallaxStrength: { value: 0.5 }
+      },
+      vertexShader: `
+        attribute float size;
+        uniform float uTime;
+        uniform vec2 uMousePosition;
+        uniform float uParallaxStrength;
+        varying float vOpacity;
+
+        void main() {
+          // Gentle curl-noise-like drift
+          vec3 pos = position;
+          float drift = sin(uTime * 0.3 + position.x * 0.01) * 5.0;
+          pos.y += drift;
+          pos.x += cos(uTime * 0.2 + position.y * 0.01) * 3.0;
+
+          // Parallax offset (strong - dust is in foreground)
+          pos.x += uMousePosition.x * 30.0 * uParallaxStrength;
+          pos.y += uMousePosition.y * 30.0 * uParallaxStrength;
+
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = size * (200.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+
+          // Fade based on distance
+          vOpacity = smoothstep(1000.0, 200.0, -mvPosition.z);
+        }
+      `,
+      fragmentShader: `
+        uniform float uOpacity;
+        varying float vOpacity;
+
+        void main() {
+          // Soft circular particle
+          vec2 center = gl_PointCoord - vec2(0.5);
+          float dist = length(center);
+          float alpha = smoothstep(0.5, 0.2, dist) * uOpacity * vOpacity;
+
+          // Warm dust color
+          gl_FragColor = vec4(0.9, 0.85, 0.8, alpha);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    this.dustMotes = new THREE.Points(geometry, material);
+    this.scene.add(this.dustMotes);
+  }
+
   animateStars() {
     if (!this.starData) return;
 
@@ -1244,6 +1322,17 @@ export class SolarSystemScene {
         stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
         stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
       });
+    }
+
+    // Update dust motes
+    if (this.dustMotes) {
+      this.dustMotes.material.uniforms.uTime.value = this.time;
+      this.dustMotes.material.uniforms.uOpacity.value = this.particleSettings.dustOpacity;
+      // Only update parallax on desktop
+      if (!this.isMobile) {
+        this.dustMotes.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
+        this.dustMotes.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+      }
     }
 
     // Animate stars (drift and twinkle) - throttled to every 3rd frame
