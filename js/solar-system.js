@@ -1066,7 +1066,7 @@ export class SolarSystemScene {
     // Use window.animationConfig if available, otherwise defaults
     return window.animationConfig || {
       camera: { easeStrength: 0.05, transitionDuration: 1.5 },
-      planets: { glowIntensity: 0.2, bobAmount: 0.5, rotationSpeed: 0.002 },
+      planets: { glowIntensity: 0.2, bobAmount: 0.15, rotationSpeed: 0.002 },
       sun: { pulseAmount: 0.02, pulseSpeed: 1 }
     };
   }
