@@ -1369,11 +1369,19 @@ export class SolarSystemScene {
       });
     }
 
-    // Update star parallax uniforms (desktop only)
-    if (!this.isMobile && this.starGroups) {
-      this.starGroups.forEach((stars) => {
-        stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
-        stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+    // Update star parallax - camera position creates depth as you scroll
+    if (this.starGroups) {
+      this.starGroups.forEach((stars, i) => {
+        // Layer-specific parallax factor (far stars move less)
+        const parallaxFactor = [0.05, 0.1, 0.15][i] || 0.05;
+        stars.position.x = -this.camera.position.x * parallaxFactor;
+        stars.position.y = -this.camera.position.y * parallaxFactor;
+
+        // Mouse parallax (desktop only) - still works on top of camera parallax
+        if (!this.isMobile) {
+          stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
+          stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+        }
       });
     }
 
