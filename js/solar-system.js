@@ -908,6 +908,7 @@ export class SolarSystemScene {
     };
 
     this.atmospherePass = new window.ShaderPass(atmosphereShader);
+    this.atmospherePass.setSize(window.innerWidth / 2, window.innerHeight / 2);
     this.composer.addPass(this.atmospherePass);
   }
 
@@ -1299,6 +1300,10 @@ export class SolarSystemScene {
     this.composer.setSize(window.innerWidth, window.innerHeight);
     // Update bloom pass to maintain half-resolution optimization
     this.bloomPass.resolution.set(window.innerWidth / 2, window.innerHeight / 2);
+    // Update atmosphere pass to maintain half-resolution optimization
+    if (this.atmospherePass && this.atmospherePass.setSize) {
+      this.atmospherePass.setSize(window.innerWidth / 2, window.innerHeight / 2);
+    }
   }
 
   animate(timestamp = 0) {
