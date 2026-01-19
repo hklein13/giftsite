@@ -20,8 +20,6 @@
   },
   "homepage": "https://github.com/hklein13/giftsite#readme",
   "dependencies": {
-    "@theatre/core": "^0.7.2",
-    "@theatre/studio": "^0.7.2",
     "@vfx-js/core": "^0.8.0",
     "gsap": "^3.14.2",
     "lenis": "^1.3.17",

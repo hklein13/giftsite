@@ -38,8 +38,7 @@ export class SolarSystemScene {
     this._lookAtTarget = new THREE.Vector3(); // Reusable vector for camera lookAt
     this.lastTimestamp = 0; // For delta time calculation
 
-    // Theatre.js animation objects (will be set up after sheet is ready)
-    this.theatreObjects = {};
+    // Visual settings (hardcoded defaults - tune via code)
     this.atmosphereSettings = {
       bgBrightness: 0.7,
       bgGradientStrength: 0.4,
@@ -139,9 +138,6 @@ export class SolarSystemScene {
         this.targetMousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
       });
     }
-
-    // Theatre.js controls (with delay to ensure sheet is ready)
-    setTimeout(() => this.setupTheatreControls(), 500);
 
     // Ensure proper initial sizing (handles mobile viewport quirks)
     this.onResize();
@@ -276,8 +272,8 @@ export class SolarSystemScene {
           vec3 color = mix(uColorDark, uColorMid, smoothstep(0.0, 0.5, gradientMix));
           color = mix(color, uColorLight, smoothstep(0.5, 1.0, gradientMix) * uGradientStrength);
 
-          // Apply brightness
-          color *= uBrightness + 0.3;
+          // Apply brightness (raw value for testing - 0=black, 1=full)
+          color *= uBrightness;
 
           gl_FragColor = vec4(color, 1.0);
         }
@@ -852,7 +848,7 @@ export class SolarSystemScene {
         positions[i * 3 + 2] = data.originalPositions[i * 3 + 2] +
           Math.sin(this.time * 0.08 + i * 0.3) * data.driftOffsets[i * 3 + 2] * 30;
 
-        // Twinkle effect on size - controlled by Theatre.js
+        // Twinkle effect on size
         const twinkle = Math.sin(this.time * data.twinkleSpeeds[i] + data.twinklePhases[i]);
         const twinkleAmount = twinkle * 0.3 * this.particleSettings.twinkleIntensity;
         sizes[i] = data.originalSizes[i] * (1 + twinkleAmount);
@@ -1117,114 +1113,6 @@ export class SolarSystemScene {
       planets: { glowIntensity: 0.2, bobAmount: 0.15, rotationSpeed: 0.002 },
       sun: { pulseAmount: 0.02, pulseSpeed: 1 }
     };
-  }
-
-  setupTheatreControls(retryCount = 0) {
-    const sheet = window.theatreSheet;
-    const types = window.theatreTypes;
-
-    if (!sheet || !types) {
-      if (retryCount < 10) {
-        setTimeout(() => this.setupTheatreControls(retryCount + 1), 500);
-      } else {
-        console.warn('Theatre.js failed to initialize after 5s');
-      }
-      return;
-    }
-
-    // Atmosphere controls
-    this.theatreObjects.atmosphere = sheet.object('Atmosphere', {
-      bgBrightness: types.number(0.7, { range: [0, 1] }),
-      bgGradientStrength: types.number(0.4, { range: [0, 1] }),
-      bloomStrength: types.number(0.9, { range: [0.4, 1.5] }),
-      bloomThreshold: types.number(0.6, { range: [0.4, 0.8] })
-    });
-
-    // Subscribe to atmosphere changes
-    this.theatreObjects.atmosphere.onValuesChange((values) => {
-      this.atmosphereSettings = values;
-      this.updateAtmosphere();
-    });
-
-    // Initialize with current values
-    this.atmosphereSettings = this.theatreObjects.atmosphere.value;
-
-    // Particles controls (prep for Phase B)
-    this.theatreObjects.particles = sheet.object('Particles', {
-      starDensityMultiplier: types.number(1.0, { range: [0.5, 2.0] }),
-      starBrightnessMin: types.number(0.3, { range: [0.1, 0.5] }),
-      starBrightnessMax: types.number(1.0, { range: [0.6, 1.0] }),
-      twinkleIntensity: types.number(0.6, { range: [0, 1] }),
-      nebulaOpacity: types.number(0.15, { range: [0, 0.3] }),
-      dustOpacity: types.number(0.2, { range: [0, 0.4] })
-    });
-
-    this.theatreObjects.particles.onValuesChange((values) => {
-      this.particleSettings = values;
-      this.updateParticles();
-    });
-
-    this.particleSettings = this.theatreObjects.particles.value;
-
-    // Motion controls (prep for Phase B parallax)
-    this.theatreObjects.motion = sheet.object('Motion', {
-      mouseParallaxStrength: types.number(0.5, { range: [0, 1] }),
-      scrollVelocityEffect: types.number(0.6, { range: [0, 1] })
-    });
-
-    this.theatreObjects.motion.onValuesChange((values) => {
-      this.motionSettings = values;
-    });
-
-    this.motionSettings = this.theatreObjects.motion.value;
-
-    console.log('Theatre.js controls initialized');
-  }
-
-  updateAtmosphere() {
-    // Update bloom settings
-    if (this.bloomPass) {
-      this.bloomPass.strength = this.atmosphereSettings.bloomStrength;
-      this.bloomPass.threshold = this.atmosphereSettings.bloomThreshold;
-    }
-
-    // Update background shader
-    if (this.backgroundMesh) {
-      this.backgroundMesh.material.uniforms.uBrightness.value = this.atmosphereSettings.bgBrightness;
-      this.backgroundMesh.material.uniforms.uGradientStrength.value = this.atmosphereSettings.bgGradientStrength;
-    }
-  }
-
-  updateParticles() {
-    // Update star brightness based on Theatre.js settings
-    if (!this.starGroups || !this.starData) return;
-
-    this.starData.forEach((data, layerIndex) => {
-      const geometry = this.starGroups[layerIndex].geometry;
-      const sizes = geometry.attributes.size.array;
-
-      for (let i = 0; i < data.layer.count; i++) {
-        // Apply brightness multiplier from Theatre.js
-        const baseBrightness = data.originalSizes[i];
-        const minBright = this.particleSettings.starBrightnessMin;
-        const maxBright = this.particleSettings.starBrightnessMax;
-
-        // Scale size based on brightness range and layer opacity
-        sizes[i] = baseBrightness * (minBright + (maxBright - minBright) * data.layer.opacity);
-      }
-
-      geometry.attributes.size.needsUpdate = true;
-    });
-
-    // Update nebula opacity from Theatre.js
-    if (this.nebulae) {
-      const opacity = this.particleSettings.nebulaOpacity;
-      this.nebulae.forEach((nebulaGroup) => {
-        nebulaGroup.children.forEach(sprite => {
-          sprite.material.opacity = opacity;
-        });
-      });
-    }
   }
 
   updateCamera() {
