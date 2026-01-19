@@ -505,9 +505,9 @@ export class SolarSystemScene {
 
     // Multi-layered starfield with varying sizes, speeds, and brightness
     const starLayers = [
-      { count: 600, size: 3, opacity: 0.5, spread: 500, speed: 0.02 },    // Distant dim stars
-      { count: 300, size: 5, opacity: 0.7, spread: 400, speed: 0.035 },   // Medium stars
-      { count: 80, size: 8, opacity: 0.9, spread: 300, speed: 0.05 }      // Bright nearby stars
+      { count: 800, size: 2.5, opacity: 0.4, spread: 600, speed: 0.015, parallaxFactor: 0.2 },  // Background - minimal parallax
+      { count: 600, size: 4, opacity: 0.6, spread: 450, speed: 0.025, parallaxFactor: 0.5 },   // Mid layer - medium parallax
+      { count: 400, size: 7, opacity: 0.85, spread: 350, speed: 0.04, parallaxFactor: 1.0 }    // Foreground - full parallax
     ];
 
     this.starGroups = [];
