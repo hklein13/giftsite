@@ -320,11 +320,13 @@ export class SolarSystemScene {
       }
 
       void main() {
-        // Multi-layered noise for surface detail
+        // Multi-layered noise for surface detail (5 octaves for richer texture)
         float n1 = snoise(vPosition * 0.15 + time * 0.02) * 0.5 + 0.5;
         float n2 = snoise(vPosition * 0.4 + time * 0.01) * 0.5 + 0.5;
         float n3 = snoise(vPosition * 0.8) * 0.5 + 0.5;
-        float detail = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
+        float n4 = snoise(vPosition * 1.6) * 0.5 + 0.5;
+        float n5 = snoise(vPosition * 3.2) * 0.5 + 0.5;
+        float detail = n1 * 0.35 + n2 * 0.25 + n3 * 0.2 + n4 * 0.12 + n5 * 0.08;
 
         // Fresnel rim lighting
         float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.5);
