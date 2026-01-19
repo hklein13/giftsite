@@ -314,6 +314,7 @@ export class SolarSystemScene {
       uniform vec3 baseColor;
       uniform vec3 glowColor;
       uniform float time;
+      uniform vec3 seed;
       varying vec3 vNormal;
       varying vec3 vPosition;
       varying vec2 vUv;
@@ -369,18 +370,19 @@ export class SolarSystemScene {
 
       void main() {
         // Multi-layered noise for surface detail (5 octaves for richer texture)
-        float n1 = snoise(vPosition * 0.15 + time * 0.02) * 0.5 + 0.5;
-        float n2 = snoise(vPosition * 0.4 + time * 0.01) * 0.5 + 0.5;
-        float n3 = snoise(vPosition * 0.8) * 0.5 + 0.5;
-        float n4 = snoise(vPosition * 1.6) * 0.5 + 0.5;
-        float n5 = snoise(vPosition * 3.2) * 0.5 + 0.5;
+        // Seed offset creates unique pattern per planet
+        float n1 = snoise(vPosition * 0.15 + seed + time * 0.02) * 0.5 + 0.5;
+        float n2 = snoise(vPosition * 0.4 + seed + time * 0.01) * 0.5 + 0.5;
+        float n3 = snoise(vPosition * 0.8 + seed) * 0.5 + 0.5;
+        float n4 = snoise(vPosition * 1.6 + seed) * 0.5 + 0.5;
+        float n5 = snoise(vPosition * 3.2 + seed) * 0.5 + 0.5;
         float detail = n1 * 0.35 + n2 * 0.25 + n3 * 0.2 + n4 * 0.12 + n5 * 0.08;
 
         // Fresnel rim lighting - sharpened for crisp silhouettes
         float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.5);
 
         // Add subtle hue variation based on position for terrain-like appearance
-        float hueShift = snoise(vPosition * 0.3) * 0.1;
+        float hueShift = snoise(vPosition * 0.3 + seed) * 0.1;
         vec3 variedBase = baseColor + vec3(hueShift, hueShift * 0.5, -hueShift * 0.3);
 
         // Combine varied base with detail and rim
@@ -396,11 +398,18 @@ export class SolarSystemScene {
 
       // Planet core with shader material
       const geometry = new THREE.SphereGeometry(config.radius, 64, 64);
+      // Generate unique seed for each planet's noise pattern
+      const planetSeed = new THREE.Vector3(
+        Math.sin(config.position.x * 0.1) * 50,
+        Math.cos(config.position.y * 0.1) * 50,
+        Math.sin(config.position.z * 0.05) * 50
+      );
       const material = new THREE.ShaderMaterial({
         uniforms: {
           baseColor: { value: new THREE.Color(config.color) },
           glowColor: { value: new THREE.Color(config.glowColor) },
-          time: { value: 0 }
+          time: { value: 0 },
+          seed: { value: planetSeed }
         },
         vertexShader: planetVertexShader,
         fragmentShader: planetFragmentShader,
