@@ -513,11 +513,14 @@ export class SolarSystemScene {
     // Create star texture with glow
     const starTexture = this.createStarTexture();
 
+    // Reduce particle counts on mobile for performance
+    const isMobile = window.innerWidth < 768;
+
     // Multi-layered starfield with varying sizes, speeds, and brightness
     const starLayers = [
-      { count: 800, size: 2.5, opacity: 0.4, spread: 600, speed: 0.015, parallaxFactor: 0.2 },  // Background - minimal parallax
-      { count: 600, size: 4, opacity: 0.6, spread: 450, speed: 0.025, parallaxFactor: 0.5 },   // Mid layer - medium parallax
-      { count: 400, size: 7, opacity: 0.85, spread: 350, speed: 0.04, parallaxFactor: 1.0 }    // Foreground - full parallax
+      { count: isMobile ? 400 : 800, size: 2.5, opacity: 0.4, spread: 600, speed: 0.015, parallaxFactor: 0.2 },  // Background - minimal parallax
+      { count: isMobile ? 300 : 600, size: 4, opacity: 0.6, spread: 450, speed: 0.025, parallaxFactor: 0.5 },   // Mid layer - medium parallax
+      { count: isMobile ? 150 : 400, size: 7, opacity: 0.85, spread: 350, speed: 0.04, parallaxFactor: 1.0 }    // Foreground - full parallax
     ];
 
     this.starGroups = [];
