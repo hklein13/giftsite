@@ -1305,6 +1305,10 @@ export class SolarSystemScene {
     requestAnimationFrame((t) => this.animate(t));
 
     // Delta time: frame-rate independent, capped at 100ms to handle tab switches
+    // Initialize lastTimestamp on first frame to avoid artificial skip
+    if (this.lastTimestamp === 0) {
+      this.lastTimestamp = timestamp;
+    }
     const delta = Math.min((timestamp - this.lastTimestamp) / 1000, 0.1);
     this.lastTimestamp = timestamp;
     this.time += delta;
