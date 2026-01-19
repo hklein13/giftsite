@@ -34,6 +34,7 @@ export class SolarSystemScene {
     this.planets = {};
     this.time = 0;
     this.starFrameCounter = 0;
+    this.config = this.getConfig(); // Cache config - never changes at runtime
 
     // Theatre.js animation objects (will be set up after sheet is ready)
     this.theatreObjects = {};
@@ -1310,7 +1311,7 @@ export class SolarSystemScene {
     }
 
     // Get config values
-    const config = this.getConfig();
+    const config = this.config;
 
     // Update camera based on scroll
     this.updateCamera();
