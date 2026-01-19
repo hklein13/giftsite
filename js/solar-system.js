@@ -36,6 +36,7 @@ export class SolarSystemScene {
     this.starFrameCounter = 0;
     this.config = this.getConfig(); // Cache config - never changes at runtime
     this._lookAtTarget = new THREE.Vector3(); // Reusable vector for camera lookAt
+    this.lastTimestamp = 0; // For delta time calculation
 
     // Theatre.js animation objects (will be set up after sheet is ready)
     this.theatreObjects = {};
@@ -142,7 +143,7 @@ export class SolarSystemScene {
     this.onResize();
 
     // Start render loop
-    this.animate();
+    requestAnimationFrame((t) => this.animate(t));
   }
 
   createSun() {
@@ -1300,10 +1301,13 @@ export class SolarSystemScene {
     this.bloomPass.resolution.set(window.innerWidth / 2, window.innerHeight / 2);
   }
 
-  animate() {
-    requestAnimationFrame(() => this.animate());
+  animate(timestamp = 0) {
+    requestAnimationFrame((t) => this.animate(t));
 
-    this.time += 0.016;
+    // Delta time: frame-rate independent, capped at 100ms to handle tab switches
+    const delta = Math.min((timestamp - this.lastTimestamp) / 1000, 0.1);
+    this.lastTimestamp = timestamp;
+    this.time += delta;
 
     // Smooth mouse position for parallax (desktop only)
     if (!this.isMobile) {
