@@ -35,6 +35,7 @@ export class SolarSystemScene {
     this.time = 0;
     this.starFrameCounter = 0;
     this.config = this.getConfig(); // Cache config - never changes at runtime
+    this._lookAtTarget = new THREE.Vector3(); // Reusable vector for camera lookAt
 
     // Theatre.js animation objects (will be set up after sheet is ready)
     this.theatreObjects = {};
@@ -1191,8 +1192,8 @@ export class SolarSystemScene {
     this.camera.position.lerpVectors(currentStop.pos, nextStop.pos, stopProgress);
 
     // Interpolate look-at target
-    const lookAtTarget = new THREE.Vector3().lerpVectors(currentStop.lookAt, nextStop.lookAt, stopProgress);
-    this.camera.lookAt(lookAtTarget);
+    this._lookAtTarget.lerpVectors(currentStop.lookAt, nextStop.lookAt, stopProgress);
+    this.camera.lookAt(this._lookAtTarget);
   }
 
   updateCurrentPlanet(exactStop) {
