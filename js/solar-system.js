@@ -34,6 +34,9 @@ export class SolarSystemScene {
     this.planets = {};
     this.time = 0;
     this.starFrameCounter = 0;
+    this.config = this.getConfig(); // Cache config - never changes at runtime
+    this._lookAtTarget = new THREE.Vector3(); // Reusable vector for camera lookAt
+    this.lastTimestamp = 0; // For delta time calculation
 
     // Theatre.js animation objects (will be set up after sheet is ready)
     this.theatreObjects = {};
@@ -118,6 +121,10 @@ export class SolarSystemScene {
     this.createStarfield();
     this.createDustMotes();
     this.createBackgroundGradient();
+
+    // Subtle distance fog for atmospheric depth
+    this.scene.fog = new THREE.FogExp2(0x0d1929, 0.0008);
+
     this.setupPostProcessing();
 
     // Event listeners
@@ -140,7 +147,7 @@ export class SolarSystemScene {
     this.onResize();
 
     // Start render loop
-    this.animate();
+    requestAnimationFrame((t) => this.animate(t));
   }
 
   createSun() {
@@ -905,6 +912,7 @@ export class SolarSystemScene {
     };
 
     this.atmospherePass = new window.ShaderPass(atmosphereShader);
+    this.atmospherePass.setSize(window.innerWidth / 2, window.innerHeight / 2);
     this.composer.addPass(this.atmospherePass);
   }
 
@@ -1058,7 +1066,7 @@ export class SolarSystemScene {
     // Use window.animationConfig if available, otherwise defaults
     return window.animationConfig || {
       camera: { easeStrength: 0.05, transitionDuration: 1.5 },
-      planets: { glowIntensity: 0.2, bobAmount: 0.5, rotationSpeed: 0.002 },
+      planets: { glowIntensity: 0.2, bobAmount: 0.15, rotationSpeed: 0.002 },
       sun: { pulseAmount: 0.02, pulseSpeed: 1 }
     };
   }
@@ -1172,8 +1180,9 @@ export class SolarSystemScene {
   }
 
   updateCamera() {
-    // Smooth interpolation toward target (higher value = faster snap)
-    const easeStrength = 0.04;
+    // Distance-adaptive easing: faster for larger jumps, smoother arrival
+    const distance = Math.abs(this.targetProgress - this.scrollProgress);
+    const easeStrength = 0.03 + distance * 0.05;
     this.scrollProgress += (this.targetProgress - this.scrollProgress) * easeStrength;
 
     // Determine which stop we're at or between
@@ -1190,8 +1199,8 @@ export class SolarSystemScene {
     this.camera.position.lerpVectors(currentStop.pos, nextStop.pos, stopProgress);
 
     // Interpolate look-at target
-    const lookAtTarget = new THREE.Vector3().lerpVectors(currentStop.lookAt, nextStop.lookAt, stopProgress);
-    this.camera.lookAt(lookAtTarget);
+    this._lookAtTarget.lerpVectors(currentStop.lookAt, nextStop.lookAt, stopProgress);
+    this.camera.lookAt(this._lookAtTarget);
   }
 
   updateCurrentPlanet(exactStop) {
@@ -1296,12 +1305,23 @@ export class SolarSystemScene {
     this.composer.setSize(window.innerWidth, window.innerHeight);
     // Update bloom pass to maintain half-resolution optimization
     this.bloomPass.resolution.set(window.innerWidth / 2, window.innerHeight / 2);
+    // Update atmosphere pass to maintain half-resolution optimization
+    if (this.atmospherePass && this.atmospherePass.setSize) {
+      this.atmospherePass.setSize(window.innerWidth / 2, window.innerHeight / 2);
+    }
   }
 
-  animate() {
-    requestAnimationFrame(() => this.animate());
+  animate(timestamp = 0) {
+    requestAnimationFrame((t) => this.animate(t));
 
-    this.time += 0.016;
+    // Delta time: frame-rate independent, capped at 100ms to handle tab switches
+    // Initialize lastTimestamp on first frame to avoid artificial skip
+    if (this.lastTimestamp === 0) {
+      this.lastTimestamp = timestamp;
+    }
+    const delta = Math.min((timestamp - this.lastTimestamp) / 1000, 0.1);
+    this.lastTimestamp = timestamp;
+    this.time += delta;
 
     // Smooth mouse position for parallax (desktop only)
     if (!this.isMobile) {
@@ -1310,7 +1330,7 @@ export class SolarSystemScene {
     }
 
     // Get config values
-    const config = this.getConfig();
+    const config = this.config;
 
     // Update camera based on scroll
     this.updateCamera();
@@ -1349,11 +1369,19 @@ export class SolarSystemScene {
       });
     }
 
-    // Update star parallax uniforms (desktop only)
-    if (!this.isMobile && this.starGroups) {
-      this.starGroups.forEach((stars) => {
-        stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
-        stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+    // Update star parallax - camera position creates depth as you scroll
+    if (this.starGroups) {
+      this.starGroups.forEach((stars, i) => {
+        // Layer-specific parallax factor (far stars move less)
+        const parallaxFactor = [0.05, 0.1, 0.15][i] || 0.05;
+        stars.position.x = -this.camera.position.x * parallaxFactor;
+        stars.position.y = -this.camera.position.y * parallaxFactor;
+
+        // Mouse parallax (desktop only) - still works on top of camera parallax
+        if (!this.isMobile) {
+          stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
+          stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+        }
       });
     }
 
