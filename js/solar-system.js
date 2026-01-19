@@ -414,12 +414,15 @@ export class SolarSystemScene {
   }
 
   createNebulae() {
-    // Reduce nebula count on mobile for performance
+    // Reduce nebula count on mobile
     let nebulaPositions = [
       { pos: new THREE.Vector3(-30, 20, -80), color: 0x3a6aee, scale: 60 },
       { pos: new THREE.Vector3(40, -15, -220), color: 0x5abaff, scale: 80 },
       { pos: new THREE.Vector3(-50, 25, -380), color: 0x7a6aee, scale: 70 },
-      { pos: new THREE.Vector3(35, -20, -520), color: 0x4abaaa, scale: 65 }
+      { pos: new THREE.Vector3(35, -20, -520), color: 0x4abaaa, scale: 65 },
+      // Deep nebulae visible at Facilitate
+      { pos: new THREE.Vector3(-40, 15, -650), color: 0x5a8aee, scale: 70 },
+      { pos: new THREE.Vector3(30, -10, -720), color: 0x4ababa, scale: 60 }
     ];
 
     // Add extra nebulae on desktop only
@@ -428,7 +431,10 @@ export class SolarSystemScene {
         { pos: new THREE.Vector3(60, 30, -150), color: 0x4a7aee, scale: 55 },
         { pos: new THREE.Vector3(-40, -25, -280), color: 0x6aaaff, scale: 75 },
         { pos: new THREE.Vector3(20, 35, -450), color: 0x5a5aee, scale: 60 },
-        { pos: new THREE.Vector3(-55, 10, -580), color: 0x5ababa, scale: 70 }
+        { pos: new THREE.Vector3(-55, 10, -580), color: 0x5ababa, scale: 70 },
+        // Extra deep nebulae for desktop
+        { pos: new THREE.Vector3(45, 20, -680), color: 0x6a9aee, scale: 65 },
+        { pos: new THREE.Vector3(-35, -15, -750), color: 0x5acaca, scale: 55 }
       ]);
     }
 
@@ -531,9 +537,9 @@ export class SolarSystemScene {
 
     // Multi-layered starfield with varying sizes, speeds, and brightness
     const starLayers = [
-      { count: isMobile ? 400 : 800, size: 2.5, opacity: 0.4, spread: 600, speed: 0.015, parallaxFactor: 0.2 },  // Background - minimal parallax
-      { count: isMobile ? 300 : 600, size: 4, opacity: 0.6, spread: 450, speed: 0.025, parallaxFactor: 0.5 },   // Mid layer - medium parallax
-      { count: isMobile ? 150 : 400, size: 7, opacity: 0.85, spread: 350, speed: 0.04, parallaxFactor: 1.0 }    // Foreground - full parallax
+      { count: isMobile ? 400 : 800, size: 2.5, opacity: 0.4, spread: 900, speed: 0.015, parallaxFactor: 0.2 },  // Was 600
+      { count: isMobile ? 300 : 600, size: 4, opacity: 0.6, spread: 700, speed: 0.025, parallaxFactor: 0.5 },   // Was 450
+      { count: isMobile ? 150 : 400, size: 7, opacity: 0.85, spread: 500, speed: 0.04, parallaxFactor: 1.0 }    // Was 350
     ];
 
     this.starGroups = [];
@@ -551,7 +557,7 @@ export class SolarSystemScene {
         // Initial positions
         positions[i * 3] = (Math.random() - 0.5) * layer.spread;
         positions[i * 3 + 1] = (Math.random() - 0.5) * layer.spread;
-        positions[i * 3 + 2] = Math.random() * -1200 + 100;
+        positions[i * 3 + 2] = Math.random() * -1600 + 100;  // Extended for deeper camera travel
 
         // Size variation
         sizes[i] = layer.size * (0.5 + Math.random() * 0.8);
@@ -709,7 +715,7 @@ export class SolarSystemScene {
       // Spread dust throughout the scene
       positions[i * 3] = (Math.random() - 0.5) * 800;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 400;
-      positions[i * 3 + 2] = Math.random() * -1000;
+      positions[i * 3 + 2] = Math.random() * -1400;  // Extended for deeper camera travel
 
       // Very small particles
       sizes[i] = 1 + Math.random() * 2;
