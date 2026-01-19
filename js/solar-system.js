@@ -121,6 +121,10 @@ export class SolarSystemScene {
     this.createStarfield();
     this.createDustMotes();
     this.createBackgroundGradient();
+
+    // Subtle distance fog for atmospheric depth
+    this.scene.fog = new THREE.FogExp2(0x0d1929, 0.0008);
+
     this.setupPostProcessing();
 
     // Event listeners
