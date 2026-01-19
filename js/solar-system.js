@@ -583,17 +583,31 @@ export class SolarSystemScene {
       const material = new THREE.ShaderMaterial({
         uniforms: {
           starTexture: { value: starTexture },
-          time: { value: 0 }
+          time: { value: 0 },
+          uMousePosition: { value: new THREE.Vector2(0, 0) },
+          uParallaxStrength: { value: 0.5 },
+          uParallaxFactor: { value: layer.parallaxFactor || 1.0 }
         },
         vertexShader: `
           attribute float size;
           attribute vec3 color;
+          uniform vec2 uMousePosition;
+          uniform float uParallaxStrength;
+          uniform float uParallaxFactor;
           varying vec3 vColor;
           varying float vSize;
           void main() {
             vColor = color;
             vSize = size;
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+            // Apply parallax offset based on mouse position
+            vec3 parallaxOffset = vec3(
+              uMousePosition.x * 20.0 * uParallaxStrength * uParallaxFactor,
+              uMousePosition.y * 20.0 * uParallaxStrength * uParallaxFactor,
+              0.0
+            );
+
+            vec4 mvPosition = modelViewMatrix * vec4(position + parallaxOffset, 1.0);
             gl_PointSize = size * (300.0 / -mvPosition.z);
             gl_Position = projectionMatrix * mvPosition;
           }
@@ -1191,6 +1205,14 @@ export class SolarSystemScene {
     if (this.nebulae) {
       this.nebulae.forEach((nebula, i) => {
         nebula.rotation.z = Math.sin(this.time * 0.1 + i) * 0.02;
+      });
+    }
+
+    // Update star parallax uniforms
+    if (this.starGroups) {
+      this.starGroups.forEach((stars) => {
+        stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
+        stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
       });
     }
 
