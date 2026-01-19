@@ -18,8 +18,8 @@ export class SolarSystemScene {
     // Three.js basics
     this.scene = new THREE.Scene();
     // Use wider FOV on mobile so planets appear smaller/more distant
-    const isMobile = window.innerWidth < 768;
-    const baseFOV = isMobile ? 85 : 60;
+    this.isMobile = window.innerWidth < 768;
+    const baseFOV = this.isMobile ? 85 : 60;
     this.camera = new THREE.PerspectiveCamera(baseFOV, window.innerWidth / window.innerHeight, 0.1, 2000);
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -124,11 +124,13 @@ export class SolarSystemScene {
     this.setupScrollListener();
     this.setupClickListeners();
 
-    // Mouse tracking for parallax
-    window.addEventListener('mousemove', (e) => {
-      this.targetMousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
-      this.targetMousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
-    });
+    // Mouse tracking for parallax (desktop only)
+    if (!this.isMobile) {
+      window.addEventListener('mousemove', (e) => {
+        this.targetMousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+        this.targetMousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      });
+    }
 
     // Theatre.js controls (with delay to ensure sheet is ready)
     setTimeout(() => this.setupTheatreControls(), 500);
@@ -1190,9 +1192,11 @@ export class SolarSystemScene {
 
     this.time += 0.016;
 
-    // Smooth mouse position for parallax
-    this.mousePosition.x += (this.targetMousePosition.x - this.mousePosition.x) * 0.05;
-    this.mousePosition.y += (this.targetMousePosition.y - this.mousePosition.y) * 0.05;
+    // Smooth mouse position for parallax (desktop only)
+    if (!this.isMobile) {
+      this.mousePosition.x += (this.targetMousePosition.x - this.mousePosition.x) * 0.05;
+      this.mousePosition.y += (this.targetMousePosition.y - this.mousePosition.y) * 0.05;
+    }
 
     // Get config values
     const config = this.getConfig();
@@ -1234,8 +1238,8 @@ export class SolarSystemScene {
       });
     }
 
-    // Update star parallax uniforms
-    if (this.starGroups) {
+    // Update star parallax uniforms (desktop only)
+    if (!this.isMobile && this.starGroups) {
       this.starGroups.forEach((stars) => {
         stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
         stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
