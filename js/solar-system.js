@@ -153,12 +153,12 @@ export class SolarSystemScene {
   createSun() {
     const sunGroup = new THREE.Group();
 
-    // Sun core - subtle warm glow in background
+    // Sun core - warm glow
     const sunGeometry = new THREE.SphereGeometry(40, 64, 64);
     const sunMaterial = new THREE.MeshBasicMaterial({
       color: 0xffe4c4,
       transparent: true,
-      opacity: 0.4
+      opacity: 0.5
     });
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     sunGroup.add(sun);
@@ -169,12 +169,60 @@ export class SolarSystemScene {
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: 0xffcc88,
         transparent: true,
-        opacity: 0.04 / i,
+        opacity: 0.05 / i,
         side: THREE.BackSide
       });
       const glow = new THREE.Mesh(glowGeometry, glowMaterial);
       sunGroup.add(glow);
     }
+
+    // Corona rays - subtle radial glow
+    const coronaGeometry = new THREE.PlaneGeometry(200, 200);
+    const coronaMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        varying vec2 vUv;
+
+        void main() {
+          vec2 center = vUv - 0.5;
+          float dist = length(center);
+          float angle = atan(center.y, center.x);
+
+          // Radial rays with slight animation
+          float rays = sin(angle * 8.0 + uTime * 0.2) * 0.5 + 0.5;
+          rays = pow(rays, 3.0); // Sharpen rays
+
+          // Falloff from center
+          float falloff = 1.0 - smoothstep(0.0, 0.5, dist);
+          falloff = pow(falloff, 2.0);
+
+          // Combine
+          float alpha = rays * falloff * 0.15;
+          vec3 color = vec3(1.0, 0.9, 0.7); // Warm corona color
+
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+
+    const corona = new THREE.Mesh(coronaGeometry, coronaMaterial);
+    corona.userData.material = coronaMaterial; // Store reference for animation
+    sunGroup.add(corona);
+    this.sunCorona = corona; // Store reference
 
     // Position sun far in the background (end of journey)
     sunGroup.position.set(0, 0, -900);
@@ -326,12 +374,12 @@ export class SolarSystemScene {
         float n3 = snoise(vPosition * 0.8) * 0.5 + 0.5;
         float detail = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
 
-        // Fresnel rim lighting
-        float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.5);
+        // Fresnel rim lighting - sharpened for crisp silhouettes
+        float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.5);
 
         // Combine base color with detail and rim
         vec3 surfaceColor = mix(baseColor * 0.7, baseColor * 1.3, detail);
-        vec3 finalColor = mix(surfaceColor, glowColor, fresnel * 0.6);
+        vec3 finalColor = mix(surfaceColor, glowColor, fresnel * 0.7);
 
         gl_FragColor = vec4(finalColor, 0.95);
       }
@@ -828,9 +876,9 @@ export class SolarSystemScene {
     // Bloom pass
     this.bloomPass = new window.UnrealBloomPass(
       new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2), // Half resolution
-      0.8,   // strength (reduced from 1.0)
-      0.8,   // radius (unchanged)
-      0.65   // threshold (increased from 0.6 - less bloom on mid-tones)
+      0.85,  // strength (slightly increased for corona visibility)
+      0.8,   // radius
+      0.7    // threshold (raised to prevent over-bloom on bright rims)
     );
     this.composer.addPass(this.bloomPass);
 
@@ -1360,6 +1408,11 @@ export class SolarSystemScene {
     if (this.sun) {
       const pulse = 1 + Math.sin(this.time * config.sun.pulseSpeed) * config.sun.pulseAmount;
       this.sun.scale.set(pulse, pulse, pulse);
+    }
+
+    // Animate corona rays
+    if (this.sunCorona && this.sunCorona.userData.material) {
+      this.sunCorona.userData.material.uniforms.uTime.value = this.time;
     }
 
     // Subtle nebula movement
