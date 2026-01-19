@@ -56,6 +56,10 @@ export class SolarSystemScene {
       scrollVelocityEffect: 0.6
     };
 
+    // Mouse position for parallax (normalized -1 to 1)
+    this.mousePosition = { x: 0, y: 0 };
+    this.targetMousePosition = { x: 0, y: 0 };
+
     // Planet configurations - LINEAR PATH into the distance
     // Planets arranged along z-axis with slight x/y offsets for visual interest
     this.planetConfigs = {
@@ -119,6 +123,12 @@ export class SolarSystemScene {
     window.addEventListener('resize', this.debounce(() => this.onResize(), 200));
     this.setupScrollListener();
     this.setupClickListeners();
+
+    // Mouse tracking for parallax
+    window.addEventListener('mousemove', (e) => {
+      this.targetMousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+      this.targetMousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
 
     // Theatre.js controls (with delay to ensure sheet is ready)
     setTimeout(() => this.setupTheatreControls(), 500);
@@ -1139,6 +1149,10 @@ export class SolarSystemScene {
     requestAnimationFrame(() => this.animate());
 
     this.time += 0.016;
+
+    // Smooth mouse position for parallax
+    this.mousePosition.x += (this.targetMousePosition.x - this.mousePosition.x) * 0.05;
+    this.mousePosition.y += (this.targetMousePosition.y - this.mousePosition.y) * 0.05;
 
     // Get config values
     const config = this.getConfig();
