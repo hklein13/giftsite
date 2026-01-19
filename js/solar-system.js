@@ -699,9 +699,10 @@ export class SolarSystemScene {
         positions[i * 3 + 2] = data.originalPositions[i * 3 + 2] +
           Math.sin(this.time * 0.08 + i * 0.3) * data.driftOffsets[i * 3 + 2] * 30;
 
-        // Twinkle effect on size
+        // Twinkle effect on size - controlled by Theatre.js
         const twinkle = Math.sin(this.time * data.twinkleSpeeds[i] + data.twinklePhases[i]);
-        sizes[i] = data.originalSizes[i] * (0.7 + twinkle * 0.3);
+        const twinkleAmount = twinkle * 0.3 * this.particleSettings.twinkleIntensity;
+        sizes[i] = data.originalSizes[i] * (1 + twinkleAmount);
       }
 
       geometry.attributes.position.needsUpdate = true;
@@ -998,7 +999,7 @@ export class SolarSystemScene {
 
     this.theatreObjects.particles.onValuesChange((values) => {
       this.particleSettings = values;
-      // Phase B will implement updateParticles()
+      this.updateParticles();
     });
 
     this.particleSettings = this.theatreObjects.particles.value;
@@ -1030,6 +1031,28 @@ export class SolarSystemScene {
       this.backgroundMesh.material.uniforms.uBrightness.value = this.atmosphereSettings.bgBrightness;
       this.backgroundMesh.material.uniforms.uGradientStrength.value = this.atmosphereSettings.bgGradientStrength;
     }
+  }
+
+  updateParticles() {
+    // Update star brightness based on Theatre.js settings
+    if (!this.starGroups || !this.starData) return;
+
+    this.starData.forEach((data, layerIndex) => {
+      const geometry = this.starGroups[layerIndex].geometry;
+      const sizes = geometry.attributes.size.array;
+
+      for (let i = 0; i < data.layer.count; i++) {
+        // Apply brightness multiplier from Theatre.js
+        const baseBrightness = data.originalSizes[i];
+        const minBright = this.particleSettings.starBrightnessMin;
+        const maxBright = this.particleSettings.starBrightnessMax;
+
+        // Scale size based on brightness range and layer opacity
+        sizes[i] = baseBrightness * (minBright + (maxBright - minBright) * data.layer.opacity);
+      }
+
+      geometry.attributes.size.needsUpdate = true;
+    });
   }
 
   updateCamera() {
