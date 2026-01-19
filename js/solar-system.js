@@ -369,14 +369,24 @@ export class SolarSystemScene {
       }
 
       void main() {
-        // Multi-layered noise for surface detail (5 octaves for richer texture)
-        // Seed offset creates unique pattern per planet
-        float n1 = snoise(vPosition * 0.15 + seed + time * 0.02) * 0.5 + 0.5;
-        float n2 = snoise(vPosition * 0.4 + seed + time * 0.01) * 0.5 + 0.5;
+        // Seed-based character variation (B: octave weights, C: turbulence)
+        float detailBias = clamp(seed.y * 0.003, -0.12, 0.12); // Shifts weight to fine detail
+        float turbulence = clamp(abs(seed.z) * 0.012, 0.0, 0.35); // Adds sharp ridged features
+
+        // Multi-layered noise with turbulence on dominant octaves
+        // turbulence=0: smooth, turbulence>0: sharper ridged features
+        float n1raw = snoise(vPosition * 0.15 + seed + time * 0.02);
+        float n1 = mix(n1raw, abs(n1raw) * 2.0 - 1.0, turbulence) * 0.5 + 0.5;
+
+        float n2raw = snoise(vPosition * 0.4 + seed + time * 0.01);
+        float n2 = mix(n2raw, abs(n2raw) * 2.0 - 1.0, turbulence) * 0.5 + 0.5;
+
         float n3 = snoise(vPosition * 0.8 + seed) * 0.5 + 0.5;
         float n4 = snoise(vPosition * 1.6 + seed) * 0.5 + 0.5;
         float n5 = snoise(vPosition * 3.2 + seed) * 0.5 + 0.5;
-        float detail = n1 * 0.35 + n2 * 0.25 + n3 * 0.2 + n4 * 0.12 + n5 * 0.08;
+
+        // Varied octave weights: detailBias shifts emphasis from large features to fine detail
+        float detail = n1 * (0.35 - detailBias) + n2 * (0.25 - detailBias * 0.5) + n3 * 0.2 + n4 * (0.12 + detailBias * 0.75) + n5 * (0.08 + detailBias * 0.75);
 
         // Fresnel rim lighting - sharpened for crisp silhouettes
         float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.5);
