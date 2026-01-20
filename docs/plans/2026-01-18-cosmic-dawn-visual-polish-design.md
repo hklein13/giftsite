@@ -1,8 +1,24 @@
 # Cosmic Dawn Visual Polish - Design Document
 
-> **Status:** Approved for implementation
+> **Status:** ✅ COMPLETED (2026-01-19)
 > **Date:** 2026-01-18
 > **Goal:** Transform the site from "deep space void" to "cosmic dawn" - brighter, more luminous, while keeping blue-dominated style
+
+---
+
+## Implementation Notes
+
+**Completed Phases A-E.** Key deviations from original plan:
+
+1. **Theatre.js removed** - Callbacks weren't firing reliably. Simpler to tune values directly in code. All visual settings now hardcoded in `solar-system.js` constructor.
+
+2. **Planet texture enhancements reverted** - D1/D3 complexity added ~200 lines but visual difference was minimal. Kept simple procedural shaders.
+
+3. **Pixel ratio optimization added** - Desktop capped at 1.5 (vs 2.0) to improve performance on integrated graphics (Intel Iris Xe). Mobile stays at 2.0.
+
+4. **Reduced-motion fallback** - Documented but not implemented. Can be added later if accessibility is prioritized.
+
+**Final bundle:** ~1,419 kB (gzipped: 381 kB) - Three.js is the main contributor.
 
 ---
 
@@ -12,7 +28,7 @@ Client feedback: site needs to be brighter. Solution: bold transformation to a "
 - Lighter steel-blue backgrounds (#3a4a6a range)
 - Significantly more particles (stars, nebulae, dust)
 - Homepage gets full treatment, content pages stay slightly muted for readability
-- Theatre.js controls for real-time tuning
+- ~~Theatre.js controls for real-time tuning~~ (removed - tune via code)
 - Integrated parallax/depth effects from the start
 
 ---
@@ -80,9 +96,11 @@ Foreground stars streak more than background during fast scroll.
 
 ---
 
-## Theatre.js Integration
+## ~~Theatre.js Integration~~ (REMOVED)
 
-### Controllable Properties
+> **Note:** Theatre.js was removed during Phase E. The `onValuesChange` callbacks weren't firing reliably. All properties below are now hardcoded in `solar-system.js` constructor. To tune values, edit the code directly and use `npm run dev` to preview.
+
+### ~~Controllable Properties~~
 
 | Category | Property | Range | Default |
 |----------|----------|-------|---------|
