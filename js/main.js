@@ -9,8 +9,6 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import studio from '@theatre/studio';
-import { getProject, types } from '@theatre/core';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -26,28 +24,6 @@ window.EffectComposer = EffectComposer;
 window.RenderPass = RenderPass;
 window.UnrealBloomPass = UnrealBloomPass;
 window.ShaderPass = ShaderPass;
-
-// Initialize Theatre.js Studio (development only)
-if (import.meta.env.DEV) {
-  studio.initialize();
-  console.log('Theatre.js Studio initialized. Press Ctrl+\\ to toggle.');
-
-  // Keyboard shortcut to toggle studio
-  document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === '\\') {
-      studio.ui.isHidden ? studio.ui.restore() : studio.ui.hide();
-    }
-  });
-}
-
-// Create Theatre.js project and sheet
-const project = getProject('GiftSite');
-const sheet = project.sheet('SolarSystem');
-
-// Export Theatre.js for use in other modules
-window.theatreProject = project;
-window.theatreSheet = sheet;
-window.theatreTypes = types;
 
 // Import application modules
 import { SolarSystemScene } from './solar-system.js';

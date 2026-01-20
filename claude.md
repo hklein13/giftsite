@@ -89,7 +89,6 @@ giftsite/
 - **Lenis** - Smooth scrolling
 
 ### Visual Effects
-- **Theatre.js** - Animation timeline editor (Ctrl+\ to toggle studio)
 - **VFX-JS** - WebGL text effects
 - Custom GLSL shaders for planets, stars, and post-processing
 
@@ -181,11 +180,12 @@ The solar system homepage has several performance optimizations:
 - Strength: 0.85, Threshold: 0.7
 - Resolution updated in `onResize()` to stay at half
 
-### Additional Optimizations (Phase C)
+### Additional Optimizations (Phase C/E)
 - Config object cached in constructor (avoids per-frame function calls)
 - Reusable Vector3 for camera lookAt (reduces GC pressure)
 - Delta time for frame-rate independent animations (works on 120Hz displays)
 - Atmosphere pass runs at half resolution
+- Pixel ratio: 1.5 on desktop (smooth on integrated graphics), 2.0 on mobile
 
 ### Visual Polish
 - Distance fog (FogExp2, 0x0d1929, density 0.0008) for atmospheric depth
@@ -212,7 +212,7 @@ npm run preview  # Test production build locally
 
 ### Key Files to Know
 - `js/solar-system.js` - Main Three.js scene, all 3D elements
-- `js/main.js` - Module imports, Theatre.js setup, global exports
+- `js/main.js` - Module imports, global library exports, app initialization
 - `css/main.css` - All styles including solar system UI elements
 
 ---
@@ -224,7 +224,6 @@ Use Context7 for accurate, up-to-date documentation on:
 - Three.js (shaders, materials, geometries, post-processing)
 - GSAP + ScrollTrigger (scrub, pinning, callbacks)
 - Lenis (velocity, direction, events)
-- Theatre.js (sheets, objects, sequences)
 
 **Usage:** Add "use context7" to prompts, e.g., "use context7 to show GSAP ScrollTrigger scrub examples"
 

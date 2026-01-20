@@ -34,30 +34,19 @@ export class SolarSystemScene {
     this.planets = {};
     this.time = 0;
     this.starFrameCounter = 0;
-    this.config = this.getConfig(); // Cache config - never changes at runtime
     this._lookAtTarget = new THREE.Vector3(); // Reusable vector for camera lookAt
     this.lastTimestamp = 0; // For delta time calculation
 
-    // Theatre.js animation objects (will be set up after sheet is ready)
-    this.theatreObjects = {};
-    this.atmosphereSettings = {
-      bgBrightness: 0.7,
-      bgGradientStrength: 0.4,
-      bloomStrength: 0.9,
-      bloomThreshold: 0.6
+    // Animation config
+    this.config = {
+      planets: { bobAmount: 0.15, rotationSpeed: 0.002 },
+      sun: { pulseAmount: 0.02, pulseSpeed: 1 }
     };
-    this.particleSettings = {
-      starDensityMultiplier: 1.0,
-      starBrightnessMin: 0.3,
-      starBrightnessMax: 1.0,
-      twinkleIntensity: 0.6,
-      nebulaOpacity: 0.15,
-      dustOpacity: 0.2
-    };
-    this.motionSettings = {
-      mouseParallaxStrength: 0.5,
-      scrollVelocityEffect: 0.6
-    };
+
+    // Visual settings (only values that are actually used)
+    this.twinkleIntensity = 0.6;
+    this.dustOpacity = 0.2;
+    this.mouseParallaxStrength = 0.5;
 
     // Mouse position for parallax (normalized -1 to 1)
     this.mousePosition = { x: 0, y: 0 };
@@ -108,7 +97,10 @@ export class SolarSystemScene {
   init() {
     // Renderer setup
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Mobile: use device pixel ratio (up to 2) for crisp display
+    // Desktop: cap at 1.5 to reduce GPU load on integrated graphics
+    const maxPixelRatio = this.isMobile ? 2 : 1.5;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
 
     // Initial camera position
     this.camera.position.copy(this.cameraStops[0].pos);
@@ -139,9 +131,6 @@ export class SolarSystemScene {
         this.targetMousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
       });
     }
-
-    // Theatre.js controls (with delay to ensure sheet is ready)
-    setTimeout(() => this.setupTheatreControls(), 500);
 
     // Ensure proper initial sizing (handles mobile viewport quirks)
     this.onResize();
@@ -276,8 +265,8 @@ export class SolarSystemScene {
           vec3 color = mix(uColorDark, uColorMid, smoothstep(0.0, 0.5, gradientMix));
           color = mix(color, uColorLight, smoothstep(0.5, 1.0, gradientMix) * uGradientStrength);
 
-          // Apply brightness
-          color *= uBrightness + 0.3;
+          // Apply brightness (raw value for testing - 0=black, 1=full)
+          color *= uBrightness;
 
           gl_FragColor = vec4(color, 1.0);
         }
@@ -718,9 +707,6 @@ export class SolarSystemScene {
         layer
       });
     });
-
-    // Keep reference to first layer as this.stars for compatibility
-    this.stars = this.starGroups[0];
   }
 
   createStarTexture() {
@@ -852,9 +838,9 @@ export class SolarSystemScene {
         positions[i * 3 + 2] = data.originalPositions[i * 3 + 2] +
           Math.sin(this.time * 0.08 + i * 0.3) * data.driftOffsets[i * 3 + 2] * 30;
 
-        // Twinkle effect on size - controlled by Theatre.js
+        // Twinkle effect on size
         const twinkle = Math.sin(this.time * data.twinkleSpeeds[i] + data.twinklePhases[i]);
-        const twinkleAmount = twinkle * 0.3 * this.particleSettings.twinkleIntensity;
+        const twinkleAmount = twinkle * 0.3 * this.twinkleIntensity;
         sizes[i] = data.originalSizes[i] * (1 + twinkleAmount);
       }
 
@@ -1119,114 +1105,6 @@ export class SolarSystemScene {
     };
   }
 
-  setupTheatreControls(retryCount = 0) {
-    const sheet = window.theatreSheet;
-    const types = window.theatreTypes;
-
-    if (!sheet || !types) {
-      if (retryCount < 10) {
-        setTimeout(() => this.setupTheatreControls(retryCount + 1), 500);
-      } else {
-        console.warn('Theatre.js failed to initialize after 5s');
-      }
-      return;
-    }
-
-    // Atmosphere controls
-    this.theatreObjects.atmosphere = sheet.object('Atmosphere', {
-      bgBrightness: types.number(0.7, { range: [0, 1] }),
-      bgGradientStrength: types.number(0.4, { range: [0, 1] }),
-      bloomStrength: types.number(0.9, { range: [0.4, 1.5] }),
-      bloomThreshold: types.number(0.6, { range: [0.4, 0.8] })
-    });
-
-    // Subscribe to atmosphere changes
-    this.theatreObjects.atmosphere.onValuesChange((values) => {
-      this.atmosphereSettings = values;
-      this.updateAtmosphere();
-    });
-
-    // Initialize with current values
-    this.atmosphereSettings = this.theatreObjects.atmosphere.value;
-
-    // Particles controls (prep for Phase B)
-    this.theatreObjects.particles = sheet.object('Particles', {
-      starDensityMultiplier: types.number(1.0, { range: [0.5, 2.0] }),
-      starBrightnessMin: types.number(0.3, { range: [0.1, 0.5] }),
-      starBrightnessMax: types.number(1.0, { range: [0.6, 1.0] }),
-      twinkleIntensity: types.number(0.6, { range: [0, 1] }),
-      nebulaOpacity: types.number(0.15, { range: [0, 0.3] }),
-      dustOpacity: types.number(0.2, { range: [0, 0.4] })
-    });
-
-    this.theatreObjects.particles.onValuesChange((values) => {
-      this.particleSettings = values;
-      this.updateParticles();
-    });
-
-    this.particleSettings = this.theatreObjects.particles.value;
-
-    // Motion controls (prep for Phase B parallax)
-    this.theatreObjects.motion = sheet.object('Motion', {
-      mouseParallaxStrength: types.number(0.5, { range: [0, 1] }),
-      scrollVelocityEffect: types.number(0.6, { range: [0, 1] })
-    });
-
-    this.theatreObjects.motion.onValuesChange((values) => {
-      this.motionSettings = values;
-    });
-
-    this.motionSettings = this.theatreObjects.motion.value;
-
-    console.log('Theatre.js controls initialized');
-  }
-
-  updateAtmosphere() {
-    // Update bloom settings
-    if (this.bloomPass) {
-      this.bloomPass.strength = this.atmosphereSettings.bloomStrength;
-      this.bloomPass.threshold = this.atmosphereSettings.bloomThreshold;
-    }
-
-    // Update background shader
-    if (this.backgroundMesh) {
-      this.backgroundMesh.material.uniforms.uBrightness.value = this.atmosphereSettings.bgBrightness;
-      this.backgroundMesh.material.uniforms.uGradientStrength.value = this.atmosphereSettings.bgGradientStrength;
-    }
-  }
-
-  updateParticles() {
-    // Update star brightness based on Theatre.js settings
-    if (!this.starGroups || !this.starData) return;
-
-    this.starData.forEach((data, layerIndex) => {
-      const geometry = this.starGroups[layerIndex].geometry;
-      const sizes = geometry.attributes.size.array;
-
-      for (let i = 0; i < data.layer.count; i++) {
-        // Apply brightness multiplier from Theatre.js
-        const baseBrightness = data.originalSizes[i];
-        const minBright = this.particleSettings.starBrightnessMin;
-        const maxBright = this.particleSettings.starBrightnessMax;
-
-        // Scale size based on brightness range and layer opacity
-        sizes[i] = baseBrightness * (minBright + (maxBright - minBright) * data.layer.opacity);
-      }
-
-      geometry.attributes.size.needsUpdate = true;
-    });
-
-    // Update nebula opacity from Theatre.js
-    if (this.nebulae) {
-      const opacity = this.particleSettings.nebulaOpacity;
-      this.nebulae.forEach((nebulaGroup) => {
-        nebulaGroup.children.forEach(sprite => {
-          sprite.material.opacity = opacity;
-        });
-      });
-    }
-  }
-
   updateCamera() {
     // Distance-adaptive easing: faster for larger jumps, smoother arrival
     const distance = Math.abs(this.targetProgress - this.scrollProgress);
@@ -1249,23 +1127,6 @@ export class SolarSystemScene {
     // Interpolate look-at target
     this._lookAtTarget.lerpVectors(currentStop.lookAt, nextStop.lookAt, stopProgress);
     this.camera.lookAt(this._lookAtTarget);
-  }
-
-  updateCurrentPlanet(exactStop) {
-    const planetNames = ['overview', 'why', 'discover', 'process', 'facilitate'];
-    const threshold = 0.3; // How close to stop to trigger
-
-    let newPlanet = 'overview';
-    const roundedStop = Math.round(exactStop);
-
-    if (Math.abs(exactStop - roundedStop) < threshold) {
-      newPlanet = planetNames[roundedStop] || 'overview';
-    }
-
-    if (newPlanet !== this.currentPlanet) {
-      this.currentPlanet = newPlanet;
-      this.updateUI();
-    }
   }
 
   updateUI(showClickPrompt = true) {
@@ -1433,7 +1294,7 @@ export class SolarSystemScene {
         // Mouse parallax (desktop only) - still works on top of camera parallax
         if (!this.isMobile) {
           stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
-          stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+          stars.material.uniforms.uParallaxStrength.value = this.mouseParallaxStrength;
         }
       });
     }
@@ -1441,11 +1302,11 @@ export class SolarSystemScene {
     // Update dust motes
     if (this.dustMotes) {
       this.dustMotes.material.uniforms.uTime.value = this.time;
-      this.dustMotes.material.uniforms.uOpacity.value = this.particleSettings.dustOpacity;
+      this.dustMotes.material.uniforms.uOpacity.value = this.dustOpacity;
       // Only update parallax on desktop
       if (!this.isMobile) {
         this.dustMotes.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
-        this.dustMotes.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+        this.dustMotes.material.uniforms.uParallaxStrength.value = this.mouseParallaxStrength;
       }
     }
 
