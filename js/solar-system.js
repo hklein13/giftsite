@@ -34,29 +34,19 @@ export class SolarSystemScene {
     this.planets = {};
     this.time = 0;
     this.starFrameCounter = 0;
-    this.config = this.getConfig(); // Cache config - never changes at runtime
     this._lookAtTarget = new THREE.Vector3(); // Reusable vector for camera lookAt
     this.lastTimestamp = 0; // For delta time calculation
 
-    // Visual settings (hardcoded defaults - tune via code)
-    this.atmosphereSettings = {
-      bgBrightness: 0.7,
-      bgGradientStrength: 0.4,
-      bloomStrength: 0.9,
-      bloomThreshold: 0.6
+    // Animation config
+    this.config = {
+      planets: { bobAmount: 0.15, rotationSpeed: 0.002 },
+      sun: { pulseAmount: 0.02, pulseSpeed: 1 }
     };
-    this.particleSettings = {
-      starDensityMultiplier: 1.0,
-      starBrightnessMin: 0.3,
-      starBrightnessMax: 1.0,
-      twinkleIntensity: 0.6,
-      nebulaOpacity: 0.15,
-      dustOpacity: 0.2
-    };
-    this.motionSettings = {
-      mouseParallaxStrength: 0.5,
-      scrollVelocityEffect: 0.6
-    };
+
+    // Visual settings (only values that are actually used)
+    this.twinkleIntensity = 0.6;
+    this.dustOpacity = 0.2;
+    this.mouseParallaxStrength = 0.5;
 
     // Mouse position for parallax (normalized -1 to 1)
     this.mousePosition = { x: 0, y: 0 };
@@ -107,7 +97,10 @@ export class SolarSystemScene {
   init() {
     // Renderer setup
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Mobile: use device pixel ratio (up to 2) for crisp display
+    // Desktop: cap at 1.5 to reduce GPU load on integrated graphics
+    const maxPixelRatio = this.isMobile ? 2 : 1.5;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
 
     // Initial camera position
     this.camera.position.copy(this.cameraStops[0].pos);
@@ -714,9 +707,6 @@ export class SolarSystemScene {
         layer
       });
     });
-
-    // Keep reference to first layer as this.stars for compatibility
-    this.stars = this.starGroups[0];
   }
 
   createStarTexture() {
@@ -850,7 +840,7 @@ export class SolarSystemScene {
 
         // Twinkle effect on size
         const twinkle = Math.sin(this.time * data.twinkleSpeeds[i] + data.twinklePhases[i]);
-        const twinkleAmount = twinkle * 0.3 * this.particleSettings.twinkleIntensity;
+        const twinkleAmount = twinkle * 0.3 * this.twinkleIntensity;
         sizes[i] = data.originalSizes[i] * (1 + twinkleAmount);
       }
 
@@ -1139,23 +1129,6 @@ export class SolarSystemScene {
     this.camera.lookAt(this._lookAtTarget);
   }
 
-  updateCurrentPlanet(exactStop) {
-    const planetNames = ['overview', 'why', 'discover', 'process', 'facilitate'];
-    const threshold = 0.3; // How close to stop to trigger
-
-    let newPlanet = 'overview';
-    const roundedStop = Math.round(exactStop);
-
-    if (Math.abs(exactStop - roundedStop) < threshold) {
-      newPlanet = planetNames[roundedStop] || 'overview';
-    }
-
-    if (newPlanet !== this.currentPlanet) {
-      this.currentPlanet = newPlanet;
-      this.updateUI();
-    }
-  }
-
   updateUI(showClickPrompt = true) {
     // Planet content data
     const planetContent = {
@@ -1321,7 +1294,7 @@ export class SolarSystemScene {
         // Mouse parallax (desktop only) - still works on top of camera parallax
         if (!this.isMobile) {
           stars.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
-          stars.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+          stars.material.uniforms.uParallaxStrength.value = this.mouseParallaxStrength;
         }
       });
     }
@@ -1329,11 +1302,11 @@ export class SolarSystemScene {
     // Update dust motes
     if (this.dustMotes) {
       this.dustMotes.material.uniforms.uTime.value = this.time;
-      this.dustMotes.material.uniforms.uOpacity.value = this.particleSettings.dustOpacity;
+      this.dustMotes.material.uniforms.uOpacity.value = this.dustOpacity;
       // Only update parallax on desktop
       if (!this.isMobile) {
         this.dustMotes.material.uniforms.uMousePosition.value.set(this.mousePosition.x, this.mousePosition.y);
-        this.dustMotes.material.uniforms.uParallaxStrength.value = this.motionSettings.mouseParallaxStrength;
+        this.dustMotes.material.uniforms.uParallaxStrength.value = this.mouseParallaxStrength;
       }
     }
 
