@@ -19,6 +19,8 @@ export class SolarSystemScene {
     this.scene = new THREE.Scene();
     // Use wider FOV on mobile so planets appear smaller/more distant
     this.isMobile = window.innerWidth < 768;
+    // Respect reduced motion preference
+    this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const baseFOV = this.isMobile ? 85 : 60;
     this.camera = new THREE.PerspectiveCamera(baseFOV, window.innerWidth / window.innerHeight, 0.1, 2000);
     this.renderer = new THREE.WebGLRenderer({
@@ -52,43 +54,44 @@ export class SolarSystemScene {
     this.mousePosition = { x: 0, y: 0 };
     this.targetMousePosition = { x: 0, y: 0 };
 
-    // Planet configurations - LINEAR PATH into the distance
-    // Planets arranged along z-axis with slight x/y offsets for visual interest
+    // Planet configurations - GENTLE CURVES with reduced X spread
+    // ±35 units horizontal, ~250 unit Z gaps for smooth journey
     this.planetConfigs = {
       why: {
-        position: new THREE.Vector3(15, 5, -150),
+        position: new THREE.Vector3(35, 5, -200),
         radius: 14,
         color: 0x1a2a5a,
         glowColor: 0x3a6aee
       },
       discover: {
-        position: new THREE.Vector3(-20, -8, -300),
+        position: new THREE.Vector3(-40, -8, -450),
         radius: 16,
         color: 0x2a4a7a,
         glowColor: 0x5abaff
       },
       process: {
-        position: new THREE.Vector3(25, 10, -450),
+        position: new THREE.Vector3(35, 10, -700),
         radius: 12,
         color: 0x3a3a6a,
         glowColor: 0x7a6aee
       },
       facilitate: {
-        position: new THREE.Vector3(-15, -5, -600),
+        position: new THREE.Vector3(-35, -5, -950),
         radius: 13,
         color: 0x2a4a5a,
         glowColor: 0x4abaaa
       }
     };
 
-    // Camera path stops - LINEAR FORWARD journey
-    // Start at hero, then travel forward to each planet
+    // Camera path - LINEAR movement along Z axis
+    // Camera travels straight forward, planets are offset horizontally
+    // Simple, predictable motion with smooth rotation to face each planet
     this.cameraStops = [
-      { pos: new THREE.Vector3(0, 0, 80), lookAt: new THREE.Vector3(0, 0, -200) },       // Hero (overview)
-      { pos: new THREE.Vector3(15, 5, -100), lookAt: new THREE.Vector3(15, 5, -150) },   // Why
-      { pos: new THREE.Vector3(-20, -8, -250), lookAt: new THREE.Vector3(-20, -8, -300) }, // Discover
-      { pos: new THREE.Vector3(25, 10, -400), lookAt: new THREE.Vector3(25, 10, -450) }, // Process
-      { pos: new THREE.Vector3(-15, -5, -550), lookAt: new THREE.Vector3(-15, -5, -600) } // Facilitate
+      { pos: new THREE.Vector3(0, 0, 80), lookAt: new THREE.Vector3(0, 0, -200) },      // Hero
+      { pos: new THREE.Vector3(0, 0, -150), lookAt: new THREE.Vector3(35, 5, -200) },   // Why (planet right)
+      { pos: new THREE.Vector3(0, 0, -400), lookAt: new THREE.Vector3(-40, -8, -450) }, // Discover (planet left)
+      { pos: new THREE.Vector3(0, 0, -650), lookAt: new THREE.Vector3(35, 10, -700) },  // Process (planet right)
+      { pos: new THREE.Vector3(0, 0, -900), lookAt: new THREE.Vector3(-35, -5, -950) }  // Facilitate (planet left)
     ];
 
     this.init();
@@ -214,7 +217,7 @@ export class SolarSystemScene {
     this.sunCorona = corona; // Store reference
 
     // Position sun far in the background (end of journey)
-    sunGroup.position.set(0, 0, -900);
+    sunGroup.position.set(0, 0, -1250);
     this.sun = sunGroup;
     this.scene.add(sunGroup);
   }
@@ -458,28 +461,22 @@ export class SolarSystemScene {
   }
 
   createNebulae() {
-    // Reduce nebula count on mobile
+    // Position nebulae along the linear camera path
+    // Spread throughout the journey with horizontal offsets
     let nebulaPositions = [
-      { pos: new THREE.Vector3(-30, 20, -80), color: 0x3a6aee, scale: 60 },
-      { pos: new THREE.Vector3(40, -15, -220), color: 0x5abaff, scale: 80 },
-      { pos: new THREE.Vector3(-50, 25, -380), color: 0x7a6aee, scale: 70 },
-      { pos: new THREE.Vector3(35, -20, -520), color: 0x4abaaa, scale: 65 },
-      // Deep nebulae visible at Facilitate
-      { pos: new THREE.Vector3(-40, 15, -650), color: 0x5a8aee, scale: 70 },
-      { pos: new THREE.Vector3(30, -10, -720), color: 0x4ababa, scale: 60 }
+      { pos: new THREE.Vector3(-50, 20, -80), color: 0x3a6aee, scale: 60 },
+      { pos: new THREE.Vector3(60, -15, -250), color: 0x5abaff, scale: 80 },
+      { pos: new THREE.Vector3(-55, 25, -350), color: 0x7a6aee, scale: 70 },
+      { pos: new THREE.Vector3(50, -20, -520), color: 0x4abaaa, scale: 85 },
+      { pos: new THREE.Vector3(-45, 15, -600), color: 0x5a8aee, scale: 65 },
+      { pos: new THREE.Vector3(55, -10, -750), color: 0x4ababa, scale: 75 },
+      { pos: new THREE.Vector3(-50, 20, -850), color: 0x6aaaff, scale: 70 },
+      { pos: new THREE.Vector3(45, -15, -950), color: 0x5acaca, scale: 60 }
     ];
 
-    // Add extra nebulae on desktop only
-    if (!this.isMobile) {
-      nebulaPositions = nebulaPositions.concat([
-        { pos: new THREE.Vector3(60, 30, -150), color: 0x4a7aee, scale: 55 },
-        { pos: new THREE.Vector3(-40, -25, -280), color: 0x6aaaff, scale: 75 },
-        { pos: new THREE.Vector3(20, 35, -450), color: 0x5a5aee, scale: 60 },
-        { pos: new THREE.Vector3(-55, 10, -580), color: 0x5ababa, scale: 70 },
-        // Extra deep nebulae for desktop
-        { pos: new THREE.Vector3(45, 20, -680), color: 0x6a9aee, scale: 65 },
-        { pos: new THREE.Vector3(-35, -15, -750), color: 0x5acaca, scale: 55 }
-      ]);
+    // On mobile, reduce to fewer nebulae
+    if (this.isMobile) {
+      nebulaPositions = nebulaPositions.filter((_, i) => i % 2 === 0);
     }
 
     this.nebulae = [];
@@ -543,7 +540,7 @@ export class SolarSystemScene {
     for (let i = 0; i < dustCount; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 300;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 300;
-      positions[i * 3 + 2] = Math.random() * -1000 + 50;
+      positions[i * 3 + 2] = Math.random() * -1200 + 50;
 
       sizes[i] = Math.random() * 2 + 0.5;
 
@@ -600,7 +597,7 @@ export class SolarSystemScene {
         // Initial positions
         positions[i * 3] = (Math.random() - 0.5) * layer.spread;
         positions[i * 3 + 1] = (Math.random() - 0.5) * layer.spread;
-        positions[i * 3 + 2] = Math.random() * -1600 + 100;  // Extended for deeper camera travel
+        positions[i * 3 + 2] = Math.random() * -1800 + 100;  // Extended for deeper camera travel
 
         // Size variation
         sizes[i] = layer.size * (0.5 + Math.random() * 0.8);
@@ -755,7 +752,7 @@ export class SolarSystemScene {
       // Spread dust throughout the scene
       positions[i * 3] = (Math.random() - 0.5) * 800;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 400;
-      positions[i * 3 + 2] = Math.random() * -1400;  // Extended for deeper camera travel
+      positions[i * 3 + 2] = Math.random() * -1600;  // Extended for deeper camera travel
 
       // Very small particles
       sizes[i] = 1 + Math.random() * 2;
@@ -1026,28 +1023,51 @@ export class SolarSystemScene {
     this.isTransitioning = true;
     this.targetProgress = index / (this.cameraStops.length - 1);
 
-    // Hide click prompt during transition
+    // With easing (0.02), transitions take ~1.8 seconds to feel complete
+    const duration = 1800;
+
+    // Hide click prompt and caption bar during transition
     const clickPrompt = document.getElementById('planet-click-prompt');
+    const captionBar = document.getElementById('caption-bar');
+    const heroSection = document.getElementById('hero-section');
     if (clickPrompt) {
       clickPrompt.classList.remove('visible');
+    }
+    if (captionBar) {
+      captionBar.classList.remove('visible');
+    }
+    // Hide hero immediately when leaving it
+    if (heroSection && index > 0) {
+      heroSection.classList.add('hidden');
     }
 
     // Update current planet state
     const planetNames = ['overview', 'why', 'discover', 'process', 'facilitate'];
     this.currentPlanet = planetNames[index];
-    this.updateUI(false); // Don't show click prompt yet
 
-    // Show click prompt after animation completes
+    // Show UI after animation completes
     setTimeout(() => {
       this.isTransitioning = false;
       this.scrollAccumulator = 0; // Prevent residual accumulation from triggering
+      this.updateUI(true); // Update and show caption bar
       this.showClickPrompt();
-    }, 800);
+    }, duration);
   }
 
   showClickPrompt() {
     const clickPrompt = document.getElementById('planet-click-prompt');
     if (clickPrompt && this.currentPlanetLink) {
+      // Update the text to show the page title
+      const planetTitles = {
+        why: 'Why We Exist',
+        discover: 'Discover',
+        process: 'The Process',
+        facilitate: 'Facilitate'
+      };
+      const clickText = clickPrompt.querySelector('.click-text');
+      if (clickText && planetTitles[this.currentPlanet]) {
+        clickText.textContent = planetTitles[this.currentPlanet];
+      }
       clickPrompt.classList.add('visible');
     }
   }
@@ -1106,9 +1126,8 @@ export class SolarSystemScene {
   }
 
   updateCamera() {
-    // Distance-adaptive easing: faster for larger jumps, smoother arrival
-    const distance = Math.abs(this.targetProgress - this.scrollProgress);
-    const easeStrength = 0.03 + distance * 0.05;
+    // Smooth easing - slightly faster than before
+    const easeStrength = 0.02;
     this.scrollProgress += (this.targetProgress - this.scrollProgress) * easeStrength;
 
     // Determine which stop we're at or between
@@ -1117,14 +1136,14 @@ export class SolarSystemScene {
     const stopIndex = Math.floor(exactStop);
     const stopProgress = exactStop - stopIndex;
 
-    // Get current and next stop
+    // Get current and next stops
     const currentStop = this.cameraStops[Math.min(stopIndex, numStops - 1)];
     const nextStop = this.cameraStops[Math.min(stopIndex + 1, numStops - 1)];
 
-    // Interpolate camera position
+    // Linear interpolation for position (straight line movement)
     this.camera.position.lerpVectors(currentStop.pos, nextStop.pos, stopProgress);
 
-    // Interpolate look-at target
+    // Linear interpolation for lookAt (smooth rotation to face planet)
     this._lookAtTarget.lerpVectors(currentStop.lookAt, nextStop.lookAt, stopProgress);
     this.camera.lookAt(this._lookAtTarget);
   }
@@ -1185,11 +1204,16 @@ export class SolarSystemScene {
       this.currentPlanetLink = null;
     }
 
-    // Update click prompt visibility (only if showClickPrompt is true)
+    // Update click prompt visibility and text (only if showClickPrompt is true)
     if (showClickPrompt) {
       const clickPrompt = document.getElementById('planet-click-prompt');
       if (clickPrompt) {
         if (content) {
+          // Show the page title instead of "Visit"
+          const clickText = clickPrompt.querySelector('.click-text');
+          if (clickText) {
+            clickText.textContent = content.title;
+          }
           clickPrompt.classList.add('visible');
         } else {
           clickPrompt.classList.remove('visible');
