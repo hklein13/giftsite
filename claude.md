@@ -117,9 +117,9 @@ The homepage (`index.html`) features an immersive 3D solar system navigation:
 
 ### Key Features
 - **Snap Scroll** - Hard stops at each planet, requires scroll to continue
-- **Bottom Caption Bar** - Shows planet title and description
-- **Centered "Visit" Button** - Appears after arriving at planet, clicks navigate to page
-- **Scroll Indicator Dots** - Right side navigation dots
+- **Bottom Caption Bar** - Shows planet description with fade-in animation on arrival
+- **Centered Page Title** - Appears after arriving at planet, shows page name (e.g., "Facilitate"), clicks navigate to page
+- **Scroll Indicator Dots** - Right side navigation dots (44x44px touch targets)
 
 ### Visual Elements
 - Procedural planet shaders with noise-based surface detail
@@ -136,8 +136,9 @@ Primary target device: Modern iPhone (12+). Site should feel snappy and responsi
 ### Touch Navigation
 - **Scroll threshold**: 80px (reduced from 150px for snappier response)
 - **Touch multiplier**: 1.0 (direct 1:1 swipe response)
-- **Transition delay**: 800ms (reduced from 1200ms)
+- **Transition duration**: 1800ms (with easing strength 0.02)
 - Camera FOV increases to 85° on mobile (vs 60° desktop) so planets appear smaller
+- Caption bar respects iPhone safe area (`env(safe-area-inset-bottom)`)
 
 ### Mobile Navigation
 - Header shows logo only (nav links hidden below 900px)
@@ -154,7 +155,7 @@ Why We Exist → Discover → The Process → Facilitate
 
 ### Touch Targets
 - All interactive elements minimum 44x44px (Apple guideline)
-- Visit button, nav dots, next/prev links all verified
+- Page title button, nav dots (via ::before pseudo-element), next/prev links all verified
 
 ---
 
