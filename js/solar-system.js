@@ -1024,7 +1024,8 @@ export class SolarSystemScene {
     this.targetProgress = index / (this.cameraStops.length - 1);
 
     // With easing (0.02), transitions take ~1.8 seconds to feel complete
-    const duration = 1800;
+    // Faster on mobile for snappier response
+    const duration = this.isMobile ? 1200 : 1800;
 
     // Hide click prompt and caption bar during transition
     const clickPrompt = document.getElementById('planet-click-prompt');
