@@ -975,10 +975,11 @@ nav.scrolled {
   }
 
   .click-text {
-    font-size: 0.9rem;
-    padding: 0.6rem 1.5rem;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
     min-height: auto;
     min-width: auto;
+    letter-spacing: 0.1em;
   }
 
   #scroll-container {
