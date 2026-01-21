@@ -1023,9 +1023,9 @@ export class SolarSystemScene {
     this.isTransitioning = true;
     this.targetProgress = index / (this.cameraStops.length - 1);
 
-    // With easing (0.02), transitions take ~1.8 seconds to feel complete
-    // Faster on mobile for snappier response
-    const duration = this.isMobile ? 1200 : 1800;
+    // Desktop: easing 0.02 takes ~1.8s to feel complete
+    // Mobile: easing 0.05 takes ~800ms to feel complete
+    const duration = this.isMobile ? 800 : 1800;
 
     // Hide click prompt and caption bar during transition
     const clickPrompt = document.getElementById('planet-click-prompt');
@@ -1128,7 +1128,8 @@ export class SolarSystemScene {
 
   updateCamera() {
     // Smooth easing - slightly faster than before
-    const easeStrength = 0.02;
+    // Faster easing on mobile for snappier transitions
+    const easeStrength = this.isMobile ? 0.05 : 0.02;
     this.scrollProgress += (this.targetProgress - this.scrollProgress) * easeStrength;
 
     // Determine which stop we're at or between
