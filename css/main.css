@@ -974,6 +974,13 @@ nav.scrolled {
     height: 12px;
   }
 
+  .click-text {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+    min-height: auto;
+    min-width: auto;
+  }
+
   #scroll-container {
     height: 100vh; /* No phantom scroll on mobile - gestures control navigation */
   }
