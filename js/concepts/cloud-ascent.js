@@ -1,14 +1,60 @@
-// js/concepts/cloud-ascent.js — Cloud Ascent Concept Demo
-// Self-contained Three.js scene: cloud layers, warm gold edge-lighting, light breakthrough, bloom
+// js/concepts/cloud-ascent.js — Cloud Ascent Concept Demo (Polished)
+// Layered clouds with domain warping, god rays, warm gold breakthrough,
+// luminous particles, entrance animation, pmndrs postprocessing
 
 import * as THREE from 'three';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { Effect, EffectComposer, RenderPass, EffectPass, BloomEffect, VignetteEffect, NoiseEffect, BlendFunction } from 'postprocessing';
+import { Uniform, Vector2 } from 'three';
 
-// --- Shared GLSL: 2D simplex noise ---
-const SIMPLEX_2D_GLSL = `
+// --- Custom God Rays Effect (radial light sampling) ---
+const godRaysFragment = /* glsl */`
+  uniform vec2 uLightPos;
+  uniform float uRayIntensity;
+  uniform float uDecay;
+  uniform float uRayDensity;
+  uniform float uRayWeight;
+  uniform float uRayIntro;
+
+  void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
+    vec2 texCoord = uv;
+    vec2 deltaCoord = (texCoord - uLightPos) * (1.0 / 32.0) * uRayDensity;
+
+    float illuminationDecay = 1.0;
+    vec3 rays = vec3(0.0);
+
+    for (int i = 0; i < 32; i++) {
+      texCoord -= deltaCoord;
+      vec4 s = texture2D(inputBuffer, texCoord);
+      float brightness = dot(s.rgb, vec3(0.299, 0.587, 0.114));
+      rays += s.rgb * brightness * illuminationDecay * uRayWeight;
+      illuminationDecay *= uDecay;
+    }
+
+    // Warm gold tint on rays, fade in during intro
+    vec3 rayColor = rays * uRayIntensity * vec3(1.0, 0.93, 0.78) * smoothstep(0.4, 1.0, uRayIntro);
+
+    outputColor = vec4(inputColor.rgb + rayColor, inputColor.a);
+  }
+`;
+
+class GodRaysEffect extends Effect {
+  constructor() {
+    super('GodRaysEffect', godRaysFragment, {
+      blendFunction: BlendFunction.NORMAL,
+      uniforms: new Map([
+        ['uLightPos', new Uniform(new Vector2(0.5, 0.72))],
+        ['uRayIntensity', new Uniform(0.22)],
+        ['uDecay', new Uniform(0.97)],
+        ['uRayDensity', new Uniform(0.9)],
+        ['uRayWeight', new Uniform(0.5)],
+        ['uRayIntro', new Uniform(0)]
+      ])
+    });
+  }
+}
+
+// --- Shared GLSL: 2D simplex noise + FBM ---
+const SIMPLEX_2D_GLSL = /* glsl */`
   vec3 mod289_3(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
   vec2 mod289_2(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
   vec3 permute3(vec3 x) { return mod289_3(((x * 34.0) + 1.0) * x); }
@@ -37,13 +83,24 @@ const SIMPLEX_2D_GLSL = `
     return 130.0 * dot(m, g);
   }
 
-  // 3-octave FBM
-  float fbm(vec2 p) {
+  // 4-octave FBM — enough detail for soft cumulus shapes without fine ripples
+  float fbm5(vec2 p) {
     float f = 0.0;
     f += 0.5000 * snoise2(p); p *= 2.01;
     f += 0.2500 * snoise2(p); p *= 2.02;
-    f += 0.1250 * snoise2(p);
+    f += 0.1250 * snoise2(p); p *= 2.03;
+    f += 0.0625 * snoise2(p);
     return f;
+  }
+
+  // Single-pass domain warping: one extra fbm lookup for organic distortion
+  // Gentle warp for cumulus-like shapes without water-ripple artifacts
+  float warpedFbm(vec2 p, float t) {
+    vec2 warp = vec2(
+      fbm5(p + vec2(1.7, 9.2) + t * 0.03),
+      fbm5(p + vec2(8.3, 2.8) + t * 0.04)
+    );
+    return fbm5(p + warp * 0.6);
   }
 `;
 
@@ -55,6 +112,7 @@ class CloudAscentScene {
     this.isMobile = window.innerWidth < 768;
     this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.time = 0;
+    this.introProgress = 0;
     this.lastTimestamp = 0;
 
     // Parallax state
@@ -66,12 +124,13 @@ class CloudAscentScene {
     this.burstCenter = new THREE.Vector2(0, 0);
     this.burstStrength = 0;
 
-    // Renderer
+    // Renderer with ACES tone mapping
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       alpha: false,
       antialias: false
     });
+    this.renderer.toneMapping = THREE.NoToneMapping;
     const maxPixelRatio = this.isMobile ? 2 : 1.5;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -95,27 +154,29 @@ class CloudAscentScene {
     requestAnimationFrame((t) => this.animate(t));
   }
 
-  // --- Background gradient + light breakthrough ---
+  // --- Background gradient + strong light breakthrough ---
   createBackground() {
     const geo = new THREE.PlaneGeometry(2, 2);
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uParallax: { value: new THREE.Vector2(0, 0) },
-        uColorTop: { value: new THREE.Color(0xE8F4FD) },    // Pale blue-white
-        uColorMid: { value: new THREE.Color(0xA8D4F0) },    // Soft blue
-        uColorBot: { value: new THREE.Color(0xC4DEF0) }     // Soft sky blue (not white)
+        uIntro: { value: 0 },
+        uColorTop: { value: new THREE.Color(0x3878A8) },    // Strong sky blue
+        uColorMid: { value: new THREE.Color(0x2868A0) },    // Deep blue
+        uColorBot: { value: new THREE.Color(0x5090C0) }     // Horizon blue
       },
-      vertexShader: `
+      vertexShader: /* glsl */`
         varying vec2 vUv;
         void main() {
           vUv = uv;
           gl_Position = vec4(position.xy, 0.9999, 1.0);
         }
       `,
-      fragmentShader: `
+      fragmentShader: /* glsl */`
         uniform float uTime;
         uniform vec2 uParallax;
+        uniform float uIntro;
         uniform vec3 uColorTop;
         uniform vec3 uColorMid;
         uniform vec3 uColorBot;
@@ -128,7 +189,7 @@ class CloudAscentScene {
           float breath = sin(uTime * 0.3) * 0.015;
           t += breath;
 
-          // Blue dominates top ~60%, misty white in bottom ~40%
+          // Blue dominates top, warmer toward light source
           vec3 color;
           if (t > 0.4) {
             color = mix(uColorMid, uColorTop, smoothstep(0.4, 1.0, t));
@@ -136,14 +197,25 @@ class CloudAscentScene {
             color = mix(uColorBot, uColorMid, smoothstep(0.0, 0.4, t));
           }
 
-          // Light breakthrough spot: upper-center, warm white-gold
-          vec2 lightCenter = vec2(0.5 + uParallax.x * 0.05, 0.75 + uParallax.y * 0.03);
+          // Subtle light breakthrough — warm spot, not dominant
+          vec2 lightCenter = vec2(0.5 + uParallax.x * 0.05, 0.72 + uParallax.y * 0.03);
           float distToLight = distance(vUv, lightCenter);
-          float lightGlow = 1.0 - smoothstep(0.0, 0.45, distToLight);
-          lightGlow = pow(lightGlow, 2.5);
 
-          vec3 lightColor = vec3(1.0, 0.96, 0.85);
-          color = mix(color, lightColor, lightGlow * 0.13);
+          float lightGlow = 1.0 - smoothstep(0.0, 0.35, distToLight);
+          lightGlow = pow(lightGlow, 3.0);
+
+          float lightPulse = 1.0 + sin(uTime * 0.4) * 0.04;
+
+          vec3 lightColor = vec3(1.0, 0.96, 0.88);
+          float lightIntensity = lightGlow * 0.20 * lightPulse;
+          lightIntensity *= smoothstep(0.3, 1.0, uIntro);
+
+          color = mix(color, lightColor, lightIntensity);
+
+          // Warm shift — very subtle
+          vec3 warmShift = vec3(1.0, 0.93, 0.80);
+          float warmAmount = lightGlow * 0.08 * smoothstep(0.3, 1.0, uIntro);
+          color = mix(color, warmShift, warmAmount);
 
           gl_FragColor = vec4(color, 1.0);
         }
@@ -159,14 +231,15 @@ class CloudAscentScene {
     this.scene.add(mesh);
   }
 
-  // --- Cloud layers ---
+  // --- Cloud layers with domain warping ---
   createCloudLayers() {
     this.cloudMaterials = [];
 
+    // 5 layers: 2 far background + 2 mid + 1 close foreground
     const layers = [
-      { z: 3,  w: 110, h: 35, drift: 0.04,  opacity: 0.10, scale: 1.0 },
-      { z: 12, w: 90,  h: 28, drift: 0.07,  opacity: 0.22, scale: 1.5 },
-      { z: 21, w: 70,  h: 20, drift: 0.11,  opacity: 0.12, scale: 2.2 }
+      { z: 3,  w: 110, h: 35, drift: 0.015, opacity: 0.10, scale: 2.0,  goldStrength: 0.3 },
+      { z: 12, w: 90,  h: 28, drift: 0.030, opacity: 0.18, scale: 2.8,  goldStrength: 0.6 },
+      { z: 21, w: 70,  h: 20, drift: 0.050, opacity: 0.12, scale: 3.5,  goldStrength: 0.4 }
     ];
 
     for (const cfg of layers) {
@@ -177,77 +250,82 @@ class CloudAscentScene {
           uDriftSpeed: { value: cfg.drift },
           uOpacity: { value: cfg.opacity },
           uNoiseScale: { value: cfg.scale },
+          uGoldStrength: { value: cfg.goldStrength },
           uBurstCenter: { value: new THREE.Vector2(0, 0) },
           uBurstStrength: { value: 0 },
           uReducedMotion: { value: this.prefersReducedMotion ? 1.0 : 0.0 },
-          uGoldColor: { value: new THREE.Color(0xE8C878) }
+          uIntro: { value: 0 },
+          uGoldColor: { value: new THREE.Color(0xF0D080) } // Warmer gold
         },
-        vertexShader: `
+        vertexShader: /* glsl */`
           varying vec2 vUv;
-
           void main() {
             vUv = uv;
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }
         `,
-        fragmentShader: `
+        fragmentShader: /* glsl */`
           ${SIMPLEX_2D_GLSL}
 
           uniform float uTime;
           uniform float uDriftSpeed;
           uniform float uOpacity;
           uniform float uNoiseScale;
+          uniform float uGoldStrength;
           uniform vec2 uBurstCenter;
           uniform float uBurstStrength;
           uniform float uReducedMotion;
+          uniform float uIntro;
           uniform vec3 uGoldColor;
           varying vec2 vUv;
 
           void main() {
             vec2 uv = vUv;
-
             float anim = (1.0 - uReducedMotion);
 
-            // Touch burst: subtle ripple distortion
+            // Touch burst: ripple distortion
             vec2 burstUV = vUv * 2.0 - 1.0;
             float burstDist = distance(burstUV, uBurstCenter);
             float ripple = sin(burstDist * 12.0 - uTime * 4.0) * uBurstStrength * 0.03;
             uv += ripple;
 
-            // Evolving clouds: time fed into noise coords so shapes morph in place
-            // Gentle directional bias (drift) + organic reshaping (evolve)
             float t = uTime * anim;
-            vec2 noiseCoord = uv * uNoiseScale * 2.5;
-            noiseCoord.x += t * uDriftSpeed * 0.3;          // subtle directional drift
-            float evolve = t * uDriftSpeed * 2.0;            // faster shape evolution
-            // Offset each FBM octave by time for organic morphing
-            float density = 0.5000 * snoise2(noiseCoord + evolve * 0.7);
-            noiseCoord *= 2.01;
-            density += 0.2500 * snoise2(noiseCoord + evolve * 1.1);
-            noiseCoord *= 2.02;
-            density += 0.1250 * snoise2(noiseCoord + evolve * 1.6);
+            // Natural cloud coordinates — slight horizontal stretch looks like real cloud banks
+            vec2 noiseCoord = uv * uNoiseScale;
+            noiseCoord.x += t * uDriftSpeed * 0.3;
 
-            // Soft cloud shapes
-            float cloud = smoothstep(0.50, 0.72, density * 0.5 + 0.5);
+            // Domain-warped FBM for organic billow-like shapes
+            float density = warpedFbm(noiseCoord, t * uDriftSpeed * 1.5);
+
+            // Cloud shapes — tight threshold for defined shapes with sky gaps
+            // warpedFbm returns roughly [-0.8, 0.8], remap to [0, 1]
+            float remapped = density * 0.5 + 0.5;
+            float cloud = smoothstep(0.38, 0.58, remapped);
 
             // Edge fade at plane boundaries
             float edgeX = smoothstep(0.0, 0.15, vUv.x) * smoothstep(1.0, 0.85, vUv.x);
             float edgeY = smoothstep(0.0, 0.15, vUv.y) * smoothstep(1.0, 0.85, vUv.y);
             cloud *= edgeX * edgeY;
 
-            // Warm gold edge-lighting: cheap approximation using cloud edge falloff
-            // Gold appears where cloud is thin (edges) and in upper portion of UV
-            float edgeThin = smoothstep(0.72, 0.55, density * 0.5 + 0.5) * cloud;
-            float upperBias = smoothstep(0.3, 0.7, vUv.y);
-            float goldEdge = edgeThin * upperBias;
+            // Warm gold edge-lighting — visible golden rims on cloud edges
+            float edgeThin = smoothstep(0.58, 0.42, remapped) * cloud;
+            float upperBias = smoothstep(0.15, 0.65, vUv.y);
+            float goldEdge = edgeThin * upperBias * uGoldStrength;
 
-            // Base cloud color: white
-            vec3 cloudColor = vec3(1.0);
-            // Mix in gold at lit edges
-            cloudColor = mix(cloudColor, uGoldColor, goldEdge * 0.5);
+            // Light proximity boost — clouds near light source glow warmer
+            vec2 lightPos = vec2(0.5, 0.72);
+            float lightProximity = 1.0 - smoothstep(0.0, 0.55, distance(vUv, lightPos));
+            goldEdge += cloud * lightProximity * 0.35 * uGoldStrength;
 
-            // Final alpha
-            float alpha = cloud * uOpacity;
+            // Base cloud color: warm white
+            vec3 cloudColor = vec3(1.0, 0.99, 0.96);
+            // Mix in gold at lit edges and near light source
+            cloudColor = mix(cloudColor, uGoldColor, goldEdge * 0.7);
+
+            // Intro: fade in from transparent
+            float introOpacity = uOpacity * smoothstep(0.0, 1.0, uIntro);
+
+            float alpha = cloud * introOpacity;
 
             gl_FragColor = vec4(cloudColor, alpha);
           }
@@ -260,30 +338,35 @@ class CloudAscentScene {
 
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.z = cfg.z;
-      mesh.renderOrder = cfg.z; // Closer layers render on top
+      mesh.renderOrder = cfg.z;
       this.cloudMaterials.push(mat);
       this.scene.add(mesh);
     }
   }
 
-  // --- Moisture particles ---
+  // --- Luminous particles (moisture/mist) ---
   createParticles() {
-    const count = 80;
+    const count = 200;
     const positions = new Float32Array(count * 3);
     const aSize = new Float32Array(count);
     const aSpeed = new Float32Array(count);
     const aPhase = new Float32Array(count);
     const aOpacity = new Float32Array(count);
+    const aWarmth = new Float32Array(count); // gold tint factor
 
     for (let i = 0; i < count; i++) {
-      positions[i * 3]     = (Math.random() - 0.5) * 60;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+      positions[i * 3]     = (Math.random() - 0.5) * 40;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 25;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 30;
 
-      aSize[i] = 0.3 + Math.random() * 0.9;
+      aSize[i] = 0.3 + Math.random() * 1.0;
       aSpeed[i] = 0.3 + Math.random() * 0.7;
       aPhase[i] = Math.random() * Math.PI * 2;
-      aOpacity[i] = 0.08 + Math.random() * 0.17;
+      aOpacity[i] = 0.12 + Math.random() * 0.23;
+
+      // Particles in upper portion are warmer (nearer to light)
+      const yNorm = (positions[i * 3 + 1] + 12.5) / 25.0;
+      aWarmth[i] = 0.1 + yNorm * 0.6;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -292,6 +375,7 @@ class CloudAscentScene {
     geometry.setAttribute('aSpeed', new THREE.BufferAttribute(aSpeed, 1));
     geometry.setAttribute('aPhase', new THREE.BufferAttribute(aPhase, 1));
     geometry.setAttribute('aOpacity', new THREE.BufferAttribute(aOpacity, 1));
+    geometry.setAttribute('aWarmth', new THREE.BufferAttribute(aWarmth, 1));
 
     const material = new THREE.ShaderMaterial({
       uniforms: {
@@ -299,31 +383,38 @@ class CloudAscentScene {
         uParallax: { value: new THREE.Vector2(0, 0) },
         uBurstCenter: { value: new THREE.Vector2(0, 0) },
         uBurstStrength: { value: 0 },
-        uReducedMotion: { value: this.prefersReducedMotion ? 1.0 : 0.0 }
+        uReducedMotion: { value: this.prefersReducedMotion ? 1.0 : 0.0 },
+        uIntro: { value: 0 }
       },
-      vertexShader: `
+      vertexShader: /* glsl */`
         attribute float aSize;
         attribute float aSpeed;
         attribute float aPhase;
         attribute float aOpacity;
+        attribute float aWarmth;
 
         uniform float uTime;
         uniform vec2 uParallax;
         uniform vec2 uBurstCenter;
         uniform float uBurstStrength;
         uniform float uReducedMotion;
+        uniform float uIntro;
 
         varying float vOpacity;
+        varying float vWarmth;
 
         void main() {
           vec3 pos = position;
-
           float drift = (1.0 - uReducedMotion);
 
-          // Gentle oscillation (no directional drift)
+          // Gentle oscillation + slight upward drift (ascent feeling)
           pos.x += sin(uTime * aSpeed * 0.4 + aPhase) * 2.0 * drift;
           pos.y += sin(uTime * aSpeed * 0.3 + aPhase * 1.3) * 1.5 * drift;
+          pos.y += uTime * 0.05 * drift; // subtle upward drift
           pos.z += cos(uTime * aSpeed * 0.25 + aPhase * 0.7) * 1.0 * drift;
+
+          // Wrap Y position to keep particles in view
+          pos.y = mod(pos.y + 12.5, 25.0) - 12.5;
 
           // Parallax shift
           pos.x += uParallax.x * 3.0;
@@ -342,19 +433,24 @@ class CloudAscentScene {
           gl_PointSize = aSize * (300.0 / -finalMV.z);
           gl_Position = projectionMatrix * finalMV;
 
-          vOpacity = aOpacity;
+          // Fade in particles during intro
+          vOpacity = aOpacity * smoothstep(0.4, 1.0, uIntro);
+          vWarmth = aWarmth;
         }
       `,
-      fragmentShader: `
+      fragmentShader: /* glsl */`
         varying float vOpacity;
+        varying float vWarmth;
 
         void main() {
           vec2 center = gl_PointCoord - vec2(0.5);
           float dist = length(center);
           float alpha = smoothstep(0.5, 0.15, dist) * vOpacity;
 
-          // Pale blue-white moisture color
-          vec3 color = vec3(0.95, 0.97, 1.0);
+          // Cool white -> warm gold based on warmth attribute
+          vec3 coolColor = vec3(0.95, 0.97, 1.0);
+          vec3 warmColor = vec3(1.0, 0.94, 0.78);
+          vec3 color = mix(coolColor, warmColor, vWarmth);
 
           gl_FragColor = vec4(color, alpha);
         }
@@ -369,75 +465,35 @@ class CloudAscentScene {
     this.scene.add(this.particles);
   }
 
-  // --- Post-processing: bloom + composite (no god-rays) ---
+  // --- Post-processing: bloom + god rays + vignette + noise ---
   setupPostProcessing() {
-    const halfW = Math.floor(window.innerWidth / 2);
-    const halfH = Math.floor(window.innerHeight / 2);
-
     this.composer = new EffectComposer(this.renderer);
+    this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-    // 1. Render pass
-    const renderPass = new RenderPass(this.scene, this.camera);
-    this.composer.addPass(renderPass);
+    // God rays — custom effect (radial light sampling)
+    this.godRays = new GodRaysEffect();
 
-    // 2. Bloom
-    this.bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(halfW, halfH),
-      0.4,   // strength
-      1.2,   // radius
-      0.9    // threshold
-    );
-    this.composer.addPass(this.bloomPass);
+    // Bloom — warmer and more present
+    const bloom = new BloomEffect({
+      intensity: 0.3,
+      luminanceThreshold: 0.9,
+      luminanceSmoothing: 0.3,
+      mipmapBlur: true
+    });
 
-    // 3. Composite: pale blue vignette + grain
-    this.compositeShader = {
-      uniforms: {
-        tDiffuse: { value: null },
-        uTime: { value: 0 },
-        uGrainIntensity: { value: 0.02 },
-        uVignetteColor: { value: new THREE.Vector3(0.56, 0.72, 0.82) },
-        uVignetteIntensity: { value: 0.2 }
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D tDiffuse;
-        uniform float uTime;
-        uniform float uGrainIntensity;
-        uniform vec3 uVignetteColor;
-        uniform float uVignetteIntensity;
-        varying vec2 vUv;
+    const vignette = new VignetteEffect({
+      offset: 0.3,
+      darkness: 0.3
+    });
 
-        float random(vec2 co) {
-          return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
-        }
+    const noise = new NoiseEffect({
+      blendFunction: BlendFunction.OVERLAY,
+      premultiply: false
+    });
+    noise.blendMode.opacity.value = 0.06;
 
-        void main() {
-          vec4 color = texture2D(tDiffuse, vUv);
-
-          // Film grain
-          float grain = random(vUv + uTime * 0.01) * uGrainIntensity;
-          color.rgb += grain - uGrainIntensity * 0.5;
-
-          // Pale blue vignette
-          vec2 center = vUv - 0.5;
-          float dist = length(center);
-          float vignette = smoothstep(0.7, 0.3, dist);
-          float vignetteEdge = 1.0 - vignette;
-          color.rgb = mix(color.rgb, color.rgb * (1.0 - uVignetteIntensity) + uVignetteColor * uVignetteIntensity * 0.3, vignetteEdge);
-          color.rgb *= mix(1.0 - uVignetteIntensity * 0.5, 1.0, vignette);
-
-          gl_FragColor = color;
-        }
-      `
-    };
-    this.compositePass = new ShaderPass(this.compositeShader);
-    this.composer.addPass(this.compositePass);
+    // All effects in one pass for optimal performance
+    this.composer.addPass(new EffectPass(this.camera, this.godRays, bloom, vignette, noise));
   }
 
   // --- Interaction: mouse, gyro, touch ---
@@ -515,10 +571,6 @@ class CloudAscentScene {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
     this.composer.setSize(w, h);
-
-    const halfW = Math.floor(w / 2);
-    const halfH = Math.floor(h / 2);
-    this.bloomPass.resolution.set(halfW, halfH);
   }
 
   // --- Animation loop ---
@@ -529,6 +581,11 @@ class CloudAscentScene {
     const delta = Math.min((timestamp - this.lastTimestamp) / 1000, 0.1);
     this.lastTimestamp = timestamp;
     this.time += delta;
+
+    // Entrance animation (0 -> 1 over ~2.5 seconds)
+    if (this.introProgress < 1) {
+      this.introProgress = Math.min(1, this.introProgress + delta * 0.4);
+    }
 
     // Smooth parallax
     this.parallax.x += (this.targetParallax.x - this.parallax.x) * 0.05;
@@ -547,12 +604,14 @@ class CloudAscentScene {
     // Update background
     this.bgMaterial.uniforms.uTime.value = this.time;
     this.bgMaterial.uniforms.uParallax.value.set(this.parallax.x, this.parallax.y);
+    this.bgMaterial.uniforms.uIntro.value = this.introProgress;
 
     // Update cloud layers
     for (const mat of this.cloudMaterials) {
       mat.uniforms.uTime.value = this.time;
       mat.uniforms.uBurstCenter.value.copy(this.burstCenter);
       mat.uniforms.uBurstStrength.value = this.burstStrength;
+      mat.uniforms.uIntro.value = this.introProgress;
     }
 
     // Update particles
@@ -560,11 +619,14 @@ class CloudAscentScene {
     this.particleMaterial.uniforms.uParallax.value.set(this.parallax.x, this.parallax.y);
     this.particleMaterial.uniforms.uBurstCenter.value.copy(this.burstCenter);
     this.particleMaterial.uniforms.uBurstStrength.value = this.burstStrength;
+    this.particleMaterial.uniforms.uIntro.value = this.introProgress;
 
-    // Update post-processing
-    this.compositePass.uniforms.uTime.value = this.time;
+    // Update god rays
+    if (this.godRays) {
+      this.godRays.uniforms.get('uRayIntro').value = this.introProgress;
+    }
 
-    this.composer.render();
+    this.composer.render(delta);
   }
 
   // --- Utility ---
