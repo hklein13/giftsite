@@ -10,7 +10,8 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         goldenHour: resolve(__dirname, 'concepts/golden-hour.html'),
-        cloudAscent: resolve(__dirname, 'concepts/cloud-ascent.html')
+        cloudAscent: resolve(__dirname, 'concepts/cloud-ascent.html'),
+        rainGlass: resolve(__dirname, 'concepts/rain-glass.html')
       }
     }
   }
