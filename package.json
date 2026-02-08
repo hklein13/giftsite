@@ -27,6 +27,7 @@
     "three": "^0.182.0"
   },
   "devDependencies": {
+    "sharp": "^0.34.5",
     "vite": "^7.3.1"
   }
 }

@@ -9,8 +9,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        cloudAscent: resolve(__dirname, 'concepts/cloud-ascent.html'),
-        rainGlass: resolve(__dirname, 'concepts/rain-glass.html')
+        cloud: resolve(__dirname, 'cloud/index.html')
       }
     }
   }

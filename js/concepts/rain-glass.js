@@ -1,10 +1,10 @@
-// js/concepts/rain-glass.js — Rain on Glass Concept Demo (Polished)
-// Fullscreen shader: render-to-texture blurred background with rainbow,
+// js/concepts/rain-glass.js — Rain on Glass Concept Demo (Cabin Window)
+// Container-based shader: render-to-texture blurred background with rainbow,
 // procedural raindrops with lens-like refraction + chromatic aberration,
 // condensation layer, warm cozy palette, pmndrs postprocessing
 
 import * as THREE from 'three';
-import { EffectComposer, RenderPass, EffectPass, BloomEffect, VignetteEffect, NoiseEffect, BlendFunction } from 'postprocessing';
+import { EffectComposer, RenderPass, EffectPass, BloomEffect, NoiseEffect, BlendFunction } from 'postprocessing';
 
 // ---------- GLSL helpers ----------
 const NOISE_GLSL = /* glsl */`
@@ -396,6 +396,7 @@ class RainGlassScene {
     this.canvas = document.getElementById('rain-glass-canvas');
     if (!this.canvas) return;
 
+    this.container = this.canvas.parentElement;
     this.isMobile = window.innerWidth < 768;
     this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.time = 0;
@@ -405,6 +406,8 @@ class RainGlassScene {
     // Touch burst state
     this.burstCenter = new THREE.Vector2(0, 0);
     this.burstStrength = 0;
+
+    const { width, height } = this._getContainerSize();
 
     // Renderer with ACES tone mapping
     this.renderer = new THREE.WebGLRenderer({
@@ -416,10 +419,10 @@ class RainGlassScene {
     this.renderer.toneMappingExposure = 1.1;
     const maxPixelRatio = this.isMobile ? 2 : 1.5;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(width, height);
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    this.camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
     this.camera.position.set(0, 0, 30);
 
     this.createBackgroundTexture();
@@ -427,19 +430,34 @@ class RainGlassScene {
     this.setupPostProcessing();
     this.setupInteraction();
 
-    // Resize
-    this._onResize = this._debounce(() => this.onResize(), 200);
-    window.addEventListener('resize', this._onResize);
+    // Debounced resize handler
+    this._debouncedResize = this._debounce(() => this.onResize(), 200);
+
+    // ResizeObserver on canvas (catches CSS layout changes)
+    this._resizeObserver = new ResizeObserver(() => this._debouncedResize());
+    this._resizeObserver.observe(this.canvas);
+
+    // Window resize as fallback
+    window.addEventListener('resize', this._debouncedResize);
     this.onResize();
 
     // Start
     requestAnimationFrame((t) => this.animate(t));
   }
 
+  _getContainerSize() {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      width: Math.round(rect.width) || 1,
+      height: Math.round(rect.height) || 1
+    };
+  }
+
   // --- Render background to texture (once, with blur) ---
   createBackgroundTexture() {
-    const w = Math.min(window.innerWidth, 1024);
-    const h = Math.min(window.innerHeight, 1024);
+    const { width: cw, height: ch } = this._getContainerSize();
+    const w = Math.min(cw, 1024);
+    const h = Math.min(ch, 1024);
 
     // Render target for the sharp background
     const rtSharp = new THREE.WebGLRenderTarget(w, h, {
@@ -526,11 +544,12 @@ class RainGlassScene {
   }
 
   createRainShader() {
+    const { width, height } = this._getContainerSize();
     const geo = new THREE.PlaneGeometry(2, 2);
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
-        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+        uResolution: { value: new THREE.Vector2(width, height) },
         uBackground: { value: this.bgTarget.texture },
         uBurstCenter: { value: new THREE.Vector2(0, 0) },
         uBurstStrength: { value: 0 },
@@ -554,17 +573,12 @@ class RainGlassScene {
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-    // Combine bloom + vignette + noise into a single EffectPass
+    // Bloom + noise (no vignette — window frame provides natural edge framing)
     const bloom = new BloomEffect({
       intensity: 0.2,
       luminanceThreshold: 0.9,
       luminanceSmoothing: 0.4,
       mipmapBlur: true
-    });
-
-    const vignette = new VignetteEffect({
-      offset: 0.35,
-      darkness: 0.35
     });
 
     const noise = new NoiseEffect({
@@ -573,46 +587,43 @@ class RainGlassScene {
     });
     noise.blendMode.opacity.value = 0.08;
 
-    this.composer.addPass(new EffectPass(this.camera, bloom, vignette, noise));
+    this.composer.addPass(new EffectPass(this.camera, bloom, noise));
   }
 
   setupInteraction() {
+    // Canvas-local coordinates
     this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
       this.burstCenter.set(
-        (e.clientX / window.innerWidth) * 2 - 1,
-        -(e.clientY / window.innerHeight) * 2 + 1
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
       );
       this.burstStrength = 1.0;
-
-      const hint = document.getElementById('tap-hint');
-      if (hint) hint.classList.add('hidden');
     });
 
     this.canvas.addEventListener('touchstart', (e) => {
       if (e.touches.length > 0) {
         const touch = e.touches[0];
+        const rect = this.canvas.getBoundingClientRect();
         this.burstCenter.set(
-          (touch.clientX / window.innerWidth) * 2 - 1,
-          -(touch.clientY / window.innerHeight) * 2 + 1
+          ((touch.clientX - rect.left) / rect.width) * 2 - 1,
+          -((touch.clientY - rect.top) / rect.height) * 2 + 1
         );
         this.burstStrength = 1.0;
-
-        const hint = document.getElementById('tap-hint');
-        if (hint) hint.classList.add('hidden');
       }
     }, { passive: true });
   }
 
   onResize() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const { width, height } = this._getContainerSize();
+    if (width === 0 || height === 0) return;
 
-    this.camera.aspect = w / h;
+    this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(w, h);
-    this.composer.setSize(w, h);
+    this.renderer.setSize(width, height);
+    this.composer.setSize(width, height);
 
-    this.rainMaterial.uniforms.uResolution.value.set(w, h);
+    this.rainMaterial.uniforms.uResolution.value.set(width, height);
 
     // Re-render background texture on resize
     this.createBackgroundTexture();

@@ -14,133 +14,110 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #D4DDE6;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
       font-family: 'Outfit', sans-serif;
       -webkit-font-smoothing: antialiased;
+      background: #2A2018;
     }
 
-    canvas#rain-glass-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
+    /* --- Scene container: fills viewport, matches cabin image aspect ratio --- */
+    .scene {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- Cabin frame: holds the image and canvas at the correct aspect ratio --- */
+    .cabin-frame {
+      position: relative;
       width: 100%;
       height: 100%;
-      display: block;
+      max-width: calc(100vh * (1024 / 572));
+      max-height: calc(100vw * (572 / 1024));
     }
 
-    .overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+    /* --- Rain canvas: fills entire frame, cabin image masks it --- */
+    .cabin-frame canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* --- Cabin image overlay: sits on top, transparent window lets canvas show through --- */
+    .cabin-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
       pointer-events: none;
-      z-index: 10;
+      object-fit: contain;
     }
 
-    .overlay h1 {
+    /* --- Title --- */
+    .cabin-title {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
       font-family: 'Fraunces', serif;
-      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-size: clamp(1.8rem, 4vw, 3.2rem);
       font-weight: 400;
-      color: #3A4555;
-      text-shadow: 0 2px 20px rgba(255, 255, 255, 0.4);
+      color: #E8DDD0;
       letter-spacing: -0.02em;
       text-align: center;
       line-height: 1.2;
-      padding: 0 1rem;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
     }
 
-    .overlay h1 .accent-italic {
+    .cabin-title .accent-italic {
       font-style: italic;
       font-weight: 500;
+      color: #D4B888;
     }
 
-    .overlay .subtitle {
-      font-family: 'Outfit', sans-serif;
-      font-size: clamp(0.9rem, 2.5vw, 1.15rem);
-      font-weight: 300;
-      color: rgba(58, 69, 85, 0.7);
-      margin-top: 1rem;
-      text-shadow: 0 1px 10px rgba(255, 255, 255, 0.3);
-      letter-spacing: 0.03em;
-    }
-
-    .back-button {
-      position: fixed;
-      top: max(1rem, env(safe-area-inset-top, 1rem));
-      left: max(1rem, env(safe-area-inset-left, 1rem));
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      min-width: 44px;
-      min-height: 44px;
-      padding: 0.5rem 1rem;
-      background: rgba(58, 69, 85, 0.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(58, 69, 85, 0.15);
-      border-radius: 2rem;
-      color: #3A4555;
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 400;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .back-button:hover { background: rgba(58, 69, 85, 0.2); }
-
-    .back-button svg {
-      width: 16px; height: 16px;
-      fill: none; stroke: currentColor;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-
-    .tap-hint {
-      position: fixed;
-      bottom: max(2rem, env(safe-area-inset-bottom, 2rem));
+    /* --- Subtitle --- */
+    .cabin-subtitle {
+      position: absolute;
+      bottom: 6%;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 20;
+      z-index: 3;
       font-family: 'Outfit', sans-serif;
-      font-size: 0.8rem;
+      font-size: clamp(0.8rem, 1.5vw, 1.05rem);
       font-weight: 300;
-      color: rgba(58, 69, 85, 0.45);
-      letter-spacing: 0.05em;
+      color: rgba(232, 221, 208, 0.55);
+      letter-spacing: 0.03em;
       text-align: center;
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity 0.6s ease;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+      white-space: nowrap;
     }
 
-    .tap-hint.hidden { opacity: 0; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .tap-hint { display: none; }
+    /* --- Responsive: ensure text stays readable at small sizes --- */
+    @media (max-width: 600px) {
+      .cabin-title { top: 3%; }
+      .cabin-subtitle { bottom: 3%; }
     }
   </style>
 </head>
 <body>
-  <canvas id="rain-glass-canvas"></canvas>
-
-  <a class="back-button" href="../index.html">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    Back
-  </a>
-
-  <div class="overlay">
-    <h1>Uncover Your <span class="accent-italic">Gift</span></h1>
-    <p class="subtitle">A journey of discovery awaits</p>
+  <div class="scene">
+    <div class="cabin-frame">
+      <canvas id="rain-glass-canvas"></canvas>
+      <img class="cabin-image" src="../textures/cabin-frame.png" alt="">
+      <h1 class="cabin-title">Uncover Your <span class="accent-italic">Gift</span></h1>
+      <p class="cabin-subtitle">A journey of discovery awaits</p>
+    </div>
   </div>
-
-  <div class="tap-hint" id="tap-hint">Tap anywhere to interact</div>
 
   <script type="module" src="../js/concepts/rain-glass.js"></script>
 </body>
