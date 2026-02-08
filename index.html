@@ -2,72 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Gift Site — Discover Your Gift</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>The Gift Site — Choose Your Experience</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/main.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0d1929;
+      min-height: 100vh;
+      font-family: 'Outfit', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 400;
+      color: #f0ebe3;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .header h1 .accent-italic {
+      font-style: italic;
+      font-weight: 500;
+      color: #d4a853;
+    }
+
+    .header p {
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      font-weight: 300;
+      color: rgba(240, 235, 227, 0.5);
+      margin-top: 0.75rem;
+      letter-spacing: 0.03em;
+    }
+
+    .templates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 960px;
+      width: 100%;
+    }
+
+    @media (max-width: 640px) {
+      .templates {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+
+    .template-card {
+      display: block;
+      text-decoration: none;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(240, 235, 227, 0.05);
+      border: 1px solid rgba(240, 235, 227, 0.1);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .template-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(212, 168, 83, 0.4);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .template-card img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+    }
+
+    .template-card .card-body {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .template-card h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #f0ebe3;
+      margin-bottom: 0.4rem;
+    }
+
+    .template-card p {
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: rgba(240, 235, 227, 0.55);
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body>
-  <!-- WebGL Canvas -->
-  <canvas id="solar-system-canvas"></canvas>
+  <div class="header">
+    <h1>The <span class="accent-italic">Gift</span> Site</h1>
+    <p>Choose a design to preview</p>
+  </div>
 
-  <!-- Scroll Container (creates scroll height) -->
-  <div id="scroll-container"></div>
-
-  <!-- Navigation (always visible) -->
-  <nav>
-    <a href="index.html" class="logo">
-      <div class="logo-mark"></div>
-      The Gift Site
+  <div class="templates">
+    <a class="template-card" href="cabin/">
+      <img src="assets/thumb-cabin.jpg" alt="Cabin design preview">
+      <div class="card-body">
+        <h2>Cabin Fireside</h2>
+        <p>Warm cabin interior with flickering fire and mountain window view</p>
+      </div>
     </a>
-    <ul class="nav-links">
-      <li><a href="why.html" data-planet="why">Why We Exist</a></li>
-      <li><a href="discover.html" data-planet="discover">Discover</a></li>
-      <li><a href="process.html" data-planet="process">The Process</a></li>
-      <li><a href="facilitate.html" data-planet="facilitate">Facilitate</a></li>
-      <li><a href="companion.html">Companion</a></li>
-    </ul>
-  </nav>
 
-  <!-- Hero Section (visible at start) -->
-  <section class="hero-overlay" id="hero-section">
-    <div class="hero-content">
-      <h1>Uncover Your <span class="accent-italic">Gift</span></h1>
-      <p class="subtitle">A journey of discovery awaits. Scroll to begin.</p>
-    </div>
-  </section>
-
-  <!-- Bottom Caption Bar -->
-  <div class="caption-bar" id="caption-bar">
-    <div class="caption-content">
-      <h3 class="caption-title"></h3>
-      <p class="caption-description"></p>
-    </div>
+    <a class="template-card" href="cloud/">
+      <img src="assets/thumb-cloud.jpg" alt="Cloud design preview">
+      <div class="card-body">
+        <h2>Cloud Ascent</h2>
+        <p>Interactive sky with layered clouds, god rays, and luminous particles</p>
+      </div>
+    </a>
   </div>
-
-  <!-- Planet Click Indicator (centered on screen) -->
-  <div class="planet-click-prompt" id="planet-click-prompt">
-    <span class="click-text">Visit</span>
-  </div>
-
-  <!-- Scroll Progress Indicator -->
-  <div class="scroll-indicator">
-    <div class="planet-dots">
-      <span class="dot active" data-planet="overview" title="Home"></span>
-      <span class="dot" data-planet="why" title="Why We Exist"></span>
-      <span class="dot" data-planet="discover" title="Discover"></span>
-      <span class="dot" data-planet="process" title="The Process"></span>
-      <span class="dot" data-planet="facilitate" title="Facilitate"></span>
-    </div>
-  </div>
-
-  <!-- Main Script (Vite bundled) -->
-  <script type="module" src="/js/main.js"></script>
 </body>
 </html>
