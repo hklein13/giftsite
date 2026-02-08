@@ -9,6 +9,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
+        cabin: resolve(__dirname, 'cabin/index.html'),
         cloud: resolve(__dirname, 'cloud/index.html')
       }
     }
