@@ -7,3 +7,16 @@
 node_modules/
 dist/
 js/theatre-state.json
+
+# Dev screenshots and temp media (keep assets/ tracked)
+/*.png
+/*.jpg
+/*.jpeg
+/*.mp4
+/nul
+
+# Playwright MCP cache
+.playwright-mcp/
+
+# Claude local config
+.claude/

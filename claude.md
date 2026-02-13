@@ -62,21 +62,23 @@ The user is not always right, but neither is Claude - collaborative verification
 
 ```
 giftsite/
-├── index.html           # Homepage - Solar system navigation
-├── why.html             # Why We Exist
-├── discover.html        # Discover page
-├── process.html         # The Process (has GSAP animations)
-├── facilitate.html      # Facilitate page
-├── audiences.html       # Who It's For
-├── companion.html       # Gift Companion (Coming Soon)
-├── css/
-│   └── main.css         # All styles
+├── index.html              # Template chooser landing page
+├── cabin/
+│   └── index.html          # Cabin scroll-driven homepage
+├── cloud/
+│   └── index.html          # Cloud Ascent template (Three.js interactive)
+├── assets/
+│   ├── cabin-fire.mp4      # Cabin video (~2.3MB, bottom-cropped to remove watermark)
+│   ├── cabin-still.jpg     # Still frame from video (fallback)
+│   ├── cabin-blur.jpg      # Blurred cabin ceiling strip (6KB, mobile backdrop)
+│   ├── thumb-cabin.jpg     # Chooser thumbnail
+│   └── thumb-cloud.jpg     # Chooser thumbnail
 ├── js/
-│   ├── main.js          # Entry point - imports & initializes all modules
-│   ├── solar-system.js  # Three.js solar system scene & navigation
-│   ├── animations.js    # GSAP animation controller
-│   └── vfx.js           # VFX-JS text effects
-├── package.json         # NPM dependencies
+│   ├── cabin-home.js       # GSAP/Lenis scroll animations for cabin
+│   └── concepts/
+│       └── cloud-ascent.js # Three.js cloud scene
+├── package.json
+├── vite.config.js          # 3 entry points: main, cabin, cloud
 └── README.md
 ```
 
@@ -84,13 +86,8 @@ giftsite/
 
 ### Core
 - **Vite** - Build tool and dev server (`npm run dev`)
-- **Three.js** - WebGL 3D graphics for solar system homepage
-- **GSAP + ScrollTrigger** - Animations
-- **Lenis** - Smooth scrolling
-
-### Visual Effects
-- **VFX-JS** - WebGL text effects
-- Custom GLSL shaders for planets, stars, and post-processing
+- **Three.js** - WebGL 3D graphics (Cloud Ascent template only)
+- **pmndrs `postprocessing`** - Modern post-processing (Cloud Ascent only)
 
 ### Fonts
 - **Fraunces** (display)
@@ -102,30 +99,52 @@ giftsite/
 
 ---
 
-## Homepage Architecture (Solar System)
+## Site Architecture
 
-The homepage (`index.html`) features an immersive 3D solar system navigation:
+### Template Chooser (`/giftsite/`)
+Landing page with two thumbnail cards linking to each template. Dark navy background (#0d1929), Fraunces/Outfit typography, hover effects on cards.
 
-### Navigation Flow
-1. **Hero Section** - "Uncover Your Gift" title, visible at scroll position 0
-2. **Planet Stops** - Camera travels linearly through space to each planet:
-   - Why We Exist (planet with moon)
-   - Discover (planet with rings)
-   - The Process (planet with rings)
-   - Facilitate (planet with moon)
-3. **Sun** - Subtle warm glow in the far background
+### Cabin Homepage (`/giftsite/cabin/`)
+Scroll-driven homepage with immersive video hero + navigation cards.
 
-### Key Features
-- **Snap Scroll** - Hard stops at each planet, requires scroll to continue
-- **Bottom Caption Bar** - Shows planet description with fade-in animation on arrival
-- **Centered Page Title** - Appears after arriving at planet, shows page name (e.g., "Facilitate"), clicks navigate to page
-- **Scroll Indicator Dots** - Right side navigation dots (44x44px touch targets)
+**Desktop:**
+- Video is `position: fixed` — stays as backdrop while content scrolls over it
+- Hero: 100vh, text overlay with SplitText character animation, scroll indicator
+- Cards section: dark semi-transparent overlay (92%) + backdrop-blur, scrolls over video
+- Gold-accented glassmorphism cards with hover glow
 
-### Visual Elements
-- Procedural planet shaders with noise-based surface detail
-- Multi-layered animated starfield with twinkling and drift
-- Nebula clouds between planets
-- Post-processing: bloom, film grain, vignette, chromatic aberration
+**Mobile portrait** (`max-aspect-ratio: 4/3`):
+- Blurred video fills entire viewport (same video, `filter: blur(20px)`, `scale(1.15)`)
+- Sharp video inset centered (92% width, rounded corners, shadow) — shows full cabin scene
+- Text overlays on top, cards scroll over blurred backdrop
+- No black bars — blurred video fills all space with warm flickering firelight
+
+**Animations (js/cabin-home.js):**
+- GSAP + Lenis smooth scroll (synced to single RAF loop)
+- SplitText hero title: characters rise + fade with 0.04s stagger
+- Tagline + scroll indicator fade in sequentially
+- Scroll indicator fades out via ScrollTrigger scrub (0-15%)
+- Cards reveal: y:60 → 0 + fade when scrolled to 85% viewport
+
+**5 Navigation cards** (non-clickable divs, will become links when subpages built):
+- Why We Exist, Discover, The Process, Facilitate, Gift Companion
+
+**Assets:**
+- `cabin-fire.mp4`: cropped to 1920x980 (bottom 100px removed to eliminate Gemini watermark)
+- `cabin-blur.jpg`: top 200px of cabin frame, blurred (6KB), used as mobile cards backdrop
+- `cabin-still.jpg`: landscape still frame fallback
+
+**Companion bot button:** Fixed position, gold (#d4a853), bottom-right, unchanged
+
+### Cloud Ascent (`/giftsite/cloud/`)
+- Three.js interactive scene with layered clouds, god rays, particles
+- Same text overlay branding as cabin
+- Uses pmndrs `postprocessing` for bloom + noise effects
+- Touch/click interaction for particle burst
+- **Known issues:** Cloud opacity balance is fragile. Don't use ACES tone mapping.
+
+### Future: Gift Companion Bot
+Placeholder icon exists on cabin template. Will eventually be an interactive chatbot.
 
 ---
 
@@ -133,67 +152,10 @@ The homepage (`index.html`) features an immersive 3D solar system navigation:
 
 Primary target device: Modern iPhone (12+). Site should feel snappy and responsive.
 
-### Touch Navigation
-- **Scroll threshold**: 80px (reduced from 150px for snappier response)
-- **Touch multiplier**: 1.0 (direct 1:1 swipe response)
-- **Transition duration**: 1800ms (with easing strength 0.02)
-- Camera FOV increases to 85° on mobile (vs 60° desktop) so planets appear smaller
-- Caption bar respects iPhone safe area (`env(safe-area-inset-bottom)`)
-
-### Mobile Navigation
-- Header shows logo only (nav links hidden below 900px)
-- Logo returns to homepage solar system
-- No hamburger menu - solar system IS the navigation
-- Content pages have next/prev links at bottom for sequential reading
-
-### Page Navigation Flow
-```
-Why We Exist → Discover → The Process → Facilitate
-     ↑                                        ↓
-     └──────────── (via logo/home) ───────────┘
-```
-
-### Touch Targets
-- All interactive elements minimum 44x44px (Apple guideline)
-- Page title button, nav dots (via ::before pseudo-element), next/prev links all verified
-
----
-
-## Performance Optimizations
-
-The solar system homepage has several performance optimizations:
-
-### Lenis + GSAP Integration
-- Lenis smooth scroll is driven by GSAP ticker (not standalone RAF loop)
-- `process.html` uses: `gsap.ticker.add((time) => lenis.raf(time * 1000))`
-
-### Animation Throttling
-- Star drift/twinkle runs every 3rd frame (~20fps) - visually identical, saves CPU
-- Uses `starFrameCounter % 3 === 0` pattern
-
-### Resize Handling
-- Resize handler debounced with 200ms delay
-- `onResize()` called during `init()` for proper initial state on mobile
-- Bloom resolution updated on resize to maintain half-resolution optimization
-
-### Bloom Post-Processing
-- Half resolution (processes 75% fewer pixels)
-- Strength: 0.85, Threshold: 0.7
-- Resolution updated in `onResize()` to stay at half
-
-### Additional Optimizations (Phase C/E)
-- Config object cached in constructor (avoids per-frame function calls)
-- Reusable Vector3 for camera lookAt (reduces GC pressure)
-- Delta time for frame-rate independent animations (works on 120Hz displays)
-- Atmosphere pass runs at half resolution
-- Pixel ratio: 1.5 on desktop (smooth on integrated graphics), 2.0 on mobile
-
-### Visual Polish
-- Distance fog (FogExp2, 0x0d1929, density 0.0008) for atmospheric depth
-- Planet fresnel sharpened (power 3.5) for crisp silhouettes
-- Sun corona rays with animated rotation
-- Distance-adaptive camera easing (smoother arrivals)
-- Camera-based star parallax (depth perception while scrolling)
+- Cabin homepage: blurred video backdrop + sharp video inset (Instagram-style, no black bars)
+- Cloud template: full-viewport Three.js canvas
+- Safe area insets respected (`env(safe-area-inset-bottom)`)
+- All interactive elements minimum 44x44px touch targets
 
 ---
 
@@ -212,9 +174,19 @@ npm run preview  # Test production build locally
 ```
 
 ### Key Files to Know
-- `js/solar-system.js` - Main Three.js scene, all 3D elements
-- `js/main.js` - Module imports, global library exports, app initialization
-- `css/main.css` - All styles including solar system UI elements
+- `index.html` - Template chooser landing page
+- `cabin/index.html` - Cabin scroll-driven homepage (video hero + nav cards)
+- `js/cabin-home.js` - GSAP/Lenis animations for cabin page
+- `cloud/index.html` - Cloud template (loads cloud-ascent.js)
+- `js/concepts/cloud-ascent.js` - Three.js cloud scene logic
+- `vite.config.js` - Build config with 3 entry points
+
+---
+
+## Archived Files
+
+Solar system homepage and old subpages were removed from git but backed up locally:
+`C:\Users\HarrisonKlein\Downloads\giftsite-solar-system-backup\`
 
 ---
 
@@ -223,16 +195,14 @@ npm run preview  # Test production build locally
 ### Context7 - Documentation Lookup
 Use Context7 for accurate, up-to-date documentation on:
 - Three.js (shaders, materials, geometries, post-processing)
-- GSAP + ScrollTrigger (scrub, pinning, callbacks)
-- Lenis (velocity, direction, events)
+- Vite (build config, asset handling)
 
-**Usage:** Add "use context7" to prompts, e.g., "use context7 to show GSAP ScrollTrigger scrub examples"
+**Usage:** Add "use context7" to prompts, e.g., "use context7 to show Three.js post-processing examples"
 
 ### Playwright - Browser Automation
 Use Playwright for:
-- Visual testing of scroll animations
-- Verifying 60fps performance
-- Screenshots at each planet stop
+- Visual testing of templates
+- Screenshots for thumbnails
 - Mobile viewport testing
 
-**Usage:** "Use playwright to scroll through the homepage and verify smoothness"
+**Usage:** "Use playwright to screenshot both templates at mobile viewport"
