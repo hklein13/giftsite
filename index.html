@@ -55,13 +55,13 @@
 
     .templates {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 960px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1100px;
       width: 100%;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 840px) {
       .templates {
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -131,6 +131,14 @@
       <div class="card-body">
         <h2>Cloud Ascent</h2>
         <p>Interactive sky with layered clouds, god rays, and luminous particles</p>
+      </div>
+    </a>
+
+    <a class="template-card" href="book/">
+      <img src="assets/thumb-book.jpg" alt="Book design preview">
+      <div class="card-body">
+        <h2>The Golden Book</h2>
+        <p>An interactive book that opens to reveal your journey — scroll to turn pages</p>
       </div>
     </a>
   </div>
