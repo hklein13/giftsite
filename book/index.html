@@ -14,11 +14,64 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #faf6f0;
+      background: #b8956a;
       font-family: 'Outfit', sans-serif;
       -webkit-font-smoothing: antialiased;
       color: #3a2a1a;
       overflow-x: hidden;
+      scrollbar-width: none;
+    }
+
+    body::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Wood desk surface — layered for realism */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        /* Vignette */
+        radial-gradient(ellipse at center, transparent 30%, rgba(40, 20, 5, 0.2) 100%),
+        /* Fine grain — tight horizontal lines */
+        repeating-linear-gradient(
+          1deg,
+          transparent 0px, transparent 2px,
+          rgba(80, 50, 20, 0.12) 2px, rgba(80, 50, 20, 0.12) 3px,
+          transparent 3px, transparent 6px,
+          rgba(60, 35, 10, 0.08) 6px, rgba(60, 35, 10, 0.08) 7px,
+          transparent 7px, transparent 11px,
+          rgba(90, 55, 20, 0.1) 11px, rgba(90, 55, 20, 0.1) 12px,
+          transparent 12px, transparent 14px
+        ),
+        /* Wide grain bands */
+        repeating-linear-gradient(
+          0deg,
+          rgba(100, 65, 25, 0.06) 0px, transparent 8px,
+          transparent 30px,
+          rgba(70, 40, 15, 0.08) 30px, transparent 38px,
+          transparent 55px,
+          rgba(90, 55, 20, 0.05) 55px, transparent 60px,
+          transparent 80px
+        ),
+        /* Color banding — lighter/darker horizontal zones */
+        linear-gradient(
+          0deg,
+          #b8956a 0%,
+          #c4a07a 15%,
+          #ab8860 30%,
+          #c0996e 45%,
+          #b08a5c 55%,
+          #c4a07a 70%,
+          #a88558 80%,
+          #be9c72 100%
+        );
     }
 
     /* ===== BOOK SCENE (fixed, centered, perspective container) ===== */
@@ -32,21 +85,21 @@
       align-items: center;
       justify-content: center;
       perspective: 1800px;
-      z-index: 1;
+      z-index: 2;
     }
 
-    /* Shadow beneath the book */
-    .book-scene::after {
-      content: '';
+    /* Shadow beneath the book on desk */
+    .book-shadow {
       position: absolute;
-      bottom: 8%;
+      bottom: -25px;
       left: 50%;
       transform: translateX(-50%);
-      width: min(70vw, 500px);
-      height: 30px;
-      background: radial-gradient(ellipse at center, rgba(180, 150, 100, 0.2) 0%, transparent 70%);
+      width: 95%;
+      height: 40px;
+      background: radial-gradient(ellipse at center, rgba(40, 25, 10, 0.25) 0%, rgba(40, 25, 10, 0.08) 50%, transparent 75%);
       border-radius: 50%;
       pointer-events: none;
+      z-index: 0;
     }
 
     /* ===== THE BOOK ===== */
@@ -57,18 +110,31 @@
       transform-style: preserve-3d;
     }
 
-    /* Spine (left edge) */
+    /* Spine (left edge) — dark blue with gold accent */
     .book::before {
       content: '';
       position: absolute;
       top: 0;
-      left: -16px;
-      width: 16px;
+      left: -18px;
+      width: 18px;
       height: 100%;
-      background: #c49a3a;
+      background: linear-gradient(to right, #152d4a, #1a3355);
       border-radius: 4px 0 0 4px;
       z-index: 10;
-      box-shadow: -2px 0 8px rgba(180, 150, 100, 0.2), inset 1px 0 2px rgba(255, 255, 255, 0.15);
+      box-shadow: -3px 0 10px rgba(0, 0, 0, 0.2), inset 1px 0 2px rgba(255, 255, 255, 0.05);
+    }
+
+    /* Gold accent line on spine */
+    .book::after {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: -11px;
+      width: 1px;
+      height: 80%;
+      background: linear-gradient(to bottom, transparent, rgba(212, 168, 83, 0.4) 20%, rgba(212, 168, 83, 0.4) 80%, transparent);
+      z-index: 11;
+      pointer-events: none;
     }
 
     /* ===== PAGES (flippable) ===== */
@@ -117,15 +183,126 @@
 
     /* ===== PAGE STYLES ===== */
 
-    /* Cover front: golden gradient */
+    /* Cover front: deep sapphire blue with damask texture */
     .page-cover .page-front {
-      background: linear-gradient(135deg, #d4a853 0%, #c49a3a 100%);
+      background:
+        /* Damask diamond pattern */
+        repeating-conic-gradient(
+          from 45deg at 50% 50%,
+          transparent 0deg 80deg,
+          rgba(255, 255, 255, 0.012) 80deg 100deg
+        ),
+        /* Subtle fabric weave */
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.008) 2px,
+          rgba(255, 255, 255, 0.008) 3px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.008) 2px,
+          rgba(255, 255, 255, 0.008) 3px
+        ),
+        /* Base gradient */
+        linear-gradient(160deg, #1e3a5f 0%, #182e4e 40%, #213a5c 70%, #1a3355 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 2rem;
+      position: relative;
     }
+
+    /* Radial gold glow behind title area */
+    .cover-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70%;
+      height: 50%;
+      background: radial-gradient(ellipse at center, rgba(212, 168, 83, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Outer decorative frame with notched corners */
+    .cover-frame-outer {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      border: 1.5px solid rgba(212, 168, 83, 0.35);
+      border-radius: 0 4px 4px 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Diamond accent at top center of outer frame */
+    .cover-frame-outer::before {
+      content: '◆';
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: rgba(212, 168, 83, 0.5);
+      background: #1e3a5f;
+      padding: 0 6px;
+    }
+
+    /* Diamond accent at bottom center of outer frame */
+    .cover-frame-outer::after {
+      content: '◆';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: rgba(212, 168, 83, 0.5);
+      background: #1a3355;
+      padding: 0 6px;
+    }
+
+    /* Inner decorative frame */
+    .cover-frame-inner {
+      position: absolute;
+      top: 22px;
+      left: 22px;
+      right: 22px;
+      bottom: 22px;
+      border: 1px solid rgba(212, 168, 83, 0.18);
+      border-radius: 0 3px 3px 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Ornate cover corners — larger SVG flourishes */
+    .cover-corner {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .cover-corner svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: rgba(212, 168, 83, 0.45);
+      stroke-width: 1;
+    }
+
+    .cover-corner-tl { top: 26px; left: 26px; }
+    .cover-corner-tr { top: 26px; right: 18px; transform: scaleX(-1); }
+    .cover-corner-bl { bottom: 26px; left: 26px; transform: scaleY(-1); }
+    .cover-corner-br { bottom: 26px; right: 18px; transform: scale(-1, -1); }
 
     /* Cover back: parchment */
     .page-cover .page-back {
@@ -138,17 +315,67 @@
       font-family: 'Fraunces', serif;
       font-size: clamp(2rem, 7vw, 3.5rem);
       font-weight: 400;
-      color: #faf6f0;
+      color: #d4a853;
       text-align: center;
       line-height: 1.2;
       letter-spacing: -0.02em;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(212, 168, 83, 0.15);
       visibility: hidden;
+      position: relative;
+      z-index: 1;
     }
 
     .cover-title .accent-italic {
       font-style: italic;
       font-weight: 500;
-      color: #f0ebe3;
+      color: #e8c06a;
+    }
+
+    /* Cover emblem (small decorative icon above title) */
+    .cover-emblem {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+      visibility: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover-emblem svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: #d4a853;
+      stroke-width: 1;
+    }
+
+    /* Ornamental divider */
+    .cover-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.8rem 0;
+      visibility: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover-divider::before,
+    .cover-divider::after {
+      content: '';
+      width: 50px;
+      height: 1px;
+      background: linear-gradient(to var(--dir, right), rgba(212, 168, 83, 0.5), transparent);
+    }
+
+    .cover-divider::before { --dir: right; }
+    .cover-divider::after { --dir: left; }
+
+    .cover-divider span {
+      color: rgba(212, 168, 83, 0.55);
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
     }
 
     /* Cover tagline */
@@ -156,26 +383,173 @@
       font-family: 'Outfit', sans-serif;
       font-size: clamp(0.85rem, 2.5vw, 1.1rem);
       font-weight: 300;
-      color: rgba(250, 246, 240, 0.7);
-      margin-top: 1rem;
-      letter-spacing: 0.04em;
+      color: rgba(160, 195, 230, 0.8);
+      margin-top: 0.2rem;
+      letter-spacing: 0.06em;
       text-align: center;
       visibility: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===== INTERIOR PAGE SHARED DETAILS ===== */
+
+    /* Paper texture on all interior pages */
+    .page-welcome .page-front,
+    .page-welcome .page-back,
+    .page-cover .page-back,
+    .page-toc {
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 28px,
+          rgba(180, 160, 130, 0.03) 28px,
+          rgba(180, 160, 130, 0.03) 29px
+        ),
+        linear-gradient(135deg, #fffcf7 0%, #faf5ec 50%, #fffcf7 100%);
+    }
+
+    /* Binding shadow (dark gradient along spine edge) */
+    .page-welcome .page-front .binding-shadow,
+    .page-toc .binding-shadow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 30px;
+      height: 100%;
+      background: linear-gradient(to right, rgba(120, 100, 70, 0.08), transparent);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Stitching marks along spine edge */
+    .page-welcome .page-front .stitching,
+    .page-toc .stitching {
+      position: absolute;
+      top: 5%;
+      left: 10px;
+      width: 2px;
+      height: 90%;
+      pointer-events: none;
+      z-index: 2;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 8px,
+        rgba(160, 130, 90, 0.2) 8px,
+        rgba(160, 130, 90, 0.2) 14px,
+        transparent 14px,
+        transparent 22px
+      );
+    }
+
+    /* Corner ornaments */
+    .corner-ornament {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.2;
+    }
+
+    .corner-ornament svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: #b8862d;
+      stroke-width: 1;
+    }
+
+    .corner-tl { top: 14px; left: 24px; }
+    .corner-tr { top: 14px; right: 14px; transform: scaleX(-1); }
+    .corner-bl { bottom: 14px; left: 24px; transform: scaleY(-1); }
+    .corner-br { bottom: 14px; right: 14px; transform: scale(-1, -1); }
+
+    /* Ribbon bookmark */
+    .ribbon-bookmark {
+      position: absolute;
+      top: 0;
+      right: 30px;
+      width: 14px;
+      height: 60px;
+      background: linear-gradient(to bottom, #8b2232, #a32a3e);
+      z-index: 3;
+      pointer-events: none;
+      box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
+    }
+
+    /* Decorative header line on interior pages */
+    .page-header-line {
+      position: absolute;
+      top: 12px;
+      left: 32px;
+      right: 16px;
+      height: 1px;
+      background: linear-gradient(to right, rgba(180, 150, 100, 0.15), rgba(180, 150, 100, 0.08), transparent);
+      pointer-events: none;
+      z-index: 2;
     }
 
     /* Welcome page front */
     .page-welcome .page-front {
-      background: #fffcf7;
       padding: 2rem;
+      padding-left: 2.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: inset -2px 0 8px rgba(180, 150, 100, 0.08);
+      position: relative;
+    }
+
+    /* Aged page edges (subtle yellowing at corners/edges) */
+    .page-aged-edge {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(ellipse at top right, rgba(180, 150, 100, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(180, 150, 100, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(180, 150, 100, 0.04) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 1;
+      border-radius: 0 8px 8px 0;
+    }
+
+    /* Page number */
+    .page-number {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Fraunces', serif;
+      font-size: 0.75rem;
+      color: rgba(58, 42, 26, 0.25);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Decorative footer line on pages */
+    .page-footer-line {
+      position: absolute;
+      bottom: 30px;
+      left: 32px;
+      right: 16px;
+      height: 1px;
+      background: linear-gradient(to right, rgba(180, 150, 100, 0.1), rgba(180, 150, 100, 0.06), transparent);
+      pointer-events: none;
+      z-index: 2;
     }
 
     .welcome-text {
       text-align: center;
       padding: 2rem;
+      position: relative;
+      z-index: 3;
     }
 
     .welcome-text h2 {
@@ -186,6 +560,16 @@
       margin-bottom: 1.25rem;
     }
 
+    /* Decorative flourish under welcome heading */
+    .welcome-text h2::after {
+      content: '⸻';
+      display: block;
+      margin-top: 0.6rem;
+      color: rgba(212, 168, 83, 0.35);
+      font-size: 1rem;
+      letter-spacing: 0.3em;
+    }
+
     .welcome-text p {
       font-family: 'Outfit', sans-serif;
       font-size: clamp(0.95rem, 2.5vw, 1.1rem);
@@ -194,6 +578,18 @@
       line-height: 1.7;
       max-width: 440px;
       margin: 0 auto;
+    }
+
+    /* Drop cap on first letter */
+    .welcome-text p .drop-cap {
+      float: left;
+      font-family: 'Fraunces', serif;
+      font-size: 3.2rem;
+      font-weight: 500;
+      color: #b8862d;
+      line-height: 0.8;
+      padding-right: 0.15rem;
+      padding-top: 0.1rem;
     }
 
     /* Welcome page back */
@@ -215,12 +611,13 @@
 
     .page-toc {
       z-index: 1;
-      background: #fffcf7;
       padding: 2rem;
+      padding-left: 2.5rem;
       display: flex;
       flex-direction: column;
       box-shadow: inset -2px 0 8px rgba(180, 150, 100, 0.08);
       overflow-y: auto;
+      position: relative;
     }
 
     .toc-heading {
@@ -228,43 +625,63 @@
       font-size: clamp(1.4rem, 4vw, 2rem);
       font-weight: 400;
       color: #3a2a1a;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
       padding-top: 1rem;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+
+    /* Decorative ornament under TOC heading */
+    .toc-heading::after {
+      content: '◆  ◆  ◆';
+      display: block;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.4rem;
+      color: rgba(212, 168, 83, 0.4);
+      letter-spacing: 0.2em;
     }
 
     .toc-list {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0;
       flex: 1;
+      position: relative;
+      z-index: 3;
     }
 
     .toc-chapter {
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      border: 1px solid transparent;
+      padding: 0.65rem 1rem;
       text-decoration: none;
       color: inherit;
       min-height: 44px;
-      transition: border-color 0.3s ease, background 0.3s ease;
+      transition: background 0.3s ease;
       visibility: hidden;
+      border-bottom: 1px solid rgba(180, 150, 100, 0.08);
+      position: relative;
+    }
+
+    .toc-chapter:last-child {
+      border-bottom: none;
     }
 
     .toc-chapter:hover {
-      border-color: rgba(212, 168, 83, 0.35);
-      background: rgba(212, 168, 83, 0.06);
+      background: rgba(212, 168, 83, 0.05);
     }
 
     .chapter-num {
       font-family: 'Fraunces', serif;
-      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
       font-weight: 500;
       color: #d4a853;
-      min-width: 2rem;
+      min-width: 2.2rem;
       text-align: center;
+      opacity: 0.7;
     }
 
     .chapter-title {
@@ -281,8 +698,36 @@
       font-family: 'Outfit', sans-serif;
       font-size: clamp(0.78rem, 2vw, 0.88rem);
       font-weight: 300;
-      color: rgba(58, 42, 26, 0.6);
+      color: rgba(58, 42, 26, 0.5);
       line-height: 1.4;
+    }
+
+    /* ===== PAGE EDGES (stacked pages visible on right) ===== */
+    .page-edges {
+      position: absolute;
+      top: 4px;
+      right: -6px;
+      width: 6px;
+      height: calc(100% - 8px);
+      z-index: 0;
+      pointer-events: none;
+      border-radius: 0 2px 2px 0;
+      background:
+        linear-gradient(to right,
+          #e8e0d4 0px,
+          #f0e8dc 1px,
+          #ddd5c8 1px,
+          #ede5d8 2px,
+          #d8d0c4 2px,
+          #ece4d6 3px,
+          #dbd3c6 3px,
+          #f0e8da 4px,
+          #d5cdc0 4px,
+          #ede5d8 5px,
+          #e0d8cc 5px,
+          #f2ead8 6px
+        );
+      box-shadow: 2px 0 4px rgba(0, 0, 0, 0.08);
     }
 
     /* ===== BOOK EDGE DETAIL (interior pages only) ===== */
@@ -310,7 +755,7 @@
       bottom: 2rem;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 10;
+      z-index: 20;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -324,13 +769,14 @@
       font-weight: 400;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(58, 42, 26, 0.4);
+      color: rgba(255, 245, 230, 0.5);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
 
     .scroll-indicator .chevron {
       width: 20px;
       height: 20px;
-      stroke: rgba(58, 42, 26, 0.4);
+      stroke: rgba(255, 245, 230, 0.5);
       fill: none;
       stroke-width: 2;
       stroke-linecap: round;
@@ -377,20 +823,6 @@
       stroke-linejoin: round;
     }
 
-    /* ===== SITE FOOTER ===== */
-    .site-footer {
-      position: relative;
-      z-index: 2;
-      padding: 3rem 1.5rem 4rem;
-      text-align: center;
-    }
-
-    .site-footer p {
-      font-size: 0.8rem;
-      font-weight: 300;
-      color: rgba(58, 42, 26, 0.3);
-      letter-spacing: 0.04em;
-    }
 
     /* ===== MOBILE RESPONSIVE ===== */
     @media (max-width: 640px) {
@@ -400,8 +832,17 @@
       }
 
       .book::before {
-        width: 12px;
-        left: -12px;
+        width: 14px;
+        left: -14px;
+      }
+
+      .book::after {
+        left: -9px;
+      }
+
+      .page-edges {
+        right: -4px;
+        width: 4px;
       }
 
       .cover-title {
@@ -432,11 +873,26 @@
   <!-- ===== THE BOOK SCENE ===== -->
   <div class="book-scene">
     <div class="book">
+      <!-- Page edges (visible on right side) -->
+      <div class="page-edges"></div>
+      <!-- Book shadow -->
+      <div class="book-shadow"></div>
 
       <!-- PAGE 1: Front Cover -->
       <div class="page page-cover">
         <div class="page-front">
+          <!-- Cover decorative layers -->
+          <div class="cover-glow"></div>
+          <div class="cover-frame-outer"></div>
+          <div class="cover-frame-inner"></div>
+          <div class="cover-corner cover-corner-tl"><svg viewBox="0 0 36 36"><path d="M0 36 Q0 0 36 0"/><path d="M5 31 Q5 5 31 5"/><path d="M10 26 Q10 10 26 10"/><circle cx="4" cy="4" r="1.5"/></svg></div>
+          <div class="cover-corner cover-corner-tr"><svg viewBox="0 0 36 36"><path d="M0 36 Q0 0 36 0"/><path d="M5 31 Q5 5 31 5"/><path d="M10 26 Q10 10 26 10"/><circle cx="4" cy="4" r="1.5"/></svg></div>
+          <div class="cover-corner cover-corner-bl"><svg viewBox="0 0 36 36"><path d="M0 36 Q0 0 36 0"/><path d="M5 31 Q5 5 31 5"/><path d="M10 26 Q10 10 26 10"/><circle cx="4" cy="4" r="1.5"/></svg></div>
+          <div class="cover-corner cover-corner-br"><svg viewBox="0 0 36 36"><path d="M0 36 Q0 0 36 0"/><path d="M5 31 Q5 5 31 5"/><path d="M10 26 Q10 10 26 10"/><circle cx="4" cy="4" r="1.5"/></svg></div>
+          <!-- Cover content -->
+          <div class="cover-emblem"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="8"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="16" y1="26" x2="16" y2="30"/><line x1="2" y1="16" x2="6" y2="16"/><line x1="26" y1="16" x2="30" y2="16"/><line x1="6" y1="6" x2="9" y2="9"/><line x1="23" y1="6" x2="20" y2="9"/><line x1="6" y1="26" x2="9" y2="23"/><line x1="23" y1="26" x2="20" y2="23"/></svg></div>
           <h1 class="cover-title">The <span class="accent-italic">Gift</span> Site</h1>
+          <div class="cover-divider"><span>◆ ◆ ◆</span></div>
           <p class="cover-tagline">A journey of discovery awaits</p>
         </div>
         <div class="page-back">
@@ -448,9 +904,20 @@
       <!-- PAGE 2: Welcome Page -->
       <div class="page page-welcome">
         <div class="page-front">
+          <div class="binding-shadow"></div>
+          <div class="stitching"></div>
+          <div class="page-header-line"></div>
+          <div class="ribbon-bookmark"></div>
+          <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+          <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+          <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+          <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+          <div class="page-aged-edge"></div>
+          <div class="page-footer-line"></div>
+          <span class="page-number">ii</span>
           <div class="welcome-text">
             <h2>Welcome</h2>
-            <p>Every person carries a unique gift — something only they can bring to the world. This book is your guide to discovering it.</p>
+            <p><span class="drop-cap">E</span>very person carries a unique gift — something only they can bring to the world. This book is your guide to discovering it.</p>
           </div>
         </div>
         <div class="page-back">
@@ -461,6 +928,16 @@
 
       <!-- PAGE 3: Table of Contents (static, not flippable) -->
       <div class="page-static page-toc">
+        <div class="binding-shadow"></div>
+        <div class="stitching"></div>
+        <div class="page-header-line"></div>
+        <div class="page-aged-edge"></div>
+        <div class="page-footer-line"></div>
+        <span class="page-number">iii</span>
+        <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+        <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+        <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+        <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
         <h2 class="toc-heading">Chapters</h2>
         <div class="toc-list">
           <a href="#" class="toc-chapter">
@@ -510,11 +987,6 @@
   <div class="scroll-spacer" data-section="welcome"></div>
   <div class="scroll-spacer" data-section="flip-2"></div>
   <div class="scroll-spacer" data-section="toc"></div>
-
-  <!-- ===== FOOTER ===== -->
-  <footer class="site-footer">
-    <p>The Gift Site</p>
-  </footer>
 
   <!-- ===== SCROLL INDICATOR ===== -->
   <div class="scroll-indicator">
