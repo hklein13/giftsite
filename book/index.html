@@ -168,12 +168,14 @@
       background: #fffcf7;
       padding: 2rem;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: center;
       box-shadow: inset -2px 0 8px rgba(180, 150, 100, 0.08);
     }
 
     .welcome-text {
-      padding-top: 2rem;
+      text-align: center;
+      padding: 2rem;
     }
 
     .welcome-text h2 {
@@ -190,6 +192,8 @@
       font-weight: 300;
       color: #3a2a1a;
       line-height: 1.7;
+      max-width: 440px;
+      margin: 0 auto;
     }
 
     /* Welcome page back */
@@ -216,6 +220,7 @@
       display: flex;
       flex-direction: column;
       box-shadow: inset -2px 0 8px rgba(180, 150, 100, 0.08);
+      overflow-y: auto;
     }
 
     .toc-heading {
@@ -280,6 +285,19 @@
       line-height: 1.4;
     }
 
+    /* ===== BOOK EDGE DETAIL (interior pages only) ===== */
+    .page-welcome .page-front::after,
+    .page-toc::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(to right, rgba(180, 150, 100, 0.15), transparent);
+      pointer-events: none;
+    }
+
     /* ===== SCROLL SPACERS ===== */
     .scroll-spacer {
       height: 100vh;
@@ -336,7 +354,7 @@
       border-radius: 50%;
       border: none;
       background: rgba(212, 168, 83, 0.9);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(180, 150, 100, 0.3);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -357,6 +375,21 @@
       stroke-width: 1.8;
       stroke-linecap: round;
       stroke-linejoin: round;
+    }
+
+    /* ===== SITE FOOTER ===== */
+    .site-footer {
+      position: relative;
+      z-index: 2;
+      padding: 3rem 1.5rem 4rem;
+      text-align: center;
+    }
+
+    .site-footer p {
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: rgba(58, 42, 26, 0.3);
+      letter-spacing: 0.04em;
     }
 
     /* ===== MOBILE RESPONSIVE ===== */
@@ -477,6 +510,11 @@
   <div class="scroll-spacer" data-section="welcome"></div>
   <div class="scroll-spacer" data-section="flip-2"></div>
   <div class="scroll-spacer" data-section="toc"></div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>The Gift Site</p>
+  </footer>
 
   <!-- ===== SCROLL INDICATOR ===== -->
   <div class="scroll-indicator">
