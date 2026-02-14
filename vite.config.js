@@ -10,7 +10,8 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         cabin: resolve(__dirname, 'cabin/index.html'),
-        cloud: resolve(__dirname, 'cloud/index.html')
+        cloud: resolve(__dirname, 'cloud/index.html'),
+        book: resolve(__dirname, 'book/index.html')
       }
     }
   }
