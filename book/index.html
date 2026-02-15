@@ -71,12 +71,14 @@
     /* Shadow beneath the book on desk */
     .book-shadow {
       position: absolute;
-      bottom: -25px;
+      bottom: -30px;
       left: 50%;
-      transform: translateX(-50%);
-      width: 95%;
-      height: 40px;
-      background: radial-gradient(ellipse at center, rgba(40, 25, 10, 0.25) 0%, rgba(40, 25, 10, 0.08) 50%, transparent 75%);
+      transform: translateX(-55%);
+      width: 105%;
+      height: 50px;
+      background:
+        radial-gradient(ellipse at 55% 20%, rgba(30, 18, 5, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse at 45% 40%, rgba(40, 25, 10, 0.12) 0%, rgba(40, 25, 10, 0.04) 50%, transparent 80%);
       border-radius: 50%;
       pointer-events: none;
       z-index: 0;
@@ -845,6 +847,53 @@
     }
 
 
+    /* ===== DESK ENVIRONMENT ===== */
+
+    .desk-lamp {
+      position: fixed;
+      top: -20px;
+      right: 8vw;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .lamp-svg {
+      width: 100px;
+      height: 170px;
+    }
+
+    .lamp-light-cone {
+      position: absolute;
+      top: 140px;
+      left: 50%;
+      transform: translateX(-60%);
+      width: 350px;
+      height: 500px;
+      background: radial-gradient(
+        ellipse at 50% 0%,
+        rgba(255, 220, 160, 0.1) 0%,
+        rgba(255, 220, 160, 0.06) 30%,
+        rgba(255, 210, 140, 0.03) 50%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    .desk-pen {
+      position: fixed;
+      bottom: 12vh;
+      right: 6vw;
+      z-index: 1;
+      pointer-events: none;
+      transform: rotate(-25deg);
+    }
+
+    .pen-svg {
+      width: 110px;
+      height: 18px;
+      filter: drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.15));
+    }
+
     /* ===== MOBILE RESPONSIVE ===== */
     @media (max-width: 640px) {
       .book {
@@ -887,12 +936,44 @@
         min-width: 1.5rem;
       }
     }
+
+    @media (max-width: 768px) {
+      .desk-lamp,
+      .desk-pen {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
 
   <!-- ===== THE BOOK SCENE ===== -->
   <div class="book-scene">
+    <!-- Desk environment -->
+    <div class="desk-lamp" aria-hidden="true">
+      <svg viewBox="0 0 120 200" class="lamp-svg">
+        <line x1="60" y1="0" x2="60" y2="80" stroke="#8B7355" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="60" cy="80" r="4" fill="#8B7355"/>
+        <line x1="60" y1="80" x2="40" y2="140" stroke="#8B7355" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M15,140 L65,140 L58,165 L22,165 Z" fill="#6B5B3D" stroke="#8B7355" stroke-width="1"/>
+        <path d="M22,165 L58,165 L55,160 L25,160 Z" fill="rgba(255,220,160,0.3)" stroke="none"/>
+        <circle cx="40" cy="158" r="6" fill="rgba(255,220,160,0.15)" stroke="none"/>
+      </svg>
+      <div class="lamp-light-cone"></div>
+    </div>
+
+    <div class="desk-pen" aria-hidden="true">
+      <svg viewBox="0 0 120 20" class="pen-svg">
+        <rect x="20" y="6" width="80" height="8" rx="2" fill="#2a1f14"/>
+        <rect x="90" y="5" width="4" height="10" rx="1" fill="#d4a853" opacity="0.7"/>
+        <rect x="22" y="3" width="30" height="2" rx="1" fill="#d4a853" opacity="0.6"/>
+        <polygon points="100,8 100,12 115,10" fill="#c4a040"/>
+        <line x1="102" y1="10" x2="113" y2="10" stroke="#2a1f14" stroke-width="0.5"/>
+        <rect x="0" y="5.5" width="22" height="9" rx="2" fill="#1a120a"/>
+        <rect x="18" y="5" width="3" height="10" rx="0.5" fill="#d4a853" opacity="0.5"/>
+      </svg>
+    </div>
+
     <div class="book">
       <!-- Page edges (visible on right side) -->
       <div class="page-edges"></div>
