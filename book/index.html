@@ -36,7 +36,7 @@
       scroll-snap-align: start;
     }
 
-    /* Wood desk surface — layered for realism */
+    /* Wood desk surface — photo texture with vignette */
     body::before {
       content: '';
       position: fixed;
@@ -47,41 +47,11 @@
       z-index: 0;
       pointer-events: none;
       background:
-        /* Vignette */
-        radial-gradient(ellipse at center, transparent 30%, rgba(40, 20, 5, 0.2) 100%),
-        /* Fine grain — tight horizontal lines */
-        repeating-linear-gradient(
-          1deg,
-          transparent 0px, transparent 2px,
-          rgba(80, 50, 20, 0.12) 2px, rgba(80, 50, 20, 0.12) 3px,
-          transparent 3px, transparent 6px,
-          rgba(60, 35, 10, 0.08) 6px, rgba(60, 35, 10, 0.08) 7px,
-          transparent 7px, transparent 11px,
-          rgba(90, 55, 20, 0.1) 11px, rgba(90, 55, 20, 0.1) 12px,
-          transparent 12px, transparent 14px
-        ),
-        /* Wide grain bands */
-        repeating-linear-gradient(
-          0deg,
-          rgba(100, 65, 25, 0.06) 0px, transparent 8px,
-          transparent 30px,
-          rgba(70, 40, 15, 0.08) 30px, transparent 38px,
-          transparent 55px,
-          rgba(90, 55, 20, 0.05) 55px, transparent 60px,
-          transparent 80px
-        ),
-        /* Color banding — lighter/darker horizontal zones */
-        linear-gradient(
-          0deg,
-          #b8956a 0%,
-          #c4a07a 15%,
-          #ab8860 30%,
-          #c0996e 45%,
-          #b08a5c 55%,
-          #c4a07a 70%,
-          #a88558 80%,
-          #be9c72 100%
-        );
+        /* Vignette — biased lighter toward upper-right (lamp side) */
+        radial-gradient(ellipse at 75% 25%, transparent 40%, rgba(40, 20, 5, 0.15) 100%),
+        radial-gradient(ellipse at center, transparent 30%, rgba(40, 20, 5, 0.12) 100%),
+        /* Wood texture */
+        url('../assets/textures/wood-desk.jpg') center/cover no-repeat;
     }
 
     /* ===== BOOK SCENE (fixed, centered, perspective container) ===== */
@@ -193,32 +163,15 @@
 
     /* ===== PAGE STYLES ===== */
 
-    /* Cover front: deep sapphire blue with damask texture */
+    /* Cover front: deep sapphire blue with leather texture */
     .page-cover .page-front {
       background:
-        /* Damask diamond pattern */
-        repeating-conic-gradient(
-          from 45deg at 50% 50%,
-          transparent 0deg 80deg,
-          rgba(255, 255, 255, 0.012) 80deg 100deg
-        ),
-        /* Subtle fabric weave */
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          rgba(255, 255, 255, 0.008) 2px,
-          rgba(255, 255, 255, 0.008) 3px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 2px,
-          rgba(255, 255, 255, 0.008) 2px,
-          rgba(255, 255, 255, 0.008) 3px
-        ),
-        /* Base gradient */
+        /* Leather/cloth grain texture */
+        url('../assets/textures/leather-cover.jpg'),
+        /* Base gradient for color control */
         linear-gradient(160deg, #1e3a5f 0%, #182e4e 40%, #213a5c 70%, #1a3355 100%);
+      background-size: 256px 256px, 100% 100%;
+      background-blend-mode: overlay;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -410,6 +363,9 @@
     .page-cover .page-back,
     .page-toc {
       background:
+        /* Parchment fiber texture */
+        url('../assets/textures/parchment-page.jpg'),
+        /* Subtle line pattern */
         repeating-linear-gradient(
           0deg,
           transparent,
@@ -418,6 +374,8 @@
           rgba(180, 160, 130, 0.03) 29px
         ),
         linear-gradient(135deg, #fffcf7 0%, #faf5ec 50%, #fffcf7 100%);
+      background-size: 256px 256px, 100% 100%, 100% 100%;
+      background-blend-mode: soft-light, normal, normal;
     }
 
     /* Binding shadow (dark gradient along spine edge) */
