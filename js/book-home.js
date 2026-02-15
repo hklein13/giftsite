@@ -1,5 +1,5 @@
 // js/book-home.js — Golden Book scroll-driven homepage
-// GSAP SplitText cover animation, scroll-driven page flips (CSS scroll-snap handles pagination)
+// GSAP SplitText cover animation, accumulator-based paginated scroll, scroll-driven page flips
 
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -56,6 +56,128 @@ function setupScrollIndicator() {
       end: '30% top',
       scrub: true,
     },
+  });
+}
+
+// --- Paginated scroll (accumulator-based, inspired by solar system) ---
+function setupPaginatedScroll() {
+  let currentPage = 0;
+  const totalPages = 3; // cover, welcome, toc
+  let isAnimating = false;
+  let scrollAccumulator = 0;
+  let accumulatorTimeout;
+  const scrollThreshold = 80;
+  const scrollProxy = { value: window.scrollY };
+
+  // Page stops skip over flip zones: cover=0vh, welcome=2vh, toc=4vh
+  function getStopPositions() {
+    const vh = window.innerHeight;
+    return [0, 2 * vh, 4 * vh];
+  }
+
+  // Detect which page we're closest to on load
+  function detectCurrentPage() {
+    const stops = getStopPositions();
+    const scrollY = window.scrollY;
+    let closest = 0;
+    let minDist = Infinity;
+    stops.forEach((stop, i) => {
+      const dist = Math.abs(scrollY - stop);
+      if (dist < minDist) { minDist = dist; closest = i; }
+    });
+    return closest;
+  }
+
+  currentPage = detectCurrentPage();
+  scrollProxy.value = window.scrollY;
+
+  function navigateToPage(index) {
+    if (index < 0 || index >= totalPages || index === currentPage) return;
+    isAnimating = true;
+    currentPage = index;
+    scrollAccumulator = 0;
+
+    const stops = getStopPositions();
+    const target = stops[index];
+
+    gsap.killTweensOf(scrollProxy);
+    scrollProxy.value = window.scrollY;
+
+    gsap.to(scrollProxy, {
+      value: target,
+      duration: 1.8,
+      ease: 'power2.inOut',
+      onUpdate: () => window.scrollTo(0, scrollProxy.value),
+      onComplete: () => { isAnimating = false; },
+    });
+  }
+
+  // --- Wheel input ---
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (isAnimating) return;
+
+    scrollAccumulator += e.deltaY;
+
+    clearTimeout(accumulatorTimeout);
+    accumulatorTimeout = setTimeout(() => { scrollAccumulator = 0; }, 200);
+
+    if (Math.abs(scrollAccumulator) >= scrollThreshold) {
+      if (scrollAccumulator > 0 && currentPage < totalPages - 1) {
+        navigateToPage(currentPage + 1);
+      } else if (scrollAccumulator < 0 && currentPage > 0) {
+        navigateToPage(currentPage - 1);
+      }
+      scrollAccumulator = 0;
+    }
+  }, { passive: false });
+
+  // --- Touch input ---
+  let touchStartY = 0;
+  let touchAccumulator = 0;
+
+  window.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+    touchAccumulator = 0;
+  }, { passive: true });
+
+  window.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (isAnimating) return;
+
+    const deltaY = touchStartY - e.touches[0].clientY;
+    touchStartY = e.touches[0].clientY;
+    touchAccumulator += deltaY;
+
+    if (Math.abs(touchAccumulator) >= scrollThreshold) {
+      if (touchAccumulator > 0 && currentPage < totalPages - 1) {
+        navigateToPage(currentPage + 1);
+      } else if (touchAccumulator < 0 && currentPage > 0) {
+        navigateToPage(currentPage - 1);
+      }
+      touchAccumulator = 0;
+    }
+  }, { passive: false });
+
+  // --- Keyboard input ---
+  window.addEventListener('keydown', (e) => {
+    if (isAnimating) return;
+
+    if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
+      e.preventDefault();
+      if (currentPage < totalPages - 1) navigateToPage(currentPage + 1);
+    } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+      e.preventDefault();
+      if (currentPage > 0) navigateToPage(currentPage - 1);
+    }
+  });
+
+  // --- Recalculate on resize ---
+  window.addEventListener('resize', () => {
+    if (isAnimating) return;
+    const stops = getStopPositions();
+    scrollProxy.value = stops[currentPage];
+    window.scrollTo(0, stops[currentPage]);
   });
 }
 
@@ -175,6 +297,7 @@ function setupTocReveals() {
 function init() {
   animateCover();
   setupScrollIndicator();
+  setupPaginatedScroll();
   setupPageFlips();
   setupWelcomeReveal();
   setupTocReveals();

@@ -28,53 +28,47 @@ async function generateWoodDesk() {
     for (let x = 0; x < W; x++) {
       const idx = (y * W + x) * 3;
 
-      // Base warm oak: ~#b8956a = rgb(184, 149, 106)
-      let r = 184 + bandPhase;
-      let g = 149 + bandPhase * 0.8;
-      let b = 106 + bandPhase * 0.5;
+      // Dark walnut: ~#5c3a20 = rgb(92, 58, 32)
+      let r = 92 + bandPhase * 0.5;
+      let g = 58 + bandPhase * 0.4;
+      let b = 32 + bandPhase * 0.25;
 
-      // Fine grain lines (tight, nearly horizontal)
+      // Fine grain lines (tight, nearly horizontal) — higher contrast for dark wood
       const grainLine = Math.sin(y * 0.7 + x * 0.005 + Math.sin(x * 0.01) * 2);
-      if (grainLine > 0.85) {
-        const darkening = (grainLine - 0.85) * 60;
+      if (grainLine > 0.8) {
+        const darkening = (grainLine - 0.8) * 40;
         r -= darkening;
         g -= darkening * 0.9;
         b -= darkening * 0.7;
       }
+      // Lighter grain highlights
+      if (grainLine < -0.85) {
+        const lightening = (-0.85 - grainLine) * 20;
+        r += lightening;
+        g += lightening * 0.7;
+        b += lightening * 0.4;
+      }
 
       // Medium grain bands
       const medGrain = Math.sin(y * 0.15 + Math.sin(x * 0.003) * 5);
-      if (medGrain > 0.7) {
-        const shift = (medGrain - 0.7) * 25;
+      if (medGrain > 0.6) {
+        const shift = (medGrain - 0.6) * 18;
         r -= shift;
         g -= shift * 0.85;
         b -= shift * 0.6;
       }
 
       // Wide color variation
-      const wideVar = Math.sin(y * 0.003 + 0.5) * 8;
+      const wideVar = Math.sin(y * 0.003 + 0.5) * 6;
       r += wideVar;
       g += wideVar * 0.7;
       b += wideVar * 0.4;
 
-      // Subtle noise
-      const noise = (rand() - 0.5) * 6;
+      // Noise
+      const noise = (rand() - 0.5) * 5;
       r += noise;
       g += noise;
       b += noise;
-
-      // Slight knot/swirl hint
-      const knotX = 600, knotY = 400, knotR = 120;
-      const dx = x - knotX, dy = y - knotY;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < knotR) {
-        const knotStrength = (1 - dist / knotR) * 15;
-        const knotAngle = Math.atan2(dy, dx) + dist * 0.02;
-        const knotGrain = Math.sin(knotAngle * 8) * knotStrength;
-        r -= knotGrain;
-        g -= knotGrain * 0.8;
-        b -= knotGrain * 0.6;
-      }
 
       buf[idx]     = Math.max(0, Math.min(255, Math.round(r)));
       buf[idx + 1] = Math.max(0, Math.min(255, Math.round(g)));
@@ -148,61 +142,117 @@ async function generateLeatherCover() {
   console.log('Generated leather-cover.jpg');
 }
 
-// --- 3. Parchment Page Texture (512x512, tileable) ---
+// --- 3. Parchment Page Texture (1024x1024, tileable) ---
 async function generateParchmentPage() {
-  const S = 512;
+  const S = 1024;
   const buf = Buffer.alloc(S * S * 3);
   const rand = mulberry32(789);
 
-  // Pre-generate multi-octave noise for paper fiber
-  const noise1 = new Float32Array(S * S);
-  const noise2 = new Float32Array(S * S);
-  const noise3 = new Float32Array(S * S);
-  for (let i = 0; i < S * S; i++) {
-    noise1[i] = rand();
-    noise2[i] = rand();
-    noise3[i] = rand();
+  // Pre-generate multiple noise octaves for rich paper detail
+  const noise = [];
+  for (let o = 0; o < 5; o++) {
+    const field = new Float32Array(S * S);
+    for (let i = 0; i < S * S; i++) field[i] = rand();
+    noise.push(field);
+  }
+
+  // Helper: sample noise with wrapping (tileable)
+  function sampleNoise(layer, x, y) {
+    return noise[layer][((y & (S - 1)) * S + (x & (S - 1)))];
   }
 
   for (let y = 0; y < S; y++) {
     for (let x = 0; x < S; x++) {
       const idx = (y * S + x) * 3;
 
-      // Base cream: #fffcf7 = rgb(255, 252, 247)
-      let r = 255, g = 252, b = 247;
+      // Base warm cream: rgb(248, 242, 230)
+      let r = 248, g = 242, b = 230;
 
-      // Paper fiber texture — mostly horizontal streaks
-      const n1 = noise1[y * S + x];
-      const n2 = noise2[((y * 2) % S) * S + ((x * 3) % S)];
-      const n3 = noise3[((y * 5) % S) * S + ((x * 2) % S)];
+      // --- Paper fiber grain (horizontal bias, multi-scale) ---
+      const n0 = sampleNoise(0, x, y);
+      const n1 = sampleNoise(1, x * 2, y * 2);
+      const n2 = sampleNoise(2, x * 4, y * 4);
+      const n3 = sampleNoise(3, x * 8, y * 8);
+      const n4 = sampleNoise(4, x * 3, y);
 
-      // Horizontal fiber direction bias
-      const fiber = (n1 * 0.4 + n2 * 0.35 + n3 * 0.25 - 0.5) * 12;
-      r += fiber * 0.3;
-      g += fiber * 0.5;
-      b += fiber * 0.8;
+      // Coarse fiber (large-scale paper texture)
+      const coarseFiber = (n0 * 0.5 + n1 * 0.3 + n2 * 0.2 - 0.5) * 18;
+      r += coarseFiber * 0.6;
+      g += coarseFiber * 0.8;
+      b += coarseFiber * 1.2;
 
-      // Watermark-like subtle mottling
-      const mottle = Math.sin(x * 0.02 + n1 * 2) * Math.sin(y * 0.02 + n2 * 2) * 4;
-      r -= mottle * 0.2;
-      g -= mottle * 0.4;
-      b -= mottle * 0.6;
+      // Fine horizontal fiber streaks (paper grain direction)
+      const fiberStreak = Math.sin(y * 0.8 + x * 0.02 + n0 * 4) * n1;
+      r -= fiberStreak * 4;
+      g -= fiberStreak * 5;
+      b -= fiberStreak * 7;
 
-      // Very subtle warm spots
-      const warm = Math.sin(x * 0.008 + y * 0.006) * 3;
-      r += warm * 0.2;
-      g -= warm * 0.1;
-      b -= warm * 0.4;
+      // Micro fiber detail (tiny visible strands)
+      const microFiber = (n3 - 0.5) * 10;
+      r += microFiber * 0.4;
+      g += microFiber * 0.5;
+      b += microFiber * 0.3;
 
-      // Ensure staying in cream/warm range
-      buf[idx]     = Math.max(240, Math.min(255, Math.round(r)));
-      buf[idx + 1] = Math.max(237, Math.min(255, Math.round(g)));
-      buf[idx + 2] = Math.max(230, Math.min(252, Math.round(b)));
+      // --- Mottled warm/cool patches (aged paper unevenness) ---
+      const mottleWarm = Math.sin(x * 0.012 + n0 * 3) * Math.sin(y * 0.015 + n1 * 3);
+      const mottleCool = Math.sin(x * 0.009 - y * 0.011 + n2 * 2);
+      r += mottleWarm * 6;
+      g -= mottleWarm * 2 + mottleCool * 3;
+      b -= mottleWarm * 5 + mottleCool * 2;
+
+      // --- Paper pulp specks (tiny darker inclusions) ---
+      if (n3 > 0.94) {
+        const speckStr = (n3 - 0.94) * 120;
+        r -= speckStr * 0.7;
+        g -= speckStr * 0.8;
+        b -= speckStr * 0.5;
+      }
+
+      // Lighter pulp inclusions
+      if (n2 > 0.96) {
+        const lightSpeck = (n2 - 0.96) * 80;
+        r += lightSpeck * 0.3;
+        g += lightSpeck * 0.2;
+        b -= lightSpeck * 0.1;
+      }
+
+      // --- Subtle foxing (age spots — scattered warm brown dots) ---
+      const foxDist1 = Math.sqrt((x - 180) ** 2 + (y - 320) ** 2);
+      const foxDist2 = Math.sqrt((x - 720) ** 2 + (y - 150) ** 2);
+      const foxDist3 = Math.sqrt((x - 500) ** 2 + (y - 800) ** 2);
+      const foxDist4 = Math.sqrt((x - 900) ** 2 + (y - 600) ** 2);
+
+      for (const fd of [foxDist1, foxDist2, foxDist3, foxDist4]) {
+        if (fd < 12) {
+          const foxStr = (1 - fd / 12) * 8;
+          r -= foxStr * 0.5;
+          g -= foxStr * 1.2;
+          b -= foxStr * 1.8;
+        }
+      }
+
+      // --- Wide tonal variation (simulates uneven aging) ---
+      const toneShift = Math.sin(x * 0.004 + y * 0.003) * 4 +
+                        Math.sin(x * 0.007 - y * 0.005) * 3;
+      r += toneShift * 0.5;
+      g += toneShift * 0.3;
+      b -= toneShift * 0.4;
+
+      // --- Fine noise (paper surface roughness) ---
+      const surfaceNoise = (rand() - 0.5) * 4;
+      r += surfaceNoise;
+      g += surfaceNoise;
+      b += surfaceNoise;
+
+      // Clamp to aged cream range (wider than before for visible texture)
+      buf[idx]     = Math.max(225, Math.min(255, Math.round(r)));
+      buf[idx + 1] = Math.max(218, Math.min(250, Math.round(g)));
+      buf[idx + 2] = Math.max(205, Math.min(240, Math.round(b)));
     }
   }
 
   await sharp(buf, { raw: { width: S, height: S, channels: 3 } })
-    .jpeg({ quality: 80 })
+    .jpeg({ quality: 85 })
     .toFile('assets/textures/parchment-page.jpg');
 
   console.log('Generated parchment-page.jpg');
