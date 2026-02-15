@@ -14,7 +14,7 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #b8956a;
+      background: #5c3a20;
       font-family: 'Outfit', sans-serif;
       -webkit-font-smoothing: antialiased;
       color: #3a2a1a;
@@ -26,7 +26,7 @@
       display: none;
     }
 
-    /* Wood desk surface — layered for realism */
+    /* Wood desk surface — photo texture with vignette */
     body::before {
       content: '';
       position: fixed;
@@ -39,39 +39,8 @@
       background:
         /* Vignette */
         radial-gradient(ellipse at center, transparent 30%, rgba(40, 20, 5, 0.2) 100%),
-        /* Fine grain — tight horizontal lines */
-        repeating-linear-gradient(
-          1deg,
-          transparent 0px, transparent 2px,
-          rgba(80, 50, 20, 0.12) 2px, rgba(80, 50, 20, 0.12) 3px,
-          transparent 3px, transparent 6px,
-          rgba(60, 35, 10, 0.08) 6px, rgba(60, 35, 10, 0.08) 7px,
-          transparent 7px, transparent 11px,
-          rgba(90, 55, 20, 0.1) 11px, rgba(90, 55, 20, 0.1) 12px,
-          transparent 12px, transparent 14px
-        ),
-        /* Wide grain bands */
-        repeating-linear-gradient(
-          0deg,
-          rgba(100, 65, 25, 0.06) 0px, transparent 8px,
-          transparent 30px,
-          rgba(70, 40, 15, 0.08) 30px, transparent 38px,
-          transparent 55px,
-          rgba(90, 55, 20, 0.05) 55px, transparent 60px,
-          transparent 80px
-        ),
-        /* Color banding — lighter/darker horizontal zones */
-        linear-gradient(
-          0deg,
-          #b8956a 0%,
-          #c4a07a 15%,
-          #ab8860 30%,
-          #c0996e 45%,
-          #b08a5c 55%,
-          #c4a07a 70%,
-          #a88558 80%,
-          #be9c72 100%
-        );
+        /* Wood texture */
+        url('../assets/textures/wood-desk.jpg') center/cover no-repeat;
     }
 
     /* ===== BOOK SCENE (fixed, centered, perspective container) ===== */
@@ -91,12 +60,14 @@
     /* Shadow beneath the book on desk */
     .book-shadow {
       position: absolute;
-      bottom: -25px;
+      bottom: -30px;
       left: 50%;
       transform: translateX(-50%);
-      width: 95%;
-      height: 40px;
-      background: radial-gradient(ellipse at center, rgba(40, 25, 10, 0.25) 0%, rgba(40, 25, 10, 0.08) 50%, transparent 75%);
+      width: 105%;
+      height: 50px;
+      background:
+        radial-gradient(ellipse at 50% 20%, rgba(30, 18, 5, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 40%, rgba(40, 25, 10, 0.12) 0%, rgba(40, 25, 10, 0.04) 50%, transparent 80%);
       border-radius: 50%;
       pointer-events: none;
       z-index: 0;
@@ -115,8 +86,8 @@
       content: '';
       position: absolute;
       top: 0;
-      left: -18px;
-      width: 18px;
+      left: calc(-1 * var(--spine-width, 18px));
+      width: var(--spine-width, 18px);
       height: 100%;
       background: linear-gradient(to right, #152d4a, #1a3355);
       border-radius: 4px 0 0 4px;
@@ -181,34 +152,55 @@
       border-radius: 0 8px 8px 0;
     }
 
+    .flip-cast-shadow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 4;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .flip-self-shadow {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 30%;
+      height: 100%;
+      background: linear-gradient(to left, rgba(0,0,0,0.15), transparent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .flip-light-catch {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 25%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(255,250,240,0.2), transparent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+      border-radius: 0 8px 8px 0;
+    }
+
     /* ===== PAGE STYLES ===== */
 
-    /* Cover front: deep sapphire blue with damask texture */
+    /* Cover front: deep sapphire blue with leather texture */
     .page-cover .page-front {
       background:
-        /* Damask diamond pattern */
-        repeating-conic-gradient(
-          from 45deg at 50% 50%,
-          transparent 0deg 80deg,
-          rgba(255, 255, 255, 0.012) 80deg 100deg
-        ),
-        /* Subtle fabric weave */
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          rgba(255, 255, 255, 0.008) 2px,
-          rgba(255, 255, 255, 0.008) 3px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 2px,
-          rgba(255, 255, 255, 0.008) 2px,
-          rgba(255, 255, 255, 0.008) 3px
-        ),
-        /* Base gradient */
+        /* Leather/cloth grain texture */
+        url('../assets/textures/leather-cover.jpg'),
+        /* Base gradient for color control */
         linear-gradient(160deg, #1e3a5f 0%, #182e4e 40%, #213a5c 70%, #1a3355 100%);
+      background-size: 256px 256px, 100% 100%;
+      background-blend-mode: overlay;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -237,7 +229,7 @@
       left: 14px;
       right: 14px;
       bottom: 14px;
-      border: 1.5px solid rgba(212, 168, 83, 0.35);
+      border: 2px solid rgba(212, 168, 83, 0.45);
       border-radius: 0 4px 4px 0;
       pointer-events: none;
       z-index: 1;
@@ -250,7 +242,7 @@
       top: -6px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 8px;
+      font-size: 10px;
       color: rgba(212, 168, 83, 0.5);
       background: #1e3a5f;
       padding: 0 6px;
@@ -263,7 +255,7 @@
       bottom: -6px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 8px;
+      font-size: 10px;
       color: rgba(212, 168, 83, 0.5);
       background: #1a3355;
       padding: 0 6px;
@@ -276,7 +268,7 @@
       left: 22px;
       right: 22px;
       bottom: 22px;
-      border: 1px solid rgba(212, 168, 83, 0.18);
+      border: 1px dotted rgba(212, 168, 83, 0.22);
       border-radius: 0 3px 3px 0;
       pointer-events: none;
       z-index: 1;
@@ -285,8 +277,8 @@
     /* Ornate cover corners — larger SVG flourishes */
     .cover-corner {
       position: absolute;
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       pointer-events: none;
       z-index: 2;
     }
@@ -319,10 +311,32 @@
       text-align: center;
       line-height: 1.2;
       letter-spacing: -0.02em;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(212, 168, 83, 0.15);
+      text-shadow:
+        0 -1px 1px rgba(0, 0, 0, 0.4),
+        0 1px 1px rgba(232, 200, 120, 0.6),
+        0 0 20px rgba(212, 168, 83, 0.2),
+        0 0 40px rgba(212, 168, 83, 0.08);
       visibility: hidden;
       position: relative;
       z-index: 1;
+      animation: foil-shimmer 10s ease-in-out infinite;
+    }
+
+    @keyframes foil-shimmer {
+      0%, 100% {
+        text-shadow:
+          0 -1px 1px rgba(0,0,0,0.4),
+          0 1px 1px rgba(232,200,120,0.6),
+          0 0 20px rgba(212,168,83,0.2),
+          0 0 40px rgba(212,168,83,0.08);
+      }
+      50% {
+        text-shadow:
+          0 -1px 1px rgba(0,0,0,0.35),
+          1px 2px 2px rgba(232,200,120,0.7),
+          0 0 25px rgba(212,168,83,0.25),
+          0 0 50px rgba(212,168,83,0.12);
+      }
     }
 
     .cover-title .accent-italic {
@@ -381,11 +395,12 @@
     /* Cover tagline */
     .cover-tagline {
       font-family: 'Outfit', sans-serif;
-      font-size: clamp(0.85rem, 2.5vw, 1.1rem);
-      font-weight: 300;
-      color: rgba(160, 195, 230, 0.8);
-      margin-top: 0.2rem;
-      letter-spacing: 0.06em;
+      font-size: clamp(0.65rem, 1.8vw, 0.85rem);
+      font-weight: 400;
+      color: rgba(212, 168, 83, 0.7);
+      margin-top: 0.4rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
       text-align: center;
       visibility: hidden;
       position: relative;
@@ -400,6 +415,9 @@
     .page-cover .page-back,
     .page-toc {
       background:
+        /* Parchment fiber texture */
+        url('../assets/textures/parchment-page.jpg'),
+        /* Subtle line pattern */
         repeating-linear-gradient(
           0deg,
           transparent,
@@ -408,6 +426,8 @@
           rgba(180, 160, 130, 0.03) 29px
         ),
         linear-gradient(135deg, #fffcf7 0%, #faf5ec 50%, #fffcf7 100%);
+      background-size: 512px 512px, 100% 100%, 100% 100%;
+      background-blend-mode: multiply, normal, normal;
     }
 
     /* Binding shadow (dark gradient along spine edge) */
@@ -416,9 +436,16 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 30px;
+      width: 50px;
       height: 100%;
-      background: linear-gradient(to right, rgba(120, 100, 70, 0.08), transparent);
+      background:
+        linear-gradient(to right,
+          transparent 12px,
+          rgba(255, 250, 240, 0.06) 15px,
+          transparent 20px
+        ),
+        radial-gradient(ellipse at 0% 50%, rgba(100, 80, 50, 0.12) 0%, transparent 70%),
+        linear-gradient(to right, rgba(100, 80, 50, 0.1) 0%, rgba(100, 80, 50, 0.04) 30%, transparent 100%);
       pointer-events: none;
       z-index: 1;
     }
@@ -428,20 +455,26 @@
     .page-toc .stitching {
       position: absolute;
       top: 5%;
-      left: 10px;
-      width: 2px;
+      left: 8px;
+      width: 6px;
       height: 90%;
       pointer-events: none;
       z-index: 2;
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0px,
-        transparent 8px,
-        rgba(160, 130, 90, 0.2) 8px,
-        rgba(160, 130, 90, 0.2) 14px,
-        transparent 14px,
-        transparent 22px
-      );
+      background:
+        repeating-linear-gradient(
+          170deg,
+          transparent 0px, transparent 6px,
+          rgba(180, 150, 90, 0.25) 6px, rgba(180, 150, 90, 0.25) 10px,
+          transparent 10px, transparent 18px
+        ),
+        repeating-linear-gradient(
+          190deg,
+          transparent 0px, transparent 9px,
+          rgba(170, 140, 80, 0.18) 9px, rgba(170, 140, 80, 0.18) 13px,
+          transparent 13px, transparent 21px
+        );
+      background-size: 3px 100%, 3px 100%;
+      background-position: 0 0, 3px 4px;
     }
 
     /* Corner ornaments */
@@ -473,12 +506,19 @@
       top: 0;
       right: 30px;
       width: 14px;
-      height: 60px;
-      background: linear-gradient(to bottom, #8b2232, #a32a3e);
+      height: 65px;
+      background:
+        linear-gradient(to right,
+          rgba(139, 34, 50, 0.9) 0%,
+          rgba(180, 50, 70, 1) 35%,
+          rgba(200, 80, 95, 0.9) 45%,
+          rgba(163, 42, 62, 1) 55%,
+          rgba(139, 34, 50, 0.95) 100%
+        );
       z-index: 3;
       pointer-events: none;
-      box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
+      box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.18);
+      clip-path: polygon(0 0, 100% 0, 100% 88%, 85% 95%, 50% 100%, 15% 95%, 0 88%);
     }
 
     /* Decorative header line on interior pages */
@@ -512,9 +552,16 @@
       width: 100%;
       height: 100%;
       background:
-        radial-gradient(ellipse at top right, rgba(180, 150, 100, 0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, rgba(180, 150, 100, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom left, rgba(180, 150, 100, 0.04) 0%, transparent 40%);
+        radial-gradient(circle at 85% 12%, rgba(160, 120, 70, 0.1) 0%, rgba(160, 120, 70, 0.1) 2px, transparent 2px),
+        radial-gradient(circle at 92% 45%, rgba(150, 110, 60, 0.08) 0%, rgba(150, 110, 60, 0.08) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 78% 78%, rgba(170, 130, 80, 0.09) 0%, rgba(170, 130, 80, 0.09) 2px, transparent 2px),
+        radial-gradient(circle at 88% 88%, rgba(155, 115, 65, 0.07) 0%, rgba(155, 115, 65, 0.07) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 60% 92%, rgba(165, 125, 75, 0.06) 0%, rgba(165, 125, 75, 0.06) 1px, transparent 1px),
+        linear-gradient(to left, rgba(160, 130, 80, 0.08) 0%, transparent 15%),
+        linear-gradient(to top, rgba(160, 130, 80, 0.06) 0%, transparent 10%),
+        radial-gradient(ellipse at top right, rgba(180, 150, 100, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(180, 150, 100, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(180, 150, 100, 0.05) 0%, transparent 40%);
       pointer-events: none;
       z-index: 1;
       border-radius: 0 8px 8px 0;
@@ -528,7 +575,8 @@
       transform: translateX(-50%);
       font-family: 'Fraunces', serif;
       font-size: 0.75rem;
-      color: rgba(58, 42, 26, 0.25);
+      color: rgba(58, 42, 26, 0.4);
+      letter-spacing: 0.15em;
       z-index: 2;
       pointer-events: none;
     }
@@ -584,12 +632,14 @@
     .welcome-text p .drop-cap {
       float: left;
       font-family: 'Fraunces', serif;
-      font-size: 3.2rem;
-      font-weight: 500;
-      color: #b8862d;
-      line-height: 0.8;
-      padding-right: 0.15rem;
-      padding-top: 0.1rem;
+      font-style: italic;
+      font-size: 3.6rem;
+      font-weight: 600;
+      color: #d4a853;
+      line-height: 0.75;
+      padding-right: 0.2rem;
+      padding-top: 0.08rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     /* Welcome page back */
@@ -832,8 +882,9 @@
       }
 
       .book::before {
-        width: 14px;
-        left: -14px;
+        --spine-mobile: 14px;
+        width: var(--spine-mobile, 14px);
+        left: calc(-1 * var(--spine-mobile, 14px));
       }
 
       .book::after {
@@ -866,6 +917,7 @@
         min-width: 1.5rem;
       }
     }
+
   </style>
 </head>
 <body>
@@ -885,12 +937,25 @@
           <div class="cover-glow"></div>
           <div class="cover-frame-outer"></div>
           <div class="cover-frame-inner"></div>
-          <div class="cover-corner cover-corner-tl"><svg viewBox="0 0 36 36"><path d="M0 36 Q0 0 36 0"/><path d="M5 31 Q5 5 31 5"/><path d="M10 26 Q10 10 26 10"/><circle cx="4" cy="4" r="1.5"/></svg></div>
-          <div class="cover-corner cover-corner-tr"><svg viewBox="0 0 36 36"><path d="M0 36 Q0 0 36 0"/><path d="M5 31 Q5 5 31 5"/><path d="M10 26 Q10 10 26 10"/><circle cx="4" cy="4" r="1.5"/></svg></div>
-          <div class="cover-corner cover-corner-bl"><svg viewBox="0 0 36 36"><path d="M0 36 Q0 0 36 0"/><path d="M5 31 Q5 5 31 5"/><path d="M10 26 Q10 10 26 10"/><circle cx="4" cy="4" r="1.5"/></svg></div>
-          <div class="cover-corner cover-corner-br"><svg viewBox="0 0 36 36"><path d="M0 36 Q0 0 36 0"/><path d="M5 31 Q5 5 31 5"/><path d="M10 26 Q10 10 26 10"/><circle cx="4" cy="4" r="1.5"/></svg></div>
+          <div class="cover-corner cover-corner-tl"><svg viewBox="0 0 40 40"><path d="M2,38 C2,20 8,10 18,4 C14,12 12,18 12,24 C12,18 16,12 24,10 C18,14 16,18 16,24" stroke-width="0.8" fill="none"/><path d="M6,34 C6,22 10,14 18,10 C16,16 15,20 15,26" stroke-width="0.6" fill="none"/><circle cx="4" cy="36" r="1.5" fill="rgba(212,168,83,0.45)" stroke="none"/><circle cx="18" cy="4" r="1" fill="rgba(212,168,83,0.35)" stroke="none"/><path d="M8,32 Q4,28 4,22" stroke-width="0.5" fill="none"/><path d="M10,30 C8,26 8,22 10,18" stroke-width="0.4" fill="none"/></svg></div>
+          <div class="cover-corner cover-corner-tr"><svg viewBox="0 0 40 40"><path d="M2,38 C2,20 8,10 18,4 C14,12 12,18 12,24 C12,18 16,12 24,10 C18,14 16,18 16,24" stroke-width="0.8" fill="none"/><path d="M6,34 C6,22 10,14 18,10 C16,16 15,20 15,26" stroke-width="0.6" fill="none"/><circle cx="4" cy="36" r="1.5" fill="rgba(212,168,83,0.45)" stroke="none"/><circle cx="18" cy="4" r="1" fill="rgba(212,168,83,0.35)" stroke="none"/><path d="M8,32 Q4,28 4,22" stroke-width="0.5" fill="none"/><path d="M10,30 C8,26 8,22 10,18" stroke-width="0.4" fill="none"/></svg></div>
+          <div class="cover-corner cover-corner-bl"><svg viewBox="0 0 40 40"><path d="M2,38 C2,20 8,10 18,4 C14,12 12,18 12,24 C12,18 16,12 24,10 C18,14 16,18 16,24" stroke-width="0.8" fill="none"/><path d="M6,34 C6,22 10,14 18,10 C16,16 15,20 15,26" stroke-width="0.6" fill="none"/><circle cx="4" cy="36" r="1.5" fill="rgba(212,168,83,0.45)" stroke="none"/><circle cx="18" cy="4" r="1" fill="rgba(212,168,83,0.35)" stroke="none"/><path d="M8,32 Q4,28 4,22" stroke-width="0.5" fill="none"/><path d="M10,30 C8,26 8,22 10,18" stroke-width="0.4" fill="none"/></svg></div>
+          <div class="cover-corner cover-corner-br"><svg viewBox="0 0 40 40"><path d="M2,38 C2,20 8,10 18,4 C14,12 12,18 12,24 C12,18 16,12 24,10 C18,14 16,18 16,24" stroke-width="0.8" fill="none"/><path d="M6,34 C6,22 10,14 18,10 C16,16 15,20 15,26" stroke-width="0.6" fill="none"/><circle cx="4" cy="36" r="1.5" fill="rgba(212,168,83,0.45)" stroke="none"/><circle cx="18" cy="4" r="1" fill="rgba(212,168,83,0.35)" stroke="none"/><path d="M8,32 Q4,28 4,22" stroke-width="0.5" fill="none"/><path d="M10,30 C8,26 8,22 10,18" stroke-width="0.4" fill="none"/></svg></div>
           <!-- Cover content -->
-          <div class="cover-emblem"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="8"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="16" y1="26" x2="16" y2="30"/><line x1="2" y1="16" x2="6" y2="16"/><line x1="26" y1="16" x2="30" y2="16"/><line x1="6" y1="6" x2="9" y2="9"/><line x1="23" y1="6" x2="20" y2="9"/><line x1="6" y1="26" x2="9" y2="23"/><line x1="23" y1="26" x2="20" y2="23"/></svg></div>
+          <div class="cover-emblem"><svg viewBox="0 0 32 32">
+            <circle cx="16" cy="16" r="14" stroke-width="0.5"/>
+            <circle cx="16" cy="16" r="12.5" stroke-width="0.3"/>
+            <polygon points="16,1 17.5,13 16,15 14.5,13" fill="#d4a853" stroke="none" opacity="0.6"/>
+            <polygon points="16,31 14.5,19 16,17 17.5,19" fill="#d4a853" stroke="none" opacity="0.4"/>
+            <polygon points="1,16 13,14.5 15,16 13,17.5" fill="#d4a853" stroke="none" opacity="0.4"/>
+            <polygon points="31,16 19,17.5 17,16 19,14.5" fill="#d4a853" stroke="none" opacity="0.4"/>
+            <polygon points="4.5,4.5 12.5,14 14,12.5" fill="#d4a853" stroke="none" opacity="0.3"/>
+            <polygon points="27.5,4.5 19.5,12.5 18,14" fill="#d4a853" stroke="none" opacity="0.3"/>
+            <polygon points="4.5,27.5 12.5,19.5 14,18" fill="#d4a853" stroke="none" opacity="0.3"/>
+            <polygon points="27.5,27.5 18,19.5 19.5,18" fill="#d4a853" stroke="none" opacity="0.3"/>
+            <circle cx="16" cy="16" r="3" stroke-width="0.5"/>
+            <circle cx="16" cy="16" r="1.5" fill="#d4a853" stroke="none" opacity="0.5"/>
+          </svg></div>
           <h1 class="cover-title">The <span class="accent-italic">Gift</span> Site</h1>
           <div class="cover-divider"><span>◆ ◆ ◆</span></div>
           <p class="cover-tagline">A journey of discovery awaits</p>
@@ -898,7 +963,10 @@
         <div class="page-back">
           <!-- Blank parchment back of cover -->
         </div>
+        <div class="flip-self-shadow"></div>
+        <div class="flip-light-catch"></div>
         <div class="flip-shadow"></div>
+        <div class="flip-cast-shadow"></div>
       </div>
 
       <!-- PAGE 2: Welcome Page -->
@@ -908,13 +976,13 @@
           <div class="stitching"></div>
           <div class="page-header-line"></div>
           <div class="ribbon-bookmark"></div>
-          <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-          <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-          <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-          <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+          <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+          <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+          <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+          <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
           <div class="page-aged-edge"></div>
           <div class="page-footer-line"></div>
-          <span class="page-number">ii</span>
+          <span class="page-number">— ii —</span>
           <div class="welcome-text">
             <h2>Welcome</h2>
             <p><span class="drop-cap">E</span>very person carries a unique gift — something only they can bring to the world. This book is your guide to discovering it.</p>
@@ -923,7 +991,10 @@
         <div class="page-back">
           <!-- Blank parchment -->
         </div>
+        <div class="flip-self-shadow"></div>
+        <div class="flip-light-catch"></div>
         <div class="flip-shadow"></div>
+        <div class="flip-cast-shadow"></div>
       </div>
 
       <!-- PAGE 3: Table of Contents (static, not flippable) -->
@@ -933,11 +1004,11 @@
         <div class="page-header-line"></div>
         <div class="page-aged-edge"></div>
         <div class="page-footer-line"></div>
-        <span class="page-number">iii</span>
-        <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-        <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-        <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-        <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+        <span class="page-number">— iii —</span>
+        <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+        <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+        <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+        <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
         <h2 class="toc-heading">Chapters</h2>
         <div class="toc-list">
           <a href="#" class="toc-chapter">

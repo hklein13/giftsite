@@ -1,16 +1,11 @@
 // js/book-home.js — Golden Book scroll-driven homepage
-// Paginated scroll, GSAP SplitText cover animation, scroll-driven page flips
+// GSAP SplitText cover animation, accumulator-based paginated scroll, scroll-driven page flips
 
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
-
-// --- Paginated scroll state ---
-let currentPage = 0;
-let isAnimating = false;
-let snapPoints = [];
 
 // --- Cover entrance animation ---
 function animateCover() {
@@ -64,16 +59,142 @@ function setupScrollIndicator() {
   });
 }
 
+// --- Paginated scroll (accumulator-based, inspired by solar system) ---
+function setupPaginatedScroll() {
+  let currentPage = 0;
+  const totalPages = 3; // cover, welcome, toc
+  let isAnimating = false;
+  let scrollAccumulator = 0;
+  let accumulatorTimeout;
+  const scrollThreshold = 80;
+  const scrollProxy = { value: window.scrollY };
+
+  // Page stops skip over flip zones: cover=0vh, welcome=2vh, toc=4vh
+  function getStopPositions() {
+    const vh = window.innerHeight;
+    return [0, 2 * vh, 4 * vh];
+  }
+
+  // Detect which page we're closest to on load
+  function detectCurrentPage() {
+    const stops = getStopPositions();
+    const scrollY = window.scrollY;
+    let closest = 0;
+    let minDist = Infinity;
+    stops.forEach((stop, i) => {
+      const dist = Math.abs(scrollY - stop);
+      if (dist < minDist) { minDist = dist; closest = i; }
+    });
+    return closest;
+  }
+
+  currentPage = detectCurrentPage();
+  scrollProxy.value = window.scrollY;
+
+  function navigateToPage(index) {
+    if (index < 0 || index >= totalPages || index === currentPage) return;
+    isAnimating = true;
+    currentPage = index;
+    scrollAccumulator = 0;
+
+    const stops = getStopPositions();
+    const target = stops[index];
+
+    gsap.killTweensOf(scrollProxy);
+    scrollProxy.value = window.scrollY;
+
+    gsap.to(scrollProxy, {
+      value: target,
+      duration: 1.8,
+      ease: 'power2.inOut',
+      onUpdate: () => window.scrollTo(0, scrollProxy.value),
+      onComplete: () => { isAnimating = false; },
+    });
+  }
+
+  // --- Wheel input ---
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (isAnimating) return;
+
+    scrollAccumulator += e.deltaY;
+
+    clearTimeout(accumulatorTimeout);
+    accumulatorTimeout = setTimeout(() => { scrollAccumulator = 0; }, 200);
+
+    if (Math.abs(scrollAccumulator) >= scrollThreshold) {
+      if (scrollAccumulator > 0 && currentPage < totalPages - 1) {
+        navigateToPage(currentPage + 1);
+      } else if (scrollAccumulator < 0 && currentPage > 0) {
+        navigateToPage(currentPage - 1);
+      }
+      scrollAccumulator = 0;
+    }
+  }, { passive: false });
+
+  // --- Touch input ---
+  let touchStartY = 0;
+  let touchAccumulator = 0;
+
+  window.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+    touchAccumulator = 0;
+  }, { passive: true });
+
+  window.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (isAnimating) return;
+
+    const deltaY = touchStartY - e.touches[0].clientY;
+    touchStartY = e.touches[0].clientY;
+    touchAccumulator += deltaY;
+
+    if (Math.abs(touchAccumulator) >= scrollThreshold) {
+      if (touchAccumulator > 0 && currentPage < totalPages - 1) {
+        navigateToPage(currentPage + 1);
+      } else if (touchAccumulator < 0 && currentPage > 0) {
+        navigateToPage(currentPage - 1);
+      }
+      touchAccumulator = 0;
+    }
+  }, { passive: false });
+
+  // --- Keyboard input ---
+  window.addEventListener('keydown', (e) => {
+    if (isAnimating) return;
+
+    if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
+      e.preventDefault();
+      if (currentPage < totalPages - 1) navigateToPage(currentPage + 1);
+    } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+      e.preventDefault();
+      if (currentPage > 0) navigateToPage(currentPage - 1);
+    }
+  });
+
+  // --- Recalculate on resize ---
+  window.addEventListener('resize', () => {
+    if (isAnimating) return;
+    const stops = getStopPositions();
+    scrollProxy.value = stops[currentPage];
+    window.scrollTo(0, stops[currentPage]);
+  });
+}
+
 // --- Page flip animations (scroll-driven) ---
 function setupPageFlips() {
   const pages = document.querySelectorAll('.page');
   const flipSections = document.querySelectorAll('.scroll-spacer[data-section^="flip"]');
+  const book = document.querySelector('.book');
 
   flipSections.forEach((section, i) => {
     const page = pages[i];
     if (!page || !section) return;
 
-    const shadow = page.querySelector('.flip-shadow');
+    const flipShadow = page.querySelector('.flip-shadow');
+    const castShadow = page.querySelector('.flip-cast-shadow');
+    const selfShadow = page.querySelector('.flip-self-shadow');
+    const lightCatch = page.querySelector('.flip-light-catch');
 
     ScrollTrigger.create({
       trigger: section,
@@ -81,12 +202,61 @@ function setupPageFlips() {
       end: 'bottom top',
       scrub: 0.1,
       onUpdate: (self) => {
-        const angle = self.progress * -180;
-        gsap.set(page, { rotateY: angle });
+        const p = self.progress;
+        let angle, liftZ;
 
-        if (shadow) {
-          const shadowOpacity = Math.sin(self.progress * Math.PI) * 0.15;
-          gsap.set(shadow, { opacity: shadowOpacity });
+        // Page lift anticipation (0-5%)
+        if (p < 0.05) {
+          const liftProgress = p / 0.05;
+          angle = liftProgress * -3;
+          liftZ = liftProgress * 10;
+        }
+        // Main rotation (5-95%)
+        else if (p < 0.95) {
+          const flipProgress = (p - 0.05) / 0.9;
+          angle = -3 + (flipProgress * -177);
+          liftZ = 10 * (1 - flipProgress);
+        }
+        // Settling bounce (95-100%)
+        else {
+          const settleProgress = (p - 0.95) / 0.05;
+          angle = -180 - (Math.sin(settleProgress * Math.PI) * 2);
+          liftZ = 0;
+        }
+
+        gsap.set(page, { rotateY: angle, translateZ: liftZ });
+
+        // Overall flip shadow
+        if (flipShadow) {
+          gsap.set(flipShadow, { opacity: Math.sin(p * Math.PI) * 0.15 });
+        }
+
+        // Cast shadow sweeping across page below
+        if (castShadow) {
+          const castX = p * 100;
+          gsap.set(castShadow, {
+            opacity: Math.sin(p * Math.PI) * 0.2,
+            background: `linear-gradient(to right, transparent ${castX - 10}%, rgba(0,0,0,0.15) ${castX}%, transparent ${castX + 15}%)`
+          });
+        }
+
+        // Self-shadow on front face (darkens right edge as page rotates)
+        if (selfShadow) {
+          const selfOpacity = p < 0.5 ? p * 1.6 : (1 - p) * 0.5;
+          gsap.set(selfShadow, { opacity: Math.max(0, selfOpacity) });
+        }
+
+        // Light catch on back face (visible after 90deg)
+        if (lightCatch) {
+          const raw = p > 0.5 ? (p - 0.5) * 2 : 0;
+          const catchOpacity = raw * 0.4 * (1 - raw * 0.5);
+          gsap.set(lightCatch, { opacity: Math.max(0, catchOpacity) });
+        }
+
+        // Spine flex
+        if (book) {
+          const spineWidth = 18 + Math.sin(p * Math.PI) * 2;
+          book.style.setProperty('--spine-width', spineWidth + 'px');
         }
       },
     });
@@ -123,99 +293,14 @@ function setupTocReveals() {
   });
 }
 
-// --- Paginated scroll navigation ---
-function navigateToPage(index) {
-  if (index < 0 || index >= snapPoints.length) return;
-  isAnimating = true;
-  currentPage = index;
-
-  const target = snapPoints[index];
-  const proxy = { y: window.scrollY };
-
-  gsap.to(proxy, {
-    y: target,
-    duration: 2,
-    ease: 'slow(0.5, 0.8, false)',
-    onUpdate: () => {
-      window.scrollTo(0, proxy.y);
-    },
-    onComplete: () => {
-      setTimeout(() => { isAnimating = false; }, 200);
-    },
-  });
-}
-
-function setupPaginatedScroll() {
-  // Snap only to content pages (cover, welcome, toc)
-  // Flips happen automatically during transitions as scroll passes through flip spacers
-  const contentSections = ['cover', 'welcome', 'toc'];
-  snapPoints = contentSections.map((name) => {
-    const el = document.querySelector(`.scroll-spacer[data-section="${name}"]`);
-    return el ? el.offsetTop : 0;
-  });
-
-  // Wheel navigation — one scroll = one page
-  window.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    if (isAnimating) return;
-
-    if (e.deltaY > 0) {
-      navigateToPage(currentPage + 1);
-    } else if (e.deltaY < 0) {
-      navigateToPage(currentPage - 1);
-    }
-  }, { passive: false });
-
-  // Touch navigation
-  let touchStartY = 0;
-  let touchStartTime = 0;
-
-  window.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-    touchStartTime = Date.now();
-  }, { passive: true });
-
-  window.addEventListener('touchmove', (e) => {
-    // Prevent native scroll during touch
-    e.preventDefault();
-  }, { passive: false });
-
-  window.addEventListener('touchend', (e) => {
-    if (isAnimating) return;
-    const deltaY = touchStartY - e.changedTouches[0].clientY;
-    const elapsed = Date.now() - touchStartTime;
-
-    // Require a minimum swipe distance (30px) or fast flick
-    if (Math.abs(deltaY) < 30 && elapsed > 300) return;
-
-    if (deltaY > 0) {
-      navigateToPage(currentPage + 1);
-    } else if (deltaY < 0) {
-      navigateToPage(currentPage - 1);
-    }
-  }, { passive: true });
-
-  // Keyboard navigation
-  window.addEventListener('keydown', (e) => {
-    if (isAnimating) return;
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-      e.preventDefault();
-      navigateToPage(currentPage + 1);
-    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-      e.preventDefault();
-      navigateToPage(currentPage - 1);
-    }
-  });
-}
-
 // --- Init ---
 function init() {
   animateCover();
   setupScrollIndicator();
+  setupPaginatedScroll();
   setupPageFlips();
   setupWelcomeReveal();
   setupTocReveals();
-  setupPaginatedScroll();
 }
 
 if (document.readyState === 'loading') {
