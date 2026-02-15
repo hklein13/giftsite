@@ -26,6 +26,16 @@
       display: none;
     }
 
+    html {
+      scroll-snap-type: y mandatory;
+    }
+
+    .scroll-spacer[data-section="cover"],
+    .scroll-spacer[data-section="welcome"],
+    .scroll-spacer[data-section="toc"] {
+      scroll-snap-align: start;
+    }
+
     /* Wood desk surface — layered for realism */
     body::before {
       content: '';

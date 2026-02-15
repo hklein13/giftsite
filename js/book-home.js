@@ -1,16 +1,11 @@
 // js/book-home.js — Golden Book scroll-driven homepage
-// Paginated scroll, GSAP SplitText cover animation, scroll-driven page flips
+// GSAP SplitText cover animation, scroll-driven page flips (CSS scroll-snap handles pagination)
 
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
-
-// --- Paginated scroll state ---
-let currentPage = 0;
-let isAnimating = false;
-let snapPoints = [];
 
 // --- Cover entrance animation ---
 function animateCover() {
@@ -123,91 +118,6 @@ function setupTocReveals() {
   });
 }
 
-// --- Paginated scroll navigation ---
-function navigateToPage(index) {
-  if (index < 0 || index >= snapPoints.length) return;
-  isAnimating = true;
-  currentPage = index;
-
-  const target = snapPoints[index];
-  const proxy = { y: window.scrollY };
-
-  gsap.to(proxy, {
-    y: target,
-    duration: 2,
-    ease: 'slow(0.5, 0.8, false)',
-    onUpdate: () => {
-      window.scrollTo(0, proxy.y);
-    },
-    onComplete: () => {
-      setTimeout(() => { isAnimating = false; }, 200);
-    },
-  });
-}
-
-function setupPaginatedScroll() {
-  // Snap only to content pages (cover, welcome, toc)
-  // Flips happen automatically during transitions as scroll passes through flip spacers
-  const contentSections = ['cover', 'welcome', 'toc'];
-  snapPoints = contentSections.map((name) => {
-    const el = document.querySelector(`.scroll-spacer[data-section="${name}"]`);
-    return el ? el.offsetTop : 0;
-  });
-
-  // Wheel navigation — one scroll = one page
-  window.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    if (isAnimating) return;
-
-    if (e.deltaY > 0) {
-      navigateToPage(currentPage + 1);
-    } else if (e.deltaY < 0) {
-      navigateToPage(currentPage - 1);
-    }
-  }, { passive: false });
-
-  // Touch navigation
-  let touchStartY = 0;
-  let touchStartTime = 0;
-
-  window.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-    touchStartTime = Date.now();
-  }, { passive: true });
-
-  window.addEventListener('touchmove', (e) => {
-    // Prevent native scroll during touch
-    e.preventDefault();
-  }, { passive: false });
-
-  window.addEventListener('touchend', (e) => {
-    if (isAnimating) return;
-    const deltaY = touchStartY - e.changedTouches[0].clientY;
-    const elapsed = Date.now() - touchStartTime;
-
-    // Require a minimum swipe distance (30px) or fast flick
-    if (Math.abs(deltaY) < 30 && elapsed > 300) return;
-
-    if (deltaY > 0) {
-      navigateToPage(currentPage + 1);
-    } else if (deltaY < 0) {
-      navigateToPage(currentPage - 1);
-    }
-  }, { passive: true });
-
-  // Keyboard navigation
-  window.addEventListener('keydown', (e) => {
-    if (isAnimating) return;
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-      e.preventDefault();
-      navigateToPage(currentPage + 1);
-    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-      e.preventDefault();
-      navigateToPage(currentPage - 1);
-    }
-  });
-}
-
 // --- Init ---
 function init() {
   animateCover();
@@ -215,7 +125,6 @@ function init() {
   setupPageFlips();
   setupWelcomeReveal();
   setupTocReveals();
-  setupPaginatedScroll();
 }
 
 if (document.readyState === 'loading') {
