@@ -63,12 +63,16 @@ function setupScrollIndicator() {
 function setupPageFlips() {
   const pages = document.querySelectorAll('.page');
   const flipSections = document.querySelectorAll('.scroll-spacer[data-section^="flip"]');
+  const book = document.querySelector('.book');
 
   flipSections.forEach((section, i) => {
     const page = pages[i];
     if (!page || !section) return;
 
-    const shadow = page.querySelector('.flip-shadow');
+    const flipShadow = page.querySelector('.flip-shadow');
+    const castShadow = page.querySelector('.flip-cast-shadow');
+    const selfShadow = page.querySelector('.flip-self-shadow');
+    const lightCatch = page.querySelector('.flip-light-catch');
 
     ScrollTrigger.create({
       trigger: section,
@@ -76,12 +80,61 @@ function setupPageFlips() {
       end: 'bottom top',
       scrub: 0.1,
       onUpdate: (self) => {
-        const angle = self.progress * -180;
-        gsap.set(page, { rotateY: angle });
+        const p = self.progress;
+        let angle, liftZ;
 
-        if (shadow) {
-          const shadowOpacity = Math.sin(self.progress * Math.PI) * 0.15;
-          gsap.set(shadow, { opacity: shadowOpacity });
+        // Page lift anticipation (0-5%)
+        if (p < 0.05) {
+          const liftProgress = p / 0.05;
+          angle = liftProgress * -3;
+          liftZ = liftProgress * 10;
+        }
+        // Main rotation (5-95%)
+        else if (p < 0.95) {
+          const flipProgress = (p - 0.05) / 0.9;
+          angle = -3 + (flipProgress * -177);
+          liftZ = 10 * (1 - flipProgress);
+        }
+        // Settling bounce (95-100%)
+        else {
+          const settleProgress = (p - 0.95) / 0.05;
+          angle = -180 - (Math.sin(settleProgress * Math.PI) * 2);
+          liftZ = 0;
+        }
+
+        gsap.set(page, { rotateY: angle, translateZ: liftZ });
+
+        // Overall flip shadow
+        if (flipShadow) {
+          gsap.set(flipShadow, { opacity: Math.sin(p * Math.PI) * 0.15 });
+        }
+
+        // Cast shadow sweeping across page below
+        if (castShadow) {
+          const castX = p * 100;
+          gsap.set(castShadow, {
+            opacity: Math.sin(p * Math.PI) * 0.2,
+            background: `linear-gradient(to right, transparent ${castX - 10}%, rgba(0,0,0,0.15) ${castX}%, transparent ${castX + 15}%)`
+          });
+        }
+
+        // Self-shadow on front face (darkens right edge as page rotates)
+        if (selfShadow) {
+          const selfOpacity = p < 0.5 ? p * 1.6 : (1 - p) * 0.5;
+          gsap.set(selfShadow, { opacity: Math.max(0, selfOpacity) });
+        }
+
+        // Light catch on back face (visible after 90deg)
+        if (lightCatch) {
+          const raw = p > 0.5 ? (p - 0.5) * 2 : 0;
+          const catchOpacity = raw * 0.4 * (1 - raw * 0.5);
+          gsap.set(lightCatch, { opacity: Math.max(0, catchOpacity) });
+        }
+
+        // Spine flex
+        if (book) {
+          const spineWidth = 18 + Math.sin(p * Math.PI) * 2;
+          book.style.setProperty('--spine-width', spineWidth + 'px');
         }
       },
     });

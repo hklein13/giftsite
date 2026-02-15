@@ -97,8 +97,8 @@
       content: '';
       position: absolute;
       top: 0;
-      left: -18px;
-      width: 18px;
+      left: calc(-1 * var(--spine-width, 18px));
+      width: var(--spine-width, 18px);
       height: 100%;
       background: linear-gradient(to right, #152d4a, #1a3355);
       border-radius: 4px 0 0 4px;
@@ -160,6 +160,44 @@
       opacity: 0;
       pointer-events: none;
       z-index: 5;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .flip-cast-shadow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 4;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .flip-self-shadow {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 30%;
+      height: 100%;
+      background: linear-gradient(to left, rgba(0,0,0,0.15), transparent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .flip-light-catch {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 25%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(255,250,240,0.2), transparent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
       border-radius: 0 8px 8px 0;
     }
 
@@ -902,8 +940,9 @@
       }
 
       .book::before {
-        width: 14px;
-        left: -14px;
+        --spine-mobile: 14px;
+        width: var(--spine-mobile, 14px);
+        left: calc(-1 * var(--spine-mobile, 14px));
       }
 
       .book::after {
@@ -1013,7 +1052,10 @@
         <div class="page-back">
           <!-- Blank parchment back of cover -->
         </div>
+        <div class="flip-self-shadow"></div>
+        <div class="flip-light-catch"></div>
         <div class="flip-shadow"></div>
+        <div class="flip-cast-shadow"></div>
       </div>
 
       <!-- PAGE 2: Welcome Page -->
@@ -1038,7 +1080,10 @@
         <div class="page-back">
           <!-- Blank parchment -->
         </div>
+        <div class="flip-self-shadow"></div>
+        <div class="flip-light-catch"></div>
         <div class="flip-shadow"></div>
+        <div class="flip-cast-shadow"></div>
       </div>
 
       <!-- PAGE 3: Table of Contents (static, not flippable) -->
