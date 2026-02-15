@@ -407,9 +407,16 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 30px;
+      width: 50px;
       height: 100%;
-      background: linear-gradient(to right, rgba(120, 100, 70, 0.08), transparent);
+      background:
+        linear-gradient(to right,
+          transparent 12px,
+          rgba(255, 250, 240, 0.06) 15px,
+          transparent 20px
+        ),
+        radial-gradient(ellipse at 0% 50%, rgba(100, 80, 50, 0.12) 0%, transparent 70%),
+        linear-gradient(to right, rgba(100, 80, 50, 0.1) 0%, rgba(100, 80, 50, 0.04) 30%, transparent 100%);
       pointer-events: none;
       z-index: 1;
     }
@@ -419,20 +426,26 @@
     .page-toc .stitching {
       position: absolute;
       top: 5%;
-      left: 10px;
-      width: 2px;
+      left: 8px;
+      width: 6px;
       height: 90%;
       pointer-events: none;
       z-index: 2;
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0px,
-        transparent 8px,
-        rgba(160, 130, 90, 0.2) 8px,
-        rgba(160, 130, 90, 0.2) 14px,
-        transparent 14px,
-        transparent 22px
-      );
+      background:
+        repeating-linear-gradient(
+          170deg,
+          transparent 0px, transparent 6px,
+          rgba(180, 150, 90, 0.25) 6px, rgba(180, 150, 90, 0.25) 10px,
+          transparent 10px, transparent 18px
+        ),
+        repeating-linear-gradient(
+          190deg,
+          transparent 0px, transparent 9px,
+          rgba(170, 140, 80, 0.18) 9px, rgba(170, 140, 80, 0.18) 13px,
+          transparent 13px, transparent 21px
+        );
+      background-size: 3px 100%, 3px 100%;
+      background-position: 0 0, 3px 4px;
     }
 
     /* Corner ornaments */
@@ -464,12 +477,19 @@
       top: 0;
       right: 30px;
       width: 14px;
-      height: 60px;
-      background: linear-gradient(to bottom, #8b2232, #a32a3e);
+      height: 65px;
+      background:
+        linear-gradient(to right,
+          rgba(139, 34, 50, 0.9) 0%,
+          rgba(180, 50, 70, 1) 35%,
+          rgba(200, 80, 95, 0.9) 45%,
+          rgba(163, 42, 62, 1) 55%,
+          rgba(139, 34, 50, 0.95) 100%
+        );
       z-index: 3;
       pointer-events: none;
-      box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
+      box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.18);
+      clip-path: polygon(0 0, 100% 0, 100% 88%, 85% 95%, 50% 100%, 15% 95%, 0 88%);
     }
 
     /* Decorative header line on interior pages */
@@ -503,9 +523,16 @@
       width: 100%;
       height: 100%;
       background:
-        radial-gradient(ellipse at top right, rgba(180, 150, 100, 0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, rgba(180, 150, 100, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom left, rgba(180, 150, 100, 0.04) 0%, transparent 40%);
+        radial-gradient(circle at 85% 12%, rgba(160, 120, 70, 0.1) 0%, rgba(160, 120, 70, 0.1) 2px, transparent 2px),
+        radial-gradient(circle at 92% 45%, rgba(150, 110, 60, 0.08) 0%, rgba(150, 110, 60, 0.08) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 78% 78%, rgba(170, 130, 80, 0.09) 0%, rgba(170, 130, 80, 0.09) 2px, transparent 2px),
+        radial-gradient(circle at 88% 88%, rgba(155, 115, 65, 0.07) 0%, rgba(155, 115, 65, 0.07) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 60% 92%, rgba(165, 125, 75, 0.06) 0%, rgba(165, 125, 75, 0.06) 1px, transparent 1px),
+        linear-gradient(to left, rgba(160, 130, 80, 0.08) 0%, transparent 15%),
+        linear-gradient(to top, rgba(160, 130, 80, 0.06) 0%, transparent 10%),
+        radial-gradient(ellipse at top right, rgba(180, 150, 100, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(180, 150, 100, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(180, 150, 100, 0.05) 0%, transparent 40%);
       pointer-events: none;
       z-index: 1;
       border-radius: 0 8px 8px 0;
@@ -519,7 +546,8 @@
       transform: translateX(-50%);
       font-family: 'Fraunces', serif;
       font-size: 0.75rem;
-      color: rgba(58, 42, 26, 0.25);
+      color: rgba(58, 42, 26, 0.4);
+      letter-spacing: 0.15em;
       z-index: 2;
       pointer-events: none;
     }
@@ -575,12 +603,14 @@
     .welcome-text p .drop-cap {
       float: left;
       font-family: 'Fraunces', serif;
-      font-size: 3.2rem;
-      font-weight: 500;
-      color: #b8862d;
-      line-height: 0.8;
-      padding-right: 0.15rem;
-      padding-top: 0.1rem;
+      font-style: italic;
+      font-size: 3.6rem;
+      font-weight: 600;
+      color: #d4a853;
+      line-height: 0.75;
+      padding-right: 0.2rem;
+      padding-top: 0.08rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     /* Welcome page back */
@@ -912,13 +942,13 @@
           <div class="stitching"></div>
           <div class="page-header-line"></div>
           <div class="ribbon-bookmark"></div>
-          <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-          <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-          <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-          <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+          <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+          <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+          <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+          <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
           <div class="page-aged-edge"></div>
           <div class="page-footer-line"></div>
-          <span class="page-number">ii</span>
+          <span class="page-number">— ii —</span>
           <div class="welcome-text">
             <h2>Welcome</h2>
             <p><span class="drop-cap">E</span>very person carries a unique gift — something only they can bring to the world. This book is your guide to discovering it.</p>
@@ -937,11 +967,11 @@
         <div class="page-header-line"></div>
         <div class="page-aged-edge"></div>
         <div class="page-footer-line"></div>
-        <span class="page-number">iii</span>
-        <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-        <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-        <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
-        <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M0 20 Q0 0 20 0"/><path d="M4 16 Q4 4 16 4"/></svg></div>
+        <span class="page-number">— iii —</span>
+        <div class="corner-ornament corner-tl"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+        <div class="corner-ornament corner-tr"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+        <div class="corner-ornament corner-bl"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
+        <div class="corner-ornament corner-br"><svg viewBox="0 0 20 20"><path d="M2,18 C2,10 6,4 14,2" stroke-width="0.8" fill="none"/><path d="M4,14 C5,10 8,7 12,6" stroke-width="0.6" fill="none"/><path d="M14,2 C12,6 12,8 14,10" stroke-width="0.5" fill="none"/><circle cx="3" cy="17" r="1" fill="#b8862d" stroke="none" opacity="0.3"/></svg></div>
         <h2 class="toc-heading">Chapters</h2>
         <div class="toc-list">
           <a href="#" class="toc-chapter">
