@@ -1,4 +1,4 @@
-// js/cabin-home.js — Cabin Fireside scroll-driven homepage
+// js/cabin-home.js — Sanctuary scroll-driven homepage
 // GSAP + Lenis smooth scroll, SplitText hero animation, ScrollTrigger card reveals
 
 import { gsap } from 'gsap';

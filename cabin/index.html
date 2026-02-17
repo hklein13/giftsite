@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>The Gift Site — Welcome</title>
+  <title>The Gift Site — The Sanctuary</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,29 +14,28 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #1a120a;
+      background: #f5f2ed;
       font-family: 'Outfit', sans-serif;
       -webkit-font-smoothing: antialiased;
-      color: #f0ebe3;
+      color: #1a2a3a;
     }
 
-    /* ===== FIXED VIDEO BACKDROP (desktop) ===== */
-    .hero-video {
+    /* ===== FIXED IMAGE BACKDROP ===== */
+    .hero-bg-picture {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
       z-index: 0;
+      overflow: hidden;
     }
 
-    .hero-still {
-      display: none;
-    }
-
-    .hero-video-sharp {
-      display: none;
+    .hero-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     /* ===== HERO SECTION ===== */
@@ -53,7 +52,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 100%);
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.25) 0%, rgba(0,0,0,0.3) 100%);
       pointer-events: none;
     }
 
@@ -65,18 +64,36 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
+      padding-top: 18vh;
       z-index: 10;
       pointer-events: none;
+    }
+
+    .hero-text-backdrop {
+      background: rgba(245, 242, 237, 0.25);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border-radius: 16px;
+      padding: 2rem 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: background 0.3s ease;
+    }
+    .hero-text-backdrop:hover {
+      background: rgba(245, 242, 237, 0.35);
     }
 
     .hero-title {
       font-family: 'Fraunces', serif;
       font-size: clamp(2.2rem, 7vw, 4.5rem);
       font-weight: 400;
-      color: #f0ebe3;
-      text-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
+      color: #1a2a3a;
+      text-shadow: 0 1px 20px rgba(255, 255, 255, 0.5);
       letter-spacing: -0.02em;
       text-align: center;
       line-height: 1.2;
@@ -87,16 +104,16 @@
     .hero-title .accent-italic {
       font-style: italic;
       font-weight: 500;
-      color: #d4a853;
+      color: #3d5a80;
     }
 
     .hero-tagline {
       font-family: 'Outfit', sans-serif;
       font-size: clamp(0.85rem, 2.5vw, 1.15rem);
       font-weight: 300;
-      color: rgba(240, 235, 227, 0.7);
+      color: rgba(26, 42, 58, 0.7);
       margin-top: 1rem;
-      text-shadow: 0 1px 15px rgba(0, 0, 0, 0.4);
+      text-shadow: 0 1px 10px rgba(255, 255, 255, 0.4);
       letter-spacing: 0.04em;
       text-align: center;
       padding: 0 1.5rem;
@@ -123,13 +140,13 @@
       font-weight: 400;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(240, 235, 227, 0.5);
+      color: rgba(26, 42, 58, 0.5);
     }
 
     .scroll-indicator .chevron {
       width: 20px;
       height: 20px;
-      stroke: rgba(240, 235, 227, 0.5);
+      stroke: rgba(26, 42, 58, 0.5);
       fill: none;
       stroke-width: 2;
       stroke-linecap: round;
@@ -147,8 +164,9 @@
       position: relative;
       z-index: 2;
       padding: 4rem 1.5rem 3rem;
-      background: rgba(26, 18, 10, 0.92);
-      backdrop-filter: blur(2px);
+      background: rgba(245, 242, 237, 0.15);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
     }
 
     .cards-section .section-heading {
@@ -156,7 +174,7 @@
       font-size: clamp(1.4rem, 4vw, 2rem);
       font-weight: 400;
       text-align: center;
-      color: #f0ebe3;
+      color: #1a2a3a;
       margin-bottom: 2.5rem;
       letter-spacing: -0.01em;
     }
@@ -170,33 +188,36 @@
     }
 
     .nav-card {
-      background: rgba(240, 235, 227, 0.05);
-      border: 1px solid rgba(212, 168, 83, 0.12);
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(212, 168, 83, 0.15);
       border-radius: 12px;
       padding: 1.5rem 1.75rem;
-      transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
       visibility: hidden;
     }
 
     .nav-card:hover {
-      border-color: rgba(212, 168, 83, 0.4);
+      background: rgba(255, 255, 255, 0.75);
+      border-color: rgba(212, 168, 83, 0.5);
       transform: translateY(-2px);
-      background: rgba(240, 235, 227, 0.08);
-      box-shadow: 0 4px 24px rgba(212, 168, 83, 0.08);
+      box-shadow: 0 4px 20px rgba(212, 168, 83, 0.12);
     }
 
     .nav-card-title {
       font-family: 'Fraunces', serif;
       font-size: clamp(1.1rem, 3vw, 1.35rem);
       font-weight: 500;
-      color: #d4a853;
+      color: #3d5a80;
       margin-bottom: 0.5rem;
     }
 
     .nav-card-desc {
       font-size: clamp(0.85rem, 2.2vw, 0.95rem);
       font-weight: 300;
-      color: rgba(240, 235, 227, 0.6);
+      color: rgba(26, 42, 58, 0.6);
       line-height: 1.5;
     }
 
@@ -204,7 +225,7 @@
     .site-footer {
       position: relative;
       z-index: 2;
-      background: rgba(26, 18, 10, 0.92);
+      background: rgba(245, 242, 237, 0.15);
       padding: 3rem 1.5rem 4rem;
       text-align: center;
     }
@@ -212,7 +233,7 @@
     .site-footer p {
       font-size: 0.8rem;
       font-weight: 300;
-      color: rgba(240, 235, 227, 0.3);
+      color: rgba(26, 42, 58, 0.3);
       letter-spacing: 0.04em;
     }
 
@@ -244,78 +265,33 @@
       width: 28px;
       height: 28px;
       fill: none;
-      stroke: #1a120a;
+      stroke: #1a2a3a;
       stroke-width: 1.8;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
 
-    /* ===== MOBILE PORTRAIT: blurred backdrop + sharp inset ===== */
-    @media (max-aspect-ratio: 4/3) {
-      .hero-video {
-        filter: blur(20px) brightness(0.85);
-        transform: scale(1.15);
-      }
-      .hero-video-sharp {
-        display: block;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 92%;
-        height: auto;
-        z-index: 1;
-        border-radius: 12px;
-        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-      }
-      .hero-overlay {
-        z-index: 2;
-        background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.45) 100%);
-      }
-      .hero-title {
-        font-size: clamp(1.5rem, 5.5vw, 2.3rem);
-      }
-      .hero-tagline {
-        font-size: clamp(0.8rem, 2.5vw, 1rem);
-      }
-      .cards-section {
-        background: rgba(26, 18, 10, 0.85);
-      }
-    }
   </style>
 </head>
 <body>
 
   <!-- ===== HERO ===== -->
   <section class="hero">
-    <video
-      class="hero-video"
-      autoplay
-      loop
-      muted
-      playsinline
-      preload="auto"
-      src="../assets/cabin-fire.mp4"
-    ></video>
-    <img
-      class="hero-still"
-      src="../assets/cabin-still.jpg"
-      alt="Cozy cabin interior with fireplace and mountain view"
-    >
-    <video
-      class="hero-video-sharp"
-      autoplay
-      loop
-      muted
-      playsinline
-      preload="auto"
-      src="../assets/cabin-fire.mp4"
-    ></video>
+    <picture class="hero-bg-picture">
+      <source media="(max-width: 768px)" srcset="../assets/sanctuary-mobile.png">
+      <img
+        class="hero-bg"
+        src="../assets/sanctuary-desktop.png"
+        alt="Sunlit interior with natural light"
+      >
+    </picture>
     <div class="hero-overlay"></div>
 
     <div class="hero-content">
-      <h1 class="hero-title">Welcome to The <span class="accent-italic">Gift</span> Site</h1>
-      <p class="hero-tagline">A journey of discovery awaits</p>
+      <div class="hero-text-backdrop" onclick="document.querySelector('.cards-section').scrollIntoView({behavior:'smooth'})">
+        <h1 class="hero-title">Welcome to the <span class="accent-italic">Gift</span> Site</h1>
+        <p class="hero-tagline">A journey of discovery awaits</p>
+      </div>
     </div>
 
     <div class="scroll-indicator">

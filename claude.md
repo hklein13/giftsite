@@ -64,21 +64,24 @@ The user is not always right, but neither is Claude - collaborative verification
 giftsite/
 ├── index.html              # Template chooser landing page
 ├── cabin/
-│   └── index.html          # Cabin scroll-driven homepage
+│   └── index.html          # The Sanctuary — photography-based homepage
 ├── cloud/
 │   └── index.html          # Cloud Ascent template (Three.js interactive)
+├── book/
+│   └── index.html          # The Golden Book template (scroll-driven page flip)
 ├── assets/
-│   ├── cabin-fire.mp4      # Cabin video (~2.3MB, bottom-cropped to remove watermark)
-│   ├── cabin-still.jpg     # Still frame from video (fallback)
-│   ├── cabin-blur.jpg      # Blurred cabin ceiling strip (6KB, mobile backdrop)
-│   ├── thumb-cabin.jpg     # Chooser thumbnail
-│   └── thumb-cloud.jpg     # Chooser thumbnail
+│   ├── sanctuary-desktop.png  # Sanctuary hero — landscape (desktop)
+│   ├── sanctuary-mobile.png   # Sanctuary hero — portrait (mobile)
+│   ├── thumb-cabin.jpg     # Chooser thumbnail (needs update for Sanctuary)
+│   ├── thumb-cloud.jpg     # Chooser thumbnail
+│   └── thumb-book.jpg      # Chooser thumbnail
 ├── js/
-│   ├── cabin-home.js       # GSAP/Lenis scroll animations for cabin
+│   ├── cabin-home.js       # GSAP/Lenis scroll animations for Sanctuary
+│   ├── book-home.js        # GSAP accumulator scroll + page flip for Book
 │   └── concepts/
 │       └── cloud-ascent.js # Three.js cloud scene
 ├── package.json
-├── vite.config.js          # 3 entry points: main, cabin, cloud
+├── vite.config.js          # 4 entry points: main, cabin, cloud, book
 └── README.md
 ```
 
@@ -86,8 +89,10 @@ giftsite/
 
 ### Core
 - **Vite** - Build tool and dev server (`npm run dev`)
-- **Three.js** - WebGL 3D graphics (Cloud Ascent template only)
-- **pmndrs `postprocessing`** - Modern post-processing (Cloud Ascent only)
+- **GSAP 3.14** - Animations (all templates)
+- **Lenis 1.3** - Smooth scroll (Sanctuary only)
+- **Three.js r182** - WebGL 3D graphics (Cloud Ascent only)
+- **pmndrs `postprocessing`** - Post-processing effects (Cloud Ascent only)
 
 ### Fonts
 - **Fraunces** (display)
@@ -102,22 +107,21 @@ giftsite/
 ## Site Architecture
 
 ### Template Chooser (`/giftsite/`)
-Landing page with two thumbnail cards linking to each template. Dark navy background (#0d1929), Fraunces/Outfit typography, hover effects on cards.
+Landing page with three thumbnail cards linking to each template. Dark navy background (#0d1929), Fraunces/Outfit typography, hover effects on cards.
 
-### Cabin Homepage (`/giftsite/cabin/`)
-Scroll-driven homepage with immersive video hero + navigation cards.
+### The Sanctuary (`/giftsite/cabin/`)
+Photography-based homepage with AI-generated conservatory scene. Bright, airy, inviting.
 
-**Desktop:**
-- Video is `position: fixed` — stays as backdrop while content scrolls over it
-- Hero: 100vh, text overlay with SplitText character animation, scroll indicator
-- Cards section: dark semi-transparent overlay (92%) + backdrop-blur, scrolls over video
-- Gold-accented glassmorphism cards with hover glow
+**Layout (same on desktop and mobile):**
+- Fixed background photo fills viewport (`<picture>` with responsive sources)
+- Frosted glass text backdrop near top with title + tagline (clickable — scrolls to cards)
+- Cards section scrolls over the photo with frosted glass treatment
+- Individual cards are semi-transparent white with blur
 
-**Mobile portrait** (`max-aspect-ratio: 4/3`):
-- Blurred video fills entire viewport (same video, `filter: blur(20px)`, `scale(1.15)`)
-- Sharp video inset centered (92% width, rounded corners, shadow) — shows full cabin scene
-- Text overlays on top, cards scroll over blurred backdrop
-- No black bars — blurred video fills all space with warm flickering firelight
+**Responsive images:**
+- Desktop: `sanctuary-desktop.png` (landscape conservatory)
+- Mobile (<768px): `sanctuary-mobile.png` (portrait conservatory)
+- `<picture>` element with `<source media="(max-width: 768px)">` — browser picks the right one, no JS
 
 **Animations (js/cabin-home.js):**
 - GSAP + Lenis smooth scroll (synced to single RAF loop)
@@ -129,22 +133,19 @@ Scroll-driven homepage with immersive video hero + navigation cards.
 **5 Navigation cards** (non-clickable divs, will become links when subpages built):
 - Why We Exist, Discover, The Process, Facilitate, Gift Companion
 
-**Assets:**
-- `cabin-fire.mp4`: cropped to 1920x980 (bottom 100px removed to eliminate Gemini watermark)
-- `cabin-blur.jpg`: top 200px of cabin frame, blurred (6KB), used as mobile cards backdrop
-- `cabin-still.jpg`: landscape still frame fallback
+**Companion bot button:** Fixed position, gold (#d4a853), bottom-right
 
-**Companion bot button:** Fixed position, gold (#d4a853), bottom-right, unchanged
+### The Golden Book (`/giftsite/book/`)
+Scroll-driven 3D page-flip book on a dark walnut desk. See MEMORY.md for full details.
 
 ### Cloud Ascent (`/giftsite/cloud/`)
 - Three.js interactive scene with layered clouds, god rays, particles
-- Same text overlay branding as cabin
 - Uses pmndrs `postprocessing` for bloom + noise effects
 - Touch/click interaction for particle burst
 - **Known issues:** Cloud opacity balance is fragile. Don't use ACES tone mapping.
 
 ### Future: Gift Companion Bot
-Placeholder icon exists on cabin template. Will eventually be an interactive chatbot.
+Placeholder icon exists on Sanctuary + Book templates. Will eventually be an interactive chatbot.
 
 ---
 
@@ -152,7 +153,7 @@ Placeholder icon exists on cabin template. Will eventually be an interactive cha
 
 Primary target device: Modern iPhone (12+). Site should feel snappy and responsive.
 
-- Cabin homepage: blurred video backdrop + sharp video inset (Instagram-style, no black bars)
+- Sanctuary: portrait photo via `<picture>` — fills viewport naturally, no video
 - Cloud template: full-viewport Three.js canvas
 - Safe area insets respected (`env(safe-area-inset-bottom)`)
 - All interactive elements minimum 44x44px touch targets
@@ -175,11 +176,13 @@ npm run preview  # Test production build locally
 
 ### Key Files to Know
 - `index.html` - Template chooser landing page
-- `cabin/index.html` - Cabin scroll-driven homepage (video hero + nav cards)
-- `js/cabin-home.js` - GSAP/Lenis animations for cabin page
+- `cabin/index.html` - The Sanctuary homepage (photo hero + frosted glass cards)
+- `js/cabin-home.js` - GSAP/Lenis animations for Sanctuary page
+- `book/index.html` - The Golden Book (scroll-driven page flip)
+- `js/book-home.js` - GSAP accumulator scroll + page flip animations
 - `cloud/index.html` - Cloud template (loads cloud-ascent.js)
 - `js/concepts/cloud-ascent.js` - Three.js cloud scene logic
-- `vite.config.js` - Build config with 3 entry points
+- `vite.config.js` - Build config with 4 entry points
 
 ---
 
@@ -187,6 +190,8 @@ npm run preview  # Test production build locally
 
 Solar system homepage and old subpages were removed from git but backed up locally:
 `C:\Users\HarrisonKlein\Downloads\giftsite-solar-system-backup\`
+
+Old cabin video assets (`cabin-fire.mp4`, `cabin-still.jpg`, `cabin-blur.jpg`) remain in `assets/` but are no longer referenced in code.
 
 ---
 
