@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>The Gift Site — Welcome</title>
+  <title>The Gift Site — Cloud Ascent</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,98 +15,159 @@
 
     body {
       background: #A8D4F0;
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
       font-family: 'Outfit', sans-serif;
       -webkit-font-smoothing: antialiased;
+      scrollbar-width: none;
     }
+
+    body::-webkit-scrollbar { display: none; }
 
     canvas#cloud-ascent-canvas {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       display: block;
+      touch-action: pan-y;
     }
 
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      pointer-events: none;
+    /* Scroll sections — transparent text over fixed canvas */
+    .scroll-content {
+      position: relative;
       z-index: 10;
     }
 
-    .overlay h1 {
+    .cloud-section {
+      height: 150vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      pointer-events: none;
+      padding: 0 2rem;
+    }
+
+    .cloud-section h1 {
       font-family: 'Fraunces', serif;
       font-size: clamp(2.2rem, 7vw, 4.5rem);
       font-weight: 400;
       color: #3A4A5A;
       text-shadow: 0 2px 20px rgba(255, 255, 255, 0.4);
       letter-spacing: -0.02em;
-      text-align: center;
       line-height: 1.2;
-      padding: 0 1.5rem;
+      visibility: hidden;
     }
 
-    .overlay h1 .accent-italic {
+    .cloud-section h1 .accent-italic {
       font-style: italic;
       font-weight: 500;
     }
 
-    .overlay .tagline {
+    .cloud-section h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      letter-spacing: -0.02em;
+      visibility: hidden;
+    }
+
+    .cloud-section p {
       font-family: 'Outfit', sans-serif;
-      font-size: clamp(0.85rem, 2.5vw, 1.15rem);
+      font-size: clamp(0.95rem, 2.5vw, 1.2rem);
       font-weight: 300;
-      color: rgba(58, 74, 90, 0.7);
+      color: rgba(58, 74, 90, 0.75);
       margin-top: 1rem;
       text-shadow: 0 1px 10px rgba(255, 255, 255, 0.3);
       letter-spacing: 0.04em;
-      text-align: center;
-      padding: 0 1.5rem;
+      max-width: 500px;
+      line-height: 1.6;
+      visibility: hidden;
     }
 
-    .tap-hint {
+    /* Above-clouds section — lighter text for brighter sky */
+    .cloud-section[data-section="above"] p {
+      color: rgba(255, 255, 255, 0.8);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .scroll-hint {
       position: fixed;
       bottom: max(2rem, env(safe-area-inset-bottom, 2rem));
       left: 50%;
       transform: translateX(-50%);
       z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      pointer-events: none;
+    }
+
+    .scroll-hint span {
       font-family: 'Outfit', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 300;
       color: rgba(58, 74, 90, 0.45);
       letter-spacing: 0.05em;
       text-align: center;
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity 0.6s ease;
     }
 
-    .tap-hint.hidden { opacity: 0; }
+    .scroll-hint .chevron {
+      width: 18px; height: 18px;
+      stroke: rgba(58, 74, 90, 0.4);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(5px); }
+    }
 
     @media (prefers-reduced-motion: reduce) {
-      .tap-hint { display: none; }
+      .scroll-hint { display: none; }
     }
   </style>
 </head>
 <body>
   <canvas id="cloud-ascent-canvas"></canvas>
 
-  <div class="overlay">
-    <h1>Welcome to The <span class="accent-italic">Gift</span> Site</h1>
-    <p class="tagline">A journey of discovery awaits</p>
+  <div class="scroll-content">
+    <!-- Section 1: Ground level (0-25%) -->
+    <section class="cloud-section" data-section="ground">
+      <h1>The <span class="accent-italic">Gift</span> Site</h1>
+      <p>A journey of discovery awaits</p>
+    </section>
+
+    <!-- Section 2: Entering clouds (25-50%) -->
+    <section class="cloud-section" data-section="entering">
+      <p>Every person carries a unique gift</p>
+    </section>
+
+    <!-- Section 3: Through the clouds (50-75%) -->
+    <section class="cloud-section" data-section="through">
+      <p>Something only they can bring to the world</p>
+    </section>
+
+    <!-- Section 4: Above the clouds (75-100%) -->
+    <section class="cloud-section" data-section="above">
+      <h2>Discover yours</h2>
+    </section>
   </div>
 
-  <div class="tap-hint" id="tap-hint">Tap anywhere to interact</div>
+  <div class="scroll-hint">
+    <span>Scroll to ascend</span>
+    <svg class="chevron" viewBox="0 0 20 20">
+      <polyline points="4 8 10 14 16 8"></polyline>
+    </svg>
+  </div>
 
   <script type="module" src="../js/concepts/cloud-ascent.js"></script>
 </body>

@@ -36,6 +36,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      will-change: transform;
     }
 
     /* ===== HERO SECTION ===== */
@@ -164,9 +165,7 @@
       position: relative;
       z-index: 2;
       padding: 4rem 1.5rem 3rem;
-      background: rgba(245, 242, 237, 0.15);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      background: rgba(245, 242, 237, 0.55);
     }
 
     .cards-section .section-heading {
@@ -188,9 +187,7 @@
     }
 
     .nav-card {
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.78);
       border: 1px solid rgba(212, 168, 83, 0.15);
       border-radius: 12px;
       padding: 1.5rem 1.75rem;
@@ -200,7 +197,7 @@
     }
 
     .nav-card:hover {
-      background: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.88);
       border-color: rgba(212, 168, 83, 0.5);
       transform: translateY(-2px);
       box-shadow: 0 4px 20px rgba(212, 168, 83, 0.12);
@@ -275,10 +272,15 @@
 </head>
 <body>
 
+  <!-- ===== DUST PARTICLES ===== -->
+  <canvas id="dust-particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;"></canvas>
+
   <!-- ===== HERO ===== -->
   <section class="hero">
     <picture class="hero-bg-picture">
-      <source media="(max-width: 768px)" srcset="../assets/sanctuary-mobile.png">
+      <source media="(max-width: 768px)" srcset="../assets/sanctuary-mobile.webp" type="image/webp">
+      <source media="(max-width: 768px)" srcset="../assets/sanctuary-mobile.png" type="image/png">
+      <source srcset="../assets/sanctuary-desktop.webp" type="image/webp">
       <img
         class="hero-bg"
         src="../assets/sanctuary-desktop.png"
