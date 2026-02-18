@@ -1,21 +1,148 @@
-// js/concepts/cloud-ascent.js — Cloud Ascent Concept Demo (Polished)
+// js/concepts/cloud-ascent.js — Cloud Ascent (Redesigned)
 // Layered clouds with domain warping, god rays, warm gold breakthrough,
-// luminous particles, entrance animation, pmndrs postprocessing
+// luminous particles, zone-based scroll journey, accumulator-driven navigation
+//
+// 6 zones: Hero + 5 subpage cards (Why We Exist, Discover, The Process, Facilitate, Gift Companion)
+// Each zone shifts sky color, cloud density, and gold warmth via smoothstep interpolation
 
 import * as THREE from 'three';
 import { Effect, EffectComposer, RenderPass, EffectPass, BloomEffect, VignetteEffect, NoiseEffect, BlendFunction } from 'postprocessing';
 import { Uniform, Vector2 } from 'three';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, SplitText);
+
+// --- Zone Configuration ---
+// 6 zones: hero (100vh) + 5 content zones (130vh each) = 750vh total
+// Boundaries as fractions of total scroll distance
+const ZONE_BOUNDARIES = [0, 100/750, 230/750, 360/750, 490/750, 620/750];
+
+const ZONE_CONFIGS = [
+  { // 0: Hero — Clear morning blue
+    skyTop: new THREE.Color(0x3878A8),
+    skyMid: new THREE.Color(0x2868A0),
+    skyBot: new THREE.Color(0x5090C0),
+    cloudDensity: 1.0,
+    goldTint: 0.3,
+    noiseScale: 1.0,
+    driftSpeed: 1.0,
+  },
+  { // 1: Why We Exist — Deep twilight (dramatic darkening)
+    skyTop: new THREE.Color(0x1E3860),
+    skyMid: new THREE.Color(0x152850),
+    skyBot: new THREE.Color(0x2E5078),
+    cloudDensity: 1.5,
+    goldTint: 0.5,
+    noiseScale: 1.15,
+    driftSpeed: 0.6,
+  },
+  { // 2: Discover — Bright open sky (wide clearing)
+    skyTop: new THREE.Color(0x60A8D8),
+    skyMid: new THREE.Color(0x5098D0),
+    skyBot: new THREE.Color(0x78B8E0),
+    cloudDensity: 0.35,
+    goldTint: 0.15,
+    noiseScale: 0.8,
+    driftSpeed: 1.4,
+  },
+  { // 3: The Process — Dusky lavender (structured, contemplative)
+    skyTop: new THREE.Color(0x384878),
+    skyMid: new THREE.Color(0x2D3D6D),
+    skyBot: new THREE.Color(0x506090),
+    cloudDensity: 1.3,
+    goldTint: 0.55,
+    noiseScale: 1.1,
+    driftSpeed: 0.7,
+  },
+  { // 4: Facilitate — Warm golden hour (distinctly warm)
+    skyTop: new THREE.Color(0x5888A0),
+    skyMid: new THREE.Color(0x507898),
+    skyBot: new THREE.Color(0x7098A8),
+    cloudDensity: 0.8,
+    goldTint: 0.8,
+    noiseScale: 0.9,
+    driftSpeed: 1.0,
+  },
+  { // 5: Gift Companion — Bright dawn (hopeful, airy)
+    skyTop: new THREE.Color(0x58A0D0),
+    skyMid: new THREE.Color(0x4890C0),
+    skyBot: new THREE.Color(0x70B0D8),
+    cloudDensity: 0.4,
+    goldTint: 0.25,
+    noiseScale: 0.75,
+    driftSpeed: 1.5,
+  },
+];
+
+// Reusable result object (avoids GC pressure in animate loop)
+const _zoneResult = {
+  skyTop: new THREE.Color(),
+  skyMid: new THREE.Color(),
+  skyBot: new THREE.Color(),
+  cloudDensity: 1.0,
+  goldTint: 0.3,
+  noiseScale: 1.0,
+  driftSpeed: 1.0,
+};
+
+function smoothstep(edge0, edge1, x) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function getZoneParams(scrollProgress) {
+  // Find current zone
+  let zoneIndex = 0;
+  for (let i = ZONE_BOUNDARIES.length - 1; i >= 0; i--) {
+    if (scrollProgress >= ZONE_BOUNDARIES[i]) {
+      zoneIndex = i;
+      break;
+    }
+  }
+
+  const nextIndex = Math.min(zoneIndex + 1, ZONE_CONFIGS.length - 1);
+  const a = ZONE_CONFIGS[zoneIndex];
+  const b = ZONE_CONFIGS[nextIndex];
+
+  if (zoneIndex === nextIndex) {
+    _zoneResult.skyTop.copy(a.skyTop);
+    _zoneResult.skyMid.copy(a.skyMid);
+    _zoneResult.skyBot.copy(a.skyBot);
+    _zoneResult.cloudDensity = a.cloudDensity;
+    _zoneResult.goldTint = a.goldTint;
+    _zoneResult.noiseScale = a.noiseScale;
+    _zoneResult.driftSpeed = a.driftSpeed;
+    return _zoneResult;
+  }
+
+  // Transition across the last 50% of the current zone
+  const zoneStart = ZONE_BOUNDARIES[zoneIndex];
+  const zoneEnd = nextIndex < ZONE_BOUNDARIES.length ? ZONE_BOUNDARIES[nextIndex] : 1.0;
+  const zoneWidth = zoneEnd - zoneStart;
+  const transitionStart = zoneStart + zoneWidth * 0.5;
+  const t = smoothstep(transitionStart, zoneEnd, scrollProgress);
+
+  _zoneResult.skyTop.copy(a.skyTop).lerp(b.skyTop, t);
+  _zoneResult.skyMid.copy(a.skyMid).lerp(b.skyMid, t);
+  _zoneResult.skyBot.copy(a.skyBot).lerp(b.skyBot, t);
+  _zoneResult.cloudDensity = lerp(a.cloudDensity, b.cloudDensity, t);
+  _zoneResult.goldTint = lerp(a.goldTint, b.goldTint, t);
+  _zoneResult.noiseScale = lerp(a.noiseScale, b.noiseScale, t);
+  _zoneResult.driftSpeed = lerp(a.driftSpeed, b.driftSpeed, t);
+  return _zoneResult;
+}
 
 // --- Custom God Rays Effect (radial light sampling) ---
 function makeGodRaysFragment(highQuality) {
-  const samples = highQuality ? 48 : 32;
+  const samples = highQuality ? 32 : 24;
   const step = `(1.0 / ${samples}.0)`;
 
-  // Single sample per step (removed 3-tap blur for performance)
   const sampleCode = `vec4 s = texture2D(inputBuffer, texCoord);`;
 
   return /* glsl */`
@@ -54,8 +181,8 @@ class GodRaysEffect extends Effect {
       blendFunction: BlendFunction.NORMAL,
       uniforms: new Map([
         ['uLightPos', new Uniform(new Vector2(0.5, 0.72))],
-        ['uRayIntensity', new Uniform(0.32)],
-        ['uDecay', new Uniform(0.98)],
+        ['uRayIntensity', new Uniform(0.18)],   // flattened from 0.32
+        ['uDecay', new Uniform(0.97)],           // from 0.98
         ['uRayDensity', new Uniform(0.9)],
         ['uRayWeight', new Uniform(0.55)],
         ['uRayIntro', new Uniform(0)]
@@ -94,24 +221,20 @@ const SIMPLEX_2D_GLSL = /* glsl */`
     return 130.0 * dot(m, g);
   }
 
-  // 4-octave FBM — enough detail for soft cumulus shapes without fine ripples
-  float fbm5(vec2 p) {
+  // 3-octave FBM — enough detail for soft cumulus shapes, minimal GPU cost
+  float fbm3(vec2 p) {
     float f = 0.0;
     f += 0.5000 * snoise2(p); p *= 2.01;
     f += 0.2500 * snoise2(p); p *= 2.02;
-    f += 0.1250 * snoise2(p); p *= 2.03;
-    f += 0.0625 * snoise2(p);
+    f += 0.1250 * snoise2(p);
     return f;
   }
 
-  // Single-pass domain warping: one extra fbm lookup for organic distortion
-  // Gentle warp for cumulus-like shapes without water-ripple artifacts
+  // Single-pass domain warping: one fbm lookup, second component derived cheaply
   float warpedFbm(vec2 p, float t) {
-    vec2 warp = vec2(
-      fbm5(p + vec2(1.7, 9.2) + t * 0.03),
-      fbm5(p + vec2(8.3, 2.8) + t * 0.04)
-    );
-    return fbm5(p + warp * 0.6);
+    float w = fbm3(p + vec2(1.7, 9.2) + t * 0.03);
+    vec2 warp = vec2(w, w * 0.7 + sin(w * 3.5) * 0.3);
+    return fbm3(p + warp * 0.6);
   }
 `;
 
@@ -135,14 +258,14 @@ class CloudAscentScene {
     this.burstCenter = new THREE.Vector2(0, 0);
     this.burstStrength = 0;
 
-    // Renderer with ACES tone mapping
+    // Renderer
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       alpha: false,
       antialias: false
     });
     this.renderer.toneMapping = THREE.NoToneMapping;
-    const maxPixelRatio = this.isMobile ? 2 : 1.5;
+    const maxPixelRatio = this.isMobile ? 1.25 : 1.5;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -150,8 +273,21 @@ class CloudAscentScene {
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
     this.camera.position.set(0, 0, 30);
 
-    // Scroll progress (0 = ground, 1 = above clouds)
+    // Scroll progress (0 = ground, 1 = end)
     this.scrollProgress = 0;
+    this.currentZoneIndex = 0;
+
+    // Eased zone state — drifts toward target (solar system methodology)
+    // At 0.025/frame @ 60fps: ~1.7s to reach 95% of target
+    this.easedZone = {
+      skyTop: new THREE.Color(0x3878A8),
+      skyMid: new THREE.Color(0x2868A0),
+      skyBot: new THREE.Color(0x5090C0),
+      cloudDensity: 1.0,
+      goldTint: 0.3,
+      noiseScale: 1.0,
+      driftSpeed: 1.0,
+    };
 
     this.createBackground();
     this.createCloudLayers();
@@ -169,7 +305,7 @@ class CloudAscentScene {
     requestAnimationFrame((t) => this.animate(t));
   }
 
-  // --- Background gradient + strong light breakthrough ---
+  // --- Background gradient + subtle light breakthrough ---
   createBackground() {
     const geo = new THREE.PlaneGeometry(2, 2);
     const mat = new THREE.ShaderMaterial({
@@ -177,9 +313,9 @@ class CloudAscentScene {
         uTime: { value: 0 },
         uParallax: { value: new THREE.Vector2(0, 0) },
         uIntro: { value: 0 },
-        uColorTop: { value: new THREE.Color(0x3878A8) },    // Strong sky blue
-        uColorMid: { value: new THREE.Color(0x2868A0) },    // Deep blue
-        uColorBot: { value: new THREE.Color(0x5090C0) }     // Horizon blue
+        uColorTop: { value: new THREE.Color(0x3878A8) },
+        uColorMid: { value: new THREE.Color(0x2868A0) },
+        uColorBot: { value: new THREE.Color(0x5090C0) }
       },
       vertexShader: /* glsl */`
         varying vec2 vUv;
@@ -212,24 +348,24 @@ class CloudAscentScene {
             color = mix(uColorBot, uColorMid, smoothstep(0.0, 0.4, t));
           }
 
-          // Subtle light breakthrough — warm spot, not dominant
+          // Subtle light breakthrough — halved glow
           vec2 lightCenter = vec2(0.5 + uParallax.x * 0.05, 0.72 + uParallax.y * 0.03);
           float distToLight = distance(vUv, lightCenter);
 
           float lightGlow = 1.0 - smoothstep(0.0, 0.35, distToLight);
-          lightGlow = pow(lightGlow, 3.0);
+          lightGlow = pow(lightGlow, 2.0);
 
-          float lightPulse = 1.0 + sin(uTime * 0.4) * 0.04;
+          float lightPulse = 1.0 + sin(uTime * 0.4) * 0.02;
 
           vec3 lightColor = vec3(1.0, 0.96, 0.88);
-          float lightIntensity = lightGlow * 0.20 * lightPulse;
+          float lightIntensity = lightGlow * 0.10 * lightPulse;
           lightIntensity *= smoothstep(0.3, 1.0, uIntro);
 
           color = mix(color, lightColor, lightIntensity);
 
           // Warm shift — very subtle
           vec3 warmShift = vec3(1.0, 0.93, 0.80);
-          float warmAmount = lightGlow * 0.08 * smoothstep(0.3, 1.0, uIntro);
+          float warmAmount = lightGlow * 0.04 * smoothstep(0.3, 1.0, uIntro);
           color = mix(color, warmShift, warmAmount);
 
           gl_FragColor = vec4(color, 1.0);
@@ -250,7 +386,6 @@ class CloudAscentScene {
   createCloudLayers() {
     this.cloudMaterials = [];
 
-    // 5 layers: 2 far background + 2 mid + 1 close foreground
     const layers = [
       { z: 3,  w: 110, h: 35, drift: 0.015, opacity: 0.10, scale: 2.0,  goldStrength: 0.3 },
       { z: 12, w: 90,  h: 28, drift: 0.030, opacity: 0.18, scale: 2.8,  goldStrength: 0.6 },
@@ -270,7 +405,7 @@ class CloudAscentScene {
           uBurstStrength: { value: 0 },
           uReducedMotion: { value: this.prefersReducedMotion ? 1.0 : 0.0 },
           uIntro: { value: 0 },
-          uGoldColor: { value: new THREE.Color(0xF0D080) } // Warmer gold
+          uGoldColor: { value: new THREE.Color(0xF0D080) }
         },
         vertexShader: /* glsl */`
           varying vec2 vUv;
@@ -305,15 +440,11 @@ class CloudAscentScene {
             uv += ripple;
 
             float t = uTime * anim;
-            // Natural cloud coordinates — slight horizontal stretch looks like real cloud banks
             vec2 noiseCoord = uv * uNoiseScale;
             noiseCoord.x += t * uDriftSpeed * 0.3;
 
-            // Domain-warped FBM for organic billow-like shapes
             float density = warpedFbm(noiseCoord, t * uDriftSpeed * 1.5);
 
-            // Cloud shapes — tight threshold for defined shapes with sky gaps
-            // warpedFbm returns roughly [-0.8, 0.8], remap to [0, 1]
             float remapped = density * 0.5 + 0.5;
             float cloud = smoothstep(0.28, 0.65, remapped);
 
@@ -322,24 +453,20 @@ class CloudAscentScene {
             float edgeY = smoothstep(0.0, 0.15, vUv.y) * smoothstep(1.0, 0.85, vUv.y);
             cloud *= edgeX * edgeY;
 
-            // Warm gold edge-lighting — visible golden rims on cloud edges
+            // Warm gold edge-lighting
             float edgeThin = smoothstep(0.58, 0.42, remapped) * cloud;
             float upperBias = smoothstep(0.15, 0.65, vUv.y);
             float goldEdge = edgeThin * upperBias * uGoldStrength;
 
-            // Light proximity boost — clouds near light source glow warmer
+            // Light proximity boost
             vec2 lightPos = vec2(0.5, 0.72);
             float lightProximity = 1.0 - smoothstep(0.0, 0.55, distance(vUv, lightPos));
             goldEdge += cloud * lightProximity * 0.35 * uGoldStrength;
 
-            // Base cloud color: warm white
             vec3 cloudColor = vec3(1.0, 0.99, 0.96);
-            // Mix in gold at lit edges and near light source
             cloudColor = mix(cloudColor, uGoldColor, goldEdge * 0.7);
 
-            // Intro: fade in from transparent
             float introOpacity = uOpacity * smoothstep(0.0, 1.0, uIntro);
-
             float alpha = cloud * introOpacity;
 
             gl_FragColor = vec4(cloudColor, alpha);
@@ -351,7 +478,12 @@ class CloudAscentScene {
         side: THREE.DoubleSide
       });
 
-      mat.userData = { baseOpacity: cfg.opacity };
+      // Store base values for zone-driven modulation
+      mat.userData = {
+        baseOpacity: cfg.opacity,
+        baseNoiseScale: cfg.scale,
+        baseDriftSpeed: cfg.drift,
+      };
 
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.z = cfg.z;
@@ -363,25 +495,24 @@ class CloudAscentScene {
 
   // --- Luminous particles (moisture/mist) ---
   createParticles() {
-    const count = 200;
+    const count = 80;
     const positions = new Float32Array(count * 3);
     const aSize = new Float32Array(count);
     const aSpeed = new Float32Array(count);
     const aPhase = new Float32Array(count);
     const aOpacity = new Float32Array(count);
-    const aWarmth = new Float32Array(count); // gold tint factor
+    const aWarmth = new Float32Array(count);
 
     for (let i = 0; i < count; i++) {
       positions[i * 3]     = (Math.random() - 0.5) * 40;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 25;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 30;
 
-      aSize[i] = 0.3 + Math.random() * 1.0;
+      aSize[i] = 0.2 + Math.random() * 0.6;
       aSpeed[i] = 0.3 + Math.random() * 0.7;
       aPhase[i] = Math.random() * Math.PI * 2;
-      aOpacity[i] = 0.12 + Math.random() * 0.23;
+      aOpacity[i] = 0.04 + Math.random() * 0.08;
 
-      // Particles in upper portion are warmer (nearer to light)
       const yNorm = (positions[i * 3 + 1] + 12.5) / 25.0;
       aWarmth[i] = 0.1 + yNorm * 0.6;
     }
@@ -424,16 +555,13 @@ class CloudAscentScene {
           vec3 pos = position;
           float drift = (1.0 - uReducedMotion);
 
-          // Gentle oscillation + slight upward drift (ascent feeling)
           pos.x += sin(uTime * aSpeed * 0.4 + aPhase) * 2.0 * drift;
           pos.y += sin(uTime * aSpeed * 0.3 + aPhase * 1.3) * 1.5 * drift;
-          pos.y += uTime * 0.05 * drift; // subtle upward drift
+          pos.y += uTime * 0.05 * drift;
           pos.z += cos(uTime * aSpeed * 0.25 + aPhase * 0.7) * 1.0 * drift;
 
-          // Wrap Y position to keep particles in view
           pos.y = mod(pos.y + 12.5, 25.0) - 12.5;
 
-          // Parallax shift
           pos.x += uParallax.x * 3.0;
           pos.y += uParallax.y * 2.0;
 
@@ -450,7 +578,6 @@ class CloudAscentScene {
           gl_PointSize = aSize * (300.0 / -finalMV.z);
           gl_Position = projectionMatrix * finalMV;
 
-          // Fade in particles during intro
           vOpacity = aOpacity * smoothstep(0.4, 1.0, uIntro);
           vWarmth = aWarmth;
         }
@@ -464,7 +591,6 @@ class CloudAscentScene {
           float dist = length(center);
           float alpha = smoothstep(0.5, 0.15, dist) * vOpacity;
 
-          // Cool white -> warm gold based on warmth attribute
           vec3 coolColor = vec3(0.95, 0.97, 1.0);
           vec3 warmColor = vec3(1.0, 0.94, 0.78);
           vec3 color = mix(coolColor, warmColor, vWarmth);
@@ -487,13 +613,11 @@ class CloudAscentScene {
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-    // God rays — custom effect (radial light sampling)
     this.godRays = new GodRaysEffect(this.isMobile);
 
-    // Bloom — slightly more present than original
     const bloom = new BloomEffect({
-      intensity: 0.4,
-      luminanceThreshold: 0.7,
+      intensity: 0.2,               // flattened from 0.4
+      luminanceThreshold: 0.8,      // raised from 0.7
       luminanceSmoothing: 0.35,
       mipmapBlur: true
     });
@@ -509,7 +633,6 @@ class CloudAscentScene {
     });
     noise.blendMode.opacity.value = 0.03;
 
-    // All effects in one pass for optimal performance
     this.composer.addPass(new EffectPass(this.camera, this.godRays, bloom, vignette, noise));
   }
 
@@ -522,7 +645,6 @@ class CloudAscentScene {
       });
     }
 
-    // Click burst (desktop + mobile)
     this.canvas.addEventListener('click', (e) => {
       this.burstCenter.set(
         (e.clientX / window.innerWidth) * 2 - 1,
@@ -536,38 +658,130 @@ class CloudAscentScene {
     }
   }
 
-  // --- Scroll-driven altitude ascent ---
+  // --- Accumulator-driven scroll navigation (solar system pattern) ---
+  // Wheel/touch input → accumulator → full animated transition to next zone.
+  // No free-scrolling. Each gesture = one complete stop-to-stop move.
   setupScrollAscent() {
-    const sections = document.querySelectorAll('.cloud-section');
-    if (!sections.length) return;
+    // Cache zone scroll targets (recalculated on resize)
+    this._cacheZoneTargets();
+    this.isTransitioning = false;
+    this.scrollAccumulator = 0;
+    const threshold = 50;
 
-    // Master scroll progress drives scene parameters
+    gsap.ticker.lagSmoothing(0);
+
+    // ScrollTrigger tracks scroll position for scene params + card reveals
     ScrollTrigger.create({
       trigger: '.scroll-content',
       start: 'top top',
       end: 'bottom bottom',
-      scrub: 1,
+      scrub: true,
       onUpdate: (self) => {
         this.scrollProgress = self.progress;
       }
     });
 
-    // Per-section text fade in/out
-    sections.forEach(section => {
-      const content = section.querySelectorAll('h1, h2, p');
-      if (!content.length) return;
-      gsap.fromTo(content,
-        { autoAlpha: 0, y: 30 },
-        {
-          autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.15,
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 60%',
-            end: 'bottom 40%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
+    // --- Wheel accumulator ---
+    window.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (this.isTransitioning) return;
+
+      this.scrollAccumulator += e.deltaY;
+
+      if (this.scrollAccumulator > threshold) {
+        this._advanceZone(1);
+        this.scrollAccumulator = 0;
+      } else if (this.scrollAccumulator < -threshold) {
+        this._advanceZone(-1);
+        this.scrollAccumulator = 0;
+      }
+    }, { passive: false });
+
+    // --- Touch accumulator ---
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+      this.scrollAccumulator = 0;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (this.isTransitioning) return;
+
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchStartY - touchY;
+      this.scrollAccumulator += deltaY;
+      touchStartY = touchY;
+
+      if (Math.abs(this.scrollAccumulator) > 15) {
+        e.preventDefault();
+      }
+
+      if (this.scrollAccumulator > threshold) {
+        this._advanceZone(1);
+        this.scrollAccumulator = 0;
+      } else if (this.scrollAccumulator < -threshold) {
+        this._advanceZone(-1);
+        this.scrollAccumulator = 0;
+      }
+    }, { passive: false });
+
+    // --- Hero animations ---
+    const heroTitle = document.querySelector('.cloud-hero-title');
+    const heroTagline = document.querySelector('.cloud-hero-tagline');
+    const scrollHint = document.querySelector('.scroll-hint');
+
+    if (heroTitle) {
+      gsap.set(heroTitle, { visibility: 'visible' });
+      const split = new SplitText(heroTitle, { type: 'words,chars' });
+
+      gsap.from(split.chars, {
+        y: 40,
+        autoAlpha: 0,
+        duration: 0.8,
+        stagger: 0.04,
+        ease: 'power3.out',
+        delay: 0.3,
+      });
+    }
+
+    if (heroTagline) {
+      gsap.set(heroTagline, { visibility: 'visible' });
+      gsap.from(heroTagline, {
+        autoAlpha: 0,
+        y: 20,
+        duration: 0.7,
+        ease: 'power3.out',
+        delay: 1.0,
+      });
+    }
+
+    // Scroll hint fade-out
+    if (scrollHint) {
+      gsap.to(scrollHint, {
+        autoAlpha: 0,
+        scrollTrigger: {
+          trigger: '.scroll-content',
+          start: 'top top',
+          end: '10% top',
+          scrub: true,
+        },
+      });
+    }
+
+    // Card reveal animations
+    const cards = document.querySelectorAll('.cloud-card');
+    cards.forEach((card) => {
+      gsap.from(card, {
+        y: 60,
+        autoAlpha: 0,
+        duration: 0.7,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 85%',
+          once: true,
+        },
+      });
     });
   }
 
@@ -598,6 +812,45 @@ class CloudAscentScene {
     }
   }
 
+  // --- Zone navigation helpers ---
+  _cacheZoneTargets() {
+    const sections = document.querySelectorAll('.cloud-hero, .cloud-zone');
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    this.zoneTargets = Array.from(sections).map(section => {
+      const target = section.offsetTop + section.offsetHeight / 2 - window.innerHeight / 2;
+      return Math.max(0, Math.min(target, maxScroll));
+    });
+    this.zoneCount = sections.length;
+  }
+
+  _advanceZone(direction) {
+    const nextIndex = this.currentZoneIndex + direction;
+    if (nextIndex < 0 || nextIndex >= this.zoneCount) return;
+
+    this.currentZoneIndex = nextIndex;
+    this._transitionToZone(nextIndex);
+  }
+
+  _transitionToZone(index) {
+    const target = this.zoneTargets[index];
+    const start = window.scrollY;
+    const distance = target - start;
+
+    if (Math.abs(distance) < 5) {
+      this.isTransitioning = false;
+      return;
+    }
+
+    this.isTransitioning = true;
+    // Transition state — ticked from the main animate() loop (single RAF)
+    this._transition = {
+      start,
+      distance,
+      duration: 1500,
+      startTime: performance.now(),
+    };
+  }
+
   // --- Resize ---
   onResize() {
     const w = window.innerWidth;
@@ -607,6 +860,9 @@ class CloudAscentScene {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
     this.composer.setSize(w, h);
+
+    // Recalculate zone positions after viewport change
+    if (this.zoneTargets) this._cacheZoneTargets();
   }
 
   // --- Animation loop ---
@@ -642,33 +898,36 @@ class CloudAscentScene {
     this.bgMaterial.uniforms.uParallax.value.set(this.parallax.x, this.parallax.y);
     this.bgMaterial.uniforms.uIntro.value = this.introProgress;
 
-    // Scroll-driven scene changes
-    const p = this.scrollProgress;
+    // Zone-based scene parameters — temporal easing (solar system methodology)
+    // Target params update instantly from scroll; eased params drift toward target
+    const targetZone = getZoneParams(this.scrollProgress);
+    const ease = 0.025; // ~1.7s to reach 95% of target at 60fps
 
-    // Cloud density: denser in middle, thin at top
-    const cloudDensity = p < 0.5
-      ? 0.5 + p * 1.5       // 0.5 → 1.25 (getting denser)
-      : 1.25 - (p - 0.5) * 2.0;  // 1.25 → 0.25 (thinning out)
+    this.easedZone.skyTop.lerp(targetZone.skyTop, ease);
+    this.easedZone.skyMid.lerp(targetZone.skyMid, ease);
+    this.easedZone.skyBot.lerp(targetZone.skyBot, ease);
+    this.easedZone.cloudDensity += (targetZone.cloudDensity - this.easedZone.cloudDensity) * ease;
+    this.easedZone.goldTint += (targetZone.goldTint - this.easedZone.goldTint) * ease;
+    this.easedZone.noiseScale += (targetZone.noiseScale - this.easedZone.noiseScale) * ease;
+    this.easedZone.driftSpeed += (targetZone.driftSpeed - this.easedZone.driftSpeed) * ease;
 
-    // Background warm shift as we ascend
-    if (this.bgMaterial && p > 0) {
-      const warmth = p * 0.15;
-      this.bgMaterial.uniforms.uColorTop.value.setRGB(
-        0.22 + warmth, 0.47 + warmth * 0.5, 0.66
-      );
-    }
+    // Apply eased sky colors to background
+    this.bgMaterial.uniforms.uColorTop.value.copy(this.easedZone.skyTop);
+    this.bgMaterial.uniforms.uColorMid.value.copy(this.easedZone.skyMid);
+    this.bgMaterial.uniforms.uColorBot.value.copy(this.easedZone.skyBot);
 
-    // Update cloud layers
+    // Update cloud layers with eased zone modulation
     for (const mat of this.cloudMaterials) {
       mat.uniforms.uTime.value = this.time;
       mat.uniforms.uBurstCenter.value.copy(this.burstCenter);
       mat.uniforms.uBurstStrength.value = this.burstStrength;
       mat.uniforms.uIntro.value = this.introProgress;
 
-      // Apply scroll-driven density
-      if (mat.userData.baseOpacity !== undefined) {
-        mat.uniforms.uOpacity.value = mat.userData.baseOpacity * cloudDensity;
-      }
+      // Eased zone-driven parameters
+      mat.uniforms.uOpacity.value = mat.userData.baseOpacity * this.easedZone.cloudDensity;
+      mat.uniforms.uGoldStrength.value = this.easedZone.goldTint;
+      mat.uniforms.uNoiseScale.value = mat.userData.baseNoiseScale * this.easedZone.noiseScale;
+      mat.uniforms.uDriftSpeed.value = mat.userData.baseDriftSpeed * this.easedZone.driftSpeed;
     }
 
     // Update particles
@@ -678,14 +937,30 @@ class CloudAscentScene {
     this.particleMaterial.uniforms.uBurstStrength.value = this.burstStrength;
     this.particleMaterial.uniforms.uIntro.value = this.introProgress;
 
-    // Update god rays — sync light position with parallax + scroll boost
+    // Drive zone transition from main loop (single RAF — no layout thrashing)
+    if (this._transition) {
+      const tr = this._transition;
+      const elapsed = timestamp - tr.startTime;
+      const progress = Math.min(elapsed / tr.duration, 1);
+      const eased = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+      window.scrollTo(0, tr.start + tr.distance * eased);
+
+      if (progress >= 1) {
+        this._transition = null;
+        this.isTransitioning = false;
+        this.scrollAccumulator = 0;
+      }
+    }
+
+    // Update god rays — flat intensity (no scroll boost)
     if (this.godRays) {
       const lx = 0.5 + this.parallax.x * 0.05;
       const ly = 0.72 + this.parallax.y * 0.03;
       this.godRays.uniforms.get('uLightPos').value.set(lx, ly);
       this.godRays.uniforms.get('uRayIntro').value = this.introProgress;
-      // Rays get slightly stronger as we ascend
-      this.godRays.uniforms.get('uRayIntensity').value = 0.32 + p * 0.2;
     }
 
     this.composer.render(delta);

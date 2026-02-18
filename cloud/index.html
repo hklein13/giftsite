@@ -32,68 +32,151 @@
       touch-action: pan-y;
     }
 
-    /* Scroll sections — transparent text over fixed canvas */
+    /* Scroll zones — transparent content over fixed canvas */
     .scroll-content {
       position: relative;
       z-index: 10;
     }
 
-    .cloud-section {
-      height: 150vh;
+    /* Hero zone */
+    .cloud-hero {
+      height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
       text-align: center;
       pointer-events: none;
       padding: 0 2rem;
     }
 
-    .cloud-section h1 {
+    .cloud-hero-title {
       font-family: 'Fraunces', serif;
       font-size: clamp(2.2rem, 7vw, 4.5rem);
       font-weight: 400;
-      color: #3A4A5A;
-      text-shadow: 0 2px 20px rgba(255, 255, 255, 0.4);
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1);
       letter-spacing: -0.02em;
       line-height: 1.2;
       visibility: hidden;
     }
 
-    .cloud-section h1 .accent-italic {
+    .cloud-hero-title .accent-italic {
       font-style: italic;
       font-weight: 500;
     }
 
-    .cloud-section h2 {
-      font-family: 'Fraunces', serif;
-      font-size: clamp(1.8rem, 5vw, 3rem);
-      font-weight: 400;
-      color: rgba(255, 255, 255, 0.9);
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-      letter-spacing: -0.02em;
-      visibility: hidden;
-    }
-
-    .cloud-section p {
+    .cloud-hero-tagline {
       font-family: 'Outfit', sans-serif;
       font-size: clamp(0.95rem, 2.5vw, 1.2rem);
       font-weight: 300;
-      color: rgba(58, 74, 90, 0.75);
+      color: rgba(255, 255, 255, 0.85);
       margin-top: 1rem;
-      text-shadow: 0 1px 10px rgba(255, 255, 255, 0.3);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
       letter-spacing: 0.04em;
-      max-width: 500px;
-      line-height: 1.6;
       visibility: hidden;
     }
 
-    /* Above-clouds section — lighter text for brighter sky */
-    .cloud-section[data-section="above"] p {
-      color: rgba(255, 255, 255, 0.8);
-      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.15);
+    /* Content zones */
+    .cloud-zone {
+      height: 130vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1.5rem;
+      pointer-events: none;
     }
 
+    /* Cards — luminous glow + layered depth + gold filigree */
+    .cloud-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 16px;
+      padding: 2.5rem 2.75rem;
+      max-width: 520px;
+      width: 100%;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        0 0 40px rgba(255, 255, 255, 0.25),
+        0 0 80px rgba(255, 255, 255, 0.1);
+      pointer-events: auto;
+      transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      visibility: hidden;
+      text-align: center;
+    }
+
+    /* Layered depth — offset shadow card behind */
+    .cloud-card::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      right: -6px;
+      bottom: -6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      z-index: -1;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .cloud-card:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-3px);
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.18),
+        0 4px 12px rgba(0, 0, 0, 0.1),
+        0 0 60px rgba(255, 255, 255, 0.35),
+        0 0 100px rgba(255, 255, 255, 0.15);
+    }
+
+    .cloud-card:hover::before {
+      transform: translate(2px, 2px);
+      opacity: 0.5;
+    }
+
+    .cloud-card-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.1rem, 3vw, 1.35rem);
+      font-weight: 500;
+      color: #3d5a80;
+    }
+
+    /* Gold filigree divider — matching Book template's diamond motif */
+    .cloud-card-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0.75rem 0;
+    }
+
+    .cloud-card-divider::before,
+    .cloud-card-divider::after {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(to var(--dir, right), rgba(212, 168, 83, 0.5), transparent);
+    }
+
+    .cloud-card-divider::before { --dir: right; }
+    .cloud-card-divider::after { --dir: left; }
+
+    .cloud-card-divider span {
+      color: rgba(212, 168, 83, 0.6);
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      padding: 0 0.5rem;
+    }
+
+    .cloud-card-desc {
+      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+      font-weight: 300;
+      color: rgba(26, 42, 58, 0.7);
+      line-height: 1.6;
+    }
+
+    /* Scroll hint */
     .scroll-hint {
       position: fixed;
       bottom: max(2rem, env(safe-area-inset-bottom, 2rem));
@@ -111,14 +194,15 @@
       font-family: 'Outfit', sans-serif;
       font-size: 0.75rem;
       font-weight: 300;
-      color: rgba(58, 74, 90, 0.45);
+      color: rgba(255, 255, 255, 0.6);
       letter-spacing: 0.05em;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
       text-align: center;
     }
 
     .scroll-hint .chevron {
       width: 18px; height: 18px;
-      stroke: rgba(58, 74, 90, 0.4);
+      stroke: rgba(255, 255, 255, 0.5);
       fill: none;
       stroke-width: 2;
       stroke-linecap: round;
@@ -140,25 +224,55 @@
   <canvas id="cloud-ascent-canvas"></canvas>
 
   <div class="scroll-content">
-    <!-- Section 1: Ground level (0-25%) -->
-    <section class="cloud-section" data-section="ground">
-      <h1>The <span class="accent-italic">Gift</span> Site</h1>
-      <p>A journey of discovery awaits</p>
+    <!-- Hero zone (100vh) -->
+    <section class="cloud-hero">
+      <h1 class="cloud-hero-title">The <span class="accent-italic">Gift</span> Site</h1>
+      <p class="cloud-hero-tagline">A journey of discovery awaits</p>
     </section>
 
-    <!-- Section 2: Entering clouds (25-50%) -->
-    <section class="cloud-section" data-section="entering">
-      <p>Every person carries a unique gift</p>
+    <!-- Why We Exist -->
+    <section class="cloud-zone">
+      <div class="cloud-card">
+        <div class="cloud-card-title">Why We Exist</div>
+        <div class="cloud-card-divider"><span>&#9670;</span></div>
+        <p class="cloud-card-desc">Helping people discover their unique gift — the thing only they can bring to the world.</p>
+      </div>
     </section>
 
-    <!-- Section 3: Through the clouds (50-75%) -->
-    <section class="cloud-section" data-section="through">
-      <p>Something only they can bring to the world</p>
+    <!-- Discover -->
+    <section class="cloud-zone">
+      <div class="cloud-card">
+        <div class="cloud-card-title">Discover</div>
+        <div class="cloud-card-divider"><span>&#9670;</span></div>
+        <p class="cloud-card-desc">Self-reflection questions to identify your gift and begin the journey inward.</p>
+      </div>
     </section>
 
-    <!-- Section 4: Above the clouds (75-100%) -->
-    <section class="cloud-section" data-section="above">
-      <h2>Discover yours</h2>
+    <!-- The Process -->
+    <section class="cloud-zone">
+      <div class="cloud-card">
+        <div class="cloud-card-title">The Process</div>
+        <div class="cloud-card-divider"><span>&#9670;</span></div>
+        <p class="cloud-card-desc">How discovery unfolds — through reflection, dialogue, and recognition.</p>
+      </div>
+    </section>
+
+    <!-- Facilitate -->
+    <section class="cloud-zone">
+      <div class="cloud-card">
+        <div class="cloud-card-title">Facilitate</div>
+        <div class="cloud-card-divider"><span>&#9670;</span></div>
+        <p class="cloud-card-desc">Getting together with a group? Tools and guidance for facilitating gift discovery.</p>
+      </div>
+    </section>
+
+    <!-- Gift Companion -->
+    <section class="cloud-zone">
+      <div class="cloud-card">
+        <div class="cloud-card-title">Gift Companion</div>
+        <div class="cloud-card-divider"><span>&#9670;</span></div>
+        <p class="cloud-card-desc">An AI-assisted companion to help you prepare for your journey of discovery.</p>
+      </div>
     </section>
   </div>
 
