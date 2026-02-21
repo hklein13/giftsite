@@ -2,9 +2,27 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
+## Resume Point (2026-02-20)
+
+**Current status:** Phase 1, between Task 1 and Task 2. Base image is generated and chosen. Waiting for user to generate AI video from the base image.
+
+**What's been done:**
+- Design document written and approved
+- Implementation plan written
+- Base image generated via ChatGPT GPT Image 1.5 — chosen image: `assets/OpenAI Playground 2026-02-20 at 17.09.42.png`
+- Tool chain researched and decided: Kling AI (iterate cheaply) → Runway Gen-4.5 (final quality)
+- Frame specs updated based on Apple-style research (120 frames, 1280x720, WebP q80)
+
+**What's next:**
+1. User generates AI video using the chosen base image (external, not code work)
+2. Once video is ready → build extraction script (Task 1) and viability test page (Task 2)
+3. After viability confirmed → Phase 2 (Tasks 3-7, Sanctuary integration)
+
+---
+
 **Goal:** Transform the Sanctuary template from a static photo layout into a cinematic scroll-driven experience where a treasure chest opens as the user scrolls, culminating in a gold-filled screen that reveals subpage navigation cards.
 
-**Architecture:** Canvas frame sequence driven by GSAP ScrollTrigger scrub. ~150 WebP frames extracted from an AI-generated video, progressively loaded in three phases, drawn to a sticky canvas as the user scrolls through a tall spacer div. Gold climax blends seamlessly into a card reveal section below.
+**Architecture:** Canvas frame sequence driven by GSAP ScrollTrigger scrub. ~120 WebP frames (desktop) / ~100 (mobile) extracted from an AI-generated video, progressively loaded in three phases, drawn to a sticky canvas as the user scrolls through a tall spacer div. Gold climax blends seamlessly into a card reveal section below.
 
 **Tech Stack:** GSAP ScrollTrigger (scrub), Lenis (smooth scroll), HTML5 Canvas, ffmpeg (frame extraction), WebP frames, Vite (public/ directory for unprocessed frame assets)
 
@@ -27,17 +45,17 @@ Uses Node.js `child_process.execSync` to shell out to ffmpeg (local dev tool, no
 
 The script:
 - Takes a video file path as first argument
-- Optional `--frames N` flag (default: 150)
+- Optional `--frames N` flag (default: 120)
 - Probes video duration with ffprobe
 - Calculates target fps to produce the desired frame count
-- Extracts desktop frames (1920x1080 WebP) to `public/sanctuary-frames/desktop/`
-- Extracts mobile frames (960x540 WebP) to `public/sanctuary-frames/mobile/`
-- Sequential naming: `frame-001.webp` through `frame-150.webp`
+- Extracts desktop frames (1280x720 WebP, quality 80) to `public/sanctuary-frames/desktop/`
+- Extracts mobile frames (640x360 WebP, quality 75) at ~15fps to `public/sanctuary-frames/mobile/`
+- Sequential naming: `frame-001.webp` through `frame-120.webp`
 
 **Step 2: Verify it runs (once user provides a test video)**
 
-Run: `node scripts/extract-frames.mjs path/to/test-video.mp4 --frames 150`
-Expected: `public/sanctuary-frames/desktop/frame-001.webp` through `frame-150.webp` created, same for mobile.
+Run: `node scripts/extract-frames.mjs path/to/test-video.mp4 --frames 120`
+Expected: `public/sanctuary-frames/desktop/frame-001.webp` through `frame-120.webp` created. Mobile set with ~100 frames.
 
 **Step 3: Add public/sanctuary-frames/ to .gitignore (for now)**
 
@@ -123,7 +141,7 @@ git commit -m "feat: add standalone scroll viability test page"
 ```js
 createFrameScroller({
   canvas,              // HTMLCanvasElement
-  frameCount: 150,     // total frame count
+  frameCount: 120,     // total frame count (desktop; mobile uses ~100)
   desktopPath: '...',  // path to desktop frames directory
   mobilePath: '...',   // path to mobile frames directory
   trigger: '...',      // CSS selector for ScrollTrigger trigger element
@@ -133,7 +151,7 @@ createFrameScroller({
 ```
 
 Module responsibilities:
-- Canvas sizing with DPR awareness (capped: mobile 1.5, desktop 2.0)
+- Canvas sizing with DPR awareness (capped: mobile 1.0, desktop 1.5)
 - Progressive loading: Phase 1 (0-19 on init), Phase 2 (20-59 on idle), Phase 3 (chunks of 40 on scroll approach)
 - Object-fit: cover canvas drawing
 - ScrollTrigger creation with scrub
@@ -280,7 +298,7 @@ function setupFrameScroller() {
 
   createFrameScroller({
     canvas,
-    frameCount: 150,
+    frameCount: 120,
     desktopPath: '../sanctuary-frames/desktop',
     mobilePath: '../sanctuary-frames/mobile',
     trigger: '#scroll-runway',
@@ -401,11 +419,11 @@ git commit -m "feat: tune sanctuary scroll experience timing and visuals"
 ## Deployment Notes
 
 When ready to deploy, the frames need to exist in `public/sanctuary-frames/` at build time. Options:
-1. **Commit frames to repo** — adds ~5-10MB, simplest approach
+1. **Commit frames to repo** — adds ~4MB (3MB desktop + 1.2MB mobile), simplest approach
 2. **Git LFS** — keeps repo lean, frames stored separately
 3. **CI extraction** — store video in repo, extract frames during build (requires ffmpeg in CI)
 
-Decide at deployment time based on final frame sizes.
+At ~4MB total, option 1 is reasonable. Decide at deployment time.
 
 ## Summary of All Files
 
