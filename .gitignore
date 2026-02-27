@@ -22,5 +22,12 @@ js/theatre-state.json
 test-viability.html
 test-fonts.html
 
+# Legacy iteration assets (local reference only, not used by current templates)
+assets/ElevenLabs_image_*
+assets/sanctuary.png
+assets/OpenAI Playground 2026-02-20*
+assets/OpenAI Playground 2026-02-24 at 20.*
+textures/
+
 # Claude local config
 .claude/
