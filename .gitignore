@@ -18,8 +18,9 @@ js/theatre-state.json
 # Playwright MCP cache
 .playwright-mcp/
 
-# Viability test page (dev only)
+# Dev-only test pages
 test-viability.html
+test-fonts.html
 
 # Claude local config
 .claude/
