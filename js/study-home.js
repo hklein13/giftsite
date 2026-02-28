@@ -34,7 +34,8 @@ function setupFrameScroller() {
     framePath: isMobile ? '../study-frames-mobile' : '../study-frames',
     trigger: '#scroll-runway',
     scrub: 0.5,
-    focalPoint: isMobile ? [0.5, 0.5] : [0.475, 0.5],
+    focalPoint: isMobile ? [0.525, 0.5] : [0.475, 0.5],
+    maxDpr: isMobile ? 1 : 2,
   });
 }
 
