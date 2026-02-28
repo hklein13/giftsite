@@ -12,6 +12,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
  * @param {string} opts.trigger - CSS selector for ScrollTrigger trigger
  * @param {number} [opts.scrub=0.5] - ScrollTrigger scrub value
  * @param {number[]} [opts.focalPoint=[0.5,0.5]] - [x,y] crop anchor (0-1), like object-position
+ * @param {number} [opts.windowSize=0] - sliding window size (0 = keep all frames in memory)
  * @param {Function} [opts.onFrameChange] - callback(currentFrame, frameCount)
  * @returns {{ destroy: Function, getCurrentFrame: Function }}
  */
@@ -23,6 +24,7 @@ export function createFrameScroller({
   scrub = 0.5,
   focalPoint = [0.5, 0.5],
   maxDpr = 2,
+  windowSize = 0,
   onFrameChange,
 }) {
   const ctx = canvas.getContext('2d');
@@ -33,6 +35,7 @@ export function createFrameScroller({
   const cacheBust = 'v4';
   let currentFrame = 0;
   let lastDrawnFrame = -1;
+  const halfWindow = windowSize > 0 ? Math.floor(windowSize / 2) : 0;
 
   // --- Canvas sizing ---
   function sizeCanvas() {
@@ -112,14 +115,32 @@ export function createFrameScroller({
     await Promise.all(promises);
   }
 
-  // --- Loading ---
-  // Load first 30 frames immediately (hero view), then all remaining right after
-  async function startLoading() {
-    await loadRange(0, Math.min(30, frameCount));
-    drawFrame(0);
+  // --- Sliding window (mobile only, windowSize > 0) ---
+  function loadWindow(centerIndex) {
+    const start = Math.max(0, centerIndex - halfWindow);
+    const end = Math.min(frameCount, centerIndex + halfWindow + 1);
+    loadRange(start, end);
+  }
 
-    // Load everything else immediately — don't wait for idle
-    loadRange(30, frameCount);
+  function evictDistantFrames(centerIndex) {
+    for (let i = 0; i < frameCount; i++) {
+      if (frames[i] && Math.abs(i - centerIndex) > halfWindow) {
+        frames[i] = null;
+      }
+    }
+  }
+
+  // --- Loading ---
+  async function startLoading() {
+    if (windowSize > 0) {
+      // Sliding window: load initial window only
+      await loadRange(0, Math.min(windowSize, frameCount));
+    } else {
+      // Desktop: load first 30 immediately, then all remaining
+      await loadRange(0, Math.min(30, frameCount));
+      loadRange(30, frameCount);
+    }
+    drawFrame(0);
   }
 
   // --- ScrollTrigger integration ---
@@ -136,6 +157,10 @@ export function createFrameScroller({
       if (frameIndex !== currentFrame) {
         currentFrame = frameIndex;
         drawFrame(currentFrame);
+        if (windowSize > 0) {
+          loadWindow(currentFrame);
+          evictDistantFrames(currentFrame);
+        }
         if (onFrameChange) onFrameChange(currentFrame, frameCount);
       }
     },
