@@ -62,11 +62,11 @@ The user is not always right, but neither is Claude - collaborative verification
 
 ```
 giftsite/
-├── index.html              # Template chooser landing page (currently 3 cards → becoming 2)
+├── index.html              # Template chooser landing page (2 cards: Study, Discovery)
 ├── study/
-│   └── index.html          # The Study — scroll-driven frame sequence (TO BE CREATED)
+│   └── index.html          # The Study — scroll-driven frame sequence
 ├── discovery/
-│   └── index.html          # The Discovery — static hero (TO BE CREATED)
+│   └── index.html          # The Discovery — static hero
 ├── cabin/
 │   └── index.html          # The Sanctuary — SHELVED (code stays for reference)
 ├── cloud/
@@ -74,24 +74,25 @@ giftsite/
 ├── book/
 │   └── index.html          # The Golden Book — SHELVED
 ├── assets/
-│   ├── OpenAI Playground 2026-02-24 at 21.07.54 (0).png  # Study base frame (approved)
-│   ├── OpenAI Playground 2026-02-24 at 21.16.14 (0).png  # Discovery hero (approved)
+│   ├── discovery-hero.png  # Discovery hero image (1936KB)
+│   ├── thumb-study.jpg     # Chooser thumbnail for Study
+│   ├── thumb-discovery.jpg # Chooser thumbnail for Discovery
 │   └── (legacy sanctuary/cloud/book assets)
 ├── js/
-│   ├── study-home.js       # GSAP/Lenis + frame-scroller for Study (TO BE CREATED)
-│   ├── discovery-home.js   # GSAP/Lenis + SplitText for Discovery (TO BE CREATED)
-│   ├── frame-scroller.js   # Canvas frame playback module (TO BE CREATED)
-│   ├── cabin-home.js       # Old Sanctuary — SHELVED (base for discovery-home.js)
+│   ├── study-home.js       # GSAP/Lenis + frame-scroller for Study
+│   ├── discovery-home.js   # GSAP/Lenis + SplitText for Discovery
+│   ├── frame-scroller.js   # Canvas frame playback module
+│   ├── cabin-home.js       # Old Sanctuary — SHELVED
 │   ├── book-home.js        # Old Golden Book — SHELVED
 │   └── concepts/
 │       └── cloud-ascent.js # Old Cloud Ascent — SHELVED
 ├── scripts/
-│   └── extract-frames.mjs  # ffmpeg frame extraction (TO BE CREATED)
+│   └── extract-frames.mjs  # ffmpeg frame extraction utility
 ├── public/
-│   └── study-frames/       # Extracted WebP frames (TO BE CREATED, gitignored)
+│   └── study-frames/       # 192 WebP frames at 1920x1080 (24MB, same for all devices)
 ├── docs/plans/             # Design docs and implementation plans
 ├── package.json
-├── vite.config.js          # Currently 4 entry points → becoming 3 (main, study, discovery)
+├── vite.config.js          # 3 entry points: main, study, discovery
 └── README.md
 ```
 
@@ -127,12 +128,13 @@ Landing page with 2 template cards (Study, Discovery). Dark navy background (#0d
 ### The Study (`/giftsite/study/`)
 Scroll-driven frame sequence in an old money private study. Treasure chest opens as user scrolls, gold light fills the screen, reveals navigation cards as an integrated overlay.
 
-- Canvas + GSAP ScrollTrigger scrub through 192 WebP frames
+- Canvas + GSAP ScrollTrigger scrub through 192 WebP frames (1920x1080, same for all devices)
 - 600vh scroll runway with sticky hero
 - Progressive frame loading (first 30 immediate, rest right after)
 - Title fades at 5% scroll, overlays at 8%
 - Cards overlay appears within the scroll sequence (60-85% of runway) — no separate section
 - No footer — scroll ends at fully materialized cards
+- No companion bot button
 
 ### The Discovery (`/giftsite/discovery/`)
 Static hero image of a person looking into the treasure chest, same old money study setting.
@@ -141,6 +143,7 @@ Static hero image of a person looking into the treasure chest, same old money st
 - Scroll parallax on hero image (yPercent drift + subtle scale)
 - GSAP/Lenis SplitText hero animation, ScrollTrigger card reveals
 - Same layout pattern as Study but simpler (no frame sequence, separate cards section)
+- No companion bot button
 
 ### Shared between both templates:
 - **Setting:** Old money private study — mahogany, leather-bound books, quilted leather, ornate treasure chest
@@ -149,13 +152,8 @@ Static hero image of a person looking into the treasure chest, same old money st
 - **Text overlay:** No frosted glass — bare text at bottom of viewport over dark image
 - **5 Navigation cards:** Why We Exist, Discover, The Process, Facilitate, Gift Companion
 - **Color palette:** Dark mahogany `#1a0f0a` body, parchment `#f8f0e3` text, gold `#d4a853` accents, soft amber `#f5e6c8` card section, deep mahogany `#2a1810` footer
-- **Companion bot button:** Fixed position, gold, bottom-right
-
 ### Shelved Templates
 Sanctuary (cabin/), Cloud Ascent (cloud/), and Golden Book (book/) are shelved. Code stays in repo for reference. Removed from vite.config.js entry points and chooser page.
-
-### Future: Gift Companion Bot
-Placeholder icon exists on templates. Will eventually be an interactive chatbot.
 
 ---
 
@@ -163,12 +161,13 @@ Placeholder icon exists on templates. Will eventually be an interactive chatbot.
 
 Primary target device: Modern iPhone (12+). Site should feel snappy and responsive.
 
-- Single landscape image source per template — mobile crops center via `object-fit: cover`
+- Single set of 1920x1080 frames for all devices (no mobile/desktop split)
 - Study: canvas focalPoint `[0.475, 0.5]` for chest centering on mobile crop
 - Discovery: `object-position: 48.5% center` for hero image
 - Safe area insets respected (`env(safe-area-inset-bottom)`)
 - All interactive elements minimum 44x44px touch targets
 - Canvas DPR: capped at 2.0 for all devices (Study template)
+- Total Study frame payload: ~24MB (192 frames), progressively loaded
 
 ---
 
@@ -187,13 +186,16 @@ npm run preview  # Test production build locally
 ```
 
 ### Key Files to Know
-- `index.html` - Template chooser landing page
-- `docs/plans/2026-02-24-old-money-office-redesign-design.md` - Current design document
-- `docs/plans/2026-02-24-old-money-office-implementation.md` - Current implementation plan
-- `test-viability.html` - Asset viability test page (gitignored, dev only)
-- `cabin/index.html` - Old Sanctuary (reference for Discovery template)
-- `js/cabin-home.js` - Old Sanctuary JS (base for discovery-home.js)
-- `vite.config.js` - Build config (needs entry point update)
+- `index.html` - Template chooser landing page (2 cards)
+- `study/index.html` - The Study template
+- `discovery/index.html` - The Discovery template
+- `js/frame-scroller.js` - Canvas frame playback module
+- `js/study-home.js` - Study page animations and frame-scroller integration
+- `js/discovery-home.js` - Discovery page animations
+- `scripts/extract-frames.mjs` - ffmpeg frame extraction utility
+- `docs/plans/2026-02-24-old-money-office-redesign-design.md` - Design document
+- `docs/plans/2026-02-24-old-money-office-implementation.md` - Implementation plan
+- `vite.config.js` - Build config (3 entry points: main, study, discovery)
 
 ---
 
