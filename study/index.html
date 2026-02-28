@@ -46,6 +46,17 @@
       z-index: 0;
     }
 
+    .frame-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 52.5% center;
+      z-index: 0;
+    }
+
     /* ===== HERO OVERLAYS ===== */
     .hero-overlay {
       position: absolute;
@@ -193,16 +204,10 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(180, 155, 110, 0.92);
+      background: rgba(240, 220, 170, 0.92);
       z-index: 0;
       opacity: 0;
       visibility: hidden;
-    }
-
-    @media (max-width: 768px) {
-      .cards-overlay-bg {
-        background: rgba(235, 210, 160, 0.92);
-      }
     }
 
     .cards-overlay .section-heading {
