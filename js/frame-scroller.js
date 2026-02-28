@@ -32,7 +32,7 @@ export function createFrameScroller({
 
   // Frame storage
   const frames = new Array(frameCount).fill(null);
-  const cacheBust = 'v4';
+  const cacheBust = 'v5';
   let currentFrame = 0;
   let lastDrawnFrame = -1;
   const halfWindow = windowSize > 0 ? Math.floor(windowSize / 2) : 0;
