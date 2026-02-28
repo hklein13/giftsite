@@ -29,5 +29,8 @@ assets/OpenAI Playground 2026-02-20*
 assets/OpenAI Playground 2026-02-24 at 20.*
 textures/
 
+# Video source files (large, used for frame extraction only)
+assets/*.mp4
+
 # Claude local config
 .claude/
