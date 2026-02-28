@@ -9,24 +9,25 @@ import { createFrameScroller } from './frame-scroller.js';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-// --- Lenis smooth scroll ---
-const lenis = new Lenis({
-  duration: 1.2,
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  touchMultiplier: 1.5,
-});
+// --- Lenis smooth scroll (desktop only — mobile uses native scroll for performance) ---
+const isMobile = window.innerWidth <= 768;
 
-// Sync Lenis with GSAP ticker (single RAF loop)
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add((time) => lenis.raf(time * 1000));
-gsap.ticker.lagSmoothing(0);
+if (!isMobile) {
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    touchMultiplier: 1.5,
+  });
+
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => lenis.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
 
 // --- Frame scroller setup ---
 function setupFrameScroller() {
   const canvas = document.getElementById('frame-canvas');
   if (!canvas) return;
-
-  const isMobile = window.innerWidth <= 768;
 
   createFrameScroller({
     canvas,
@@ -34,8 +35,8 @@ function setupFrameScroller() {
     framePath: isMobile ? '../study-frames-mobile' : '../study-frames',
     trigger: '#scroll-runway',
     scrub: 0.5,
-    focalPoint: isMobile ? [0.525, 0.5] : [0.475, 0.5],
-    maxDpr: isMobile ? 1 : 2,
+    focalPoint: isMobile ? [0.5, 0.5] : [0.475, 0.5],
+    maxDpr: 2,
     windowSize: isMobile ? 30 : 0,
   });
 }

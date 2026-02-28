@@ -13,8 +13,8 @@ import { resolve, join } from 'path';
 const srcDir = resolve('public/study-frames');
 const outDir = resolve('public/study-frames-mobile');
 
-// Crop parameters (derived from focalPoint [0.475, 0.5] on 1920x1080)
-const CROP_LEFT = 642;
+// Crop parameters — chest centered in portrait frame
+const CROP_LEFT = 670;
 const CROP_TOP = 0;
 const CROP_WIDTH = 540;
 const CROP_HEIGHT = 1080;
