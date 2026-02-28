@@ -18,5 +18,19 @@ js/theatre-state.json
 # Playwright MCP cache
 .playwright-mcp/
 
+# Dev-only test pages
+test-viability.html
+test-fonts.html
+
+# Legacy iteration assets (local reference only, not used by current templates)
+assets/ElevenLabs_image_*
+assets/sanctuary.png
+assets/OpenAI Playground 2026-02-20*
+assets/OpenAI Playground 2026-02-24 at 20.*
+textures/
+
+# Video source files (large, used for frame extraction only)
+assets/*.mp4
+
 # Claude local config
 .claude/

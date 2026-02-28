@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>The Gift Site — The Discovery</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a0f0a;
+      font-family: 'Outfit', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      color: #f8f0e3;
+    }
+
+    /* ===== FIXED IMAGE BACKDROP ===== */
+    .hero-bg-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 48.5% center;
+      display: block;
+      will-change: transform;
+    }
+
+    /* ===== HERO SECTION ===== */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
+      pointer-events: none;
+    }
+
+    .hero-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 43%, rgba(255, 185, 50, 0.3) 0%, rgba(255, 185, 50, 0.08) 35%, rgba(255, 185, 50, 0) 65%);
+      pointer-events: none;
+      animation: breathe 8s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
+    }
+
+    .hero-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding-bottom: 6rem;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-family: 'Young Serif', serif;
+      font-size: clamp(2.2rem, 7vw, 4.5rem);
+      font-weight: 400;
+      color: #f8f0e3;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+      letter-spacing: -0.02em;
+      text-align: center;
+      line-height: 1.2;
+      padding: 0 1.5rem;
+      visibility: hidden;
+    }
+
+    .hero-title .mobile-break { display: none; }
+    @media (max-width: 768px) {
+      .hero-title .mobile-break { display: block; }
+    }
+
+    .hero-title .accent-italic {
+      font-style: italic;
+      color: #d4a853;
+    }
+
+    .hero-tagline {
+      font-family: 'Young Serif', serif;
+      font-size: clamp(1.05rem, 3vw, 1.5rem);
+      font-weight: 400;
+      color: rgba(248, 240, 227, 0.85);
+      margin-top: 1.25rem;
+      text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.02em;
+      text-align: center;
+      padding: 0 1.5rem;
+      visibility: hidden;
+    }
+
+    /* ===== SCROLL INDICATOR ===== */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .scroll-indicator span {
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(248, 240, 227, 0.5);
+    }
+
+    .scroll-indicator .chevron {
+      width: 20px;
+      height: 20px;
+      stroke: rgba(248, 240, 227, 0.5);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* ===== CARDS SECTION ===== */
+    .cards-section {
+      position: relative;
+      z-index: 2;
+      padding: 4rem 1.5rem 3rem;
+      background: rgba(245, 230, 200, 0.55);
+    }
+
+    .cards-section .section-heading {
+      font-family: 'Young Serif', serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 400;
+      text-align: center;
+      color: #2a1810;
+      margin-bottom: 2.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .cards-container {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .nav-card {
+      background: #f8f0e3;
+      border: 1px solid rgba(212, 168, 83, 0.25);
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      visibility: hidden;
+    }
+
+    .nav-card:hover {
+      border-color: rgba(212, 168, 83, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(212, 168, 83, 0.15);
+    }
+
+    .nav-card-title {
+      font-family: 'Young Serif', serif;
+      font-size: clamp(1.1rem, 3vw, 1.35rem);
+      font-weight: 500;
+      color: #2a1810;
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-card-desc {
+      font-family: 'Young Serif', serif;
+      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+      font-weight: 400;
+      color: rgba(42, 24, 16, 0.7);
+      line-height: 1.5;
+    }
+
+    /* ===== FOOTER ===== */
+    .site-footer {
+      position: relative;
+      z-index: 2;
+      background: #2a1810;
+      padding: 3rem 1.5rem 4rem;
+      text-align: center;
+    }
+
+    .site-footer p {
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: rgba(248, 240, 227, 0.3);
+      letter-spacing: 0.04em;
+    }
+
+    /* ===== COMPANION BUTTON ===== */
+    .companion-btn {
+      position: fixed;
+      bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+      right: 1.75rem;
+      z-index: 20;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(212, 168, 83, 0.9);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .companion-btn:hover {
+      transform: scale(1.08);
+      background: rgba(212, 168, 83, 1);
+    }
+
+    .companion-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: #f8f0e3;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-bg-wrapper">
+      <img
+        class="hero-bg"
+        src="../assets/discovery-hero.png"
+        alt="Old money study with golden light from treasure chest"
+      >
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-content">
+      <h1 class="hero-title">Welcome to the<br class="mobile-break"> <span class="accent-italic">Gift</span> Site</h1>
+      <p class="hero-tagline">Discover the beautiful and precious gift inside of you</p>
+    </div>
+
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <svg class="chevron" viewBox="0 0 20 20">
+        <polyline points="4 8 10 14 16 8"></polyline>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== NAVIGATION CARDS ===== -->
+  <section class="cards-section">
+    <h2 class="section-heading">Explore Your Gift</h2>
+    <div class="cards-container">
+
+      <div class="nav-card">
+        <div class="nav-card-title">Why We Exist</div>
+        <p class="nav-card-desc">Helping people discover their unique gift — the thing only they can bring to the world.</p>
+      </div>
+
+      <div class="nav-card">
+        <div class="nav-card-title">Discover</div>
+        <p class="nav-card-desc">Self-reflection questions to identify your gift and begin the journey inward.</p>
+      </div>
+
+      <div class="nav-card">
+        <div class="nav-card-title">The Process</div>
+        <p class="nav-card-desc">How discovery unfolds — through reflection, dialogue, and recognition.</p>
+      </div>
+
+      <div class="nav-card">
+        <div class="nav-card-title">Facilitate</div>
+        <p class="nav-card-desc">Getting together with a group? Tools and guidance for facilitating gift discovery.</p>
+      </div>
+
+      <div class="nav-card">
+        <div class="nav-card-title">Gift Companion</div>
+        <p class="nav-card-desc">An AI-assisted companion to help you prepare for your journey of discovery.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>The Gift Site</p>
+  </footer>
+
+  <!-- ===== COMPANION BOT ===== -->
+  <button class="companion-btn" aria-label="Gift Companion" title="Gift Companion">
+    <svg viewBox="0 0 24 24">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
+  </button>
+
+  <script type="module" src="../js/discovery-home.js"></script>
+</body>
+</html>
