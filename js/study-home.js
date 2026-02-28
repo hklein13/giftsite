@@ -21,21 +21,65 @@ lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);
 
-// --- Frame scroller setup ---
+// --- Frame scroller setup (desktop: canvas frames, mobile: video scrub) ---
 function setupFrameScroller() {
-  const canvas = document.getElementById('frame-canvas');
-  if (!canvas) return;
-
   const isMobile = window.innerWidth <= 768;
 
-  createFrameScroller({
-    canvas,
-    frameCount: 192,
-    framePath: isMobile ? '../study-frames-mobile' : '../study-frames',
-    trigger: '#scroll-runway',
-    scrub: 0.5,
-    focalPoint: isMobile ? [0.525, 0.5] : [0.475, 0.5],
-    maxDpr: isMobile ? 1 : 2,
+  if (isMobile) {
+    setupVideoScrub();
+  } else {
+    const canvas = document.getElementById('frame-canvas');
+    if (!canvas) return;
+    createFrameScroller({
+      canvas,
+      frameCount: 192,
+      framePath: '../study-frames',
+      trigger: '#scroll-runway',
+      scrub: 0.5,
+      focalPoint: [0.475, 0.5],
+    });
+  }
+}
+
+// --- Mobile: scroll-driven video scrubbing ---
+function setupVideoScrub() {
+  const hero = document.querySelector('.hero');
+  const canvas = document.getElementById('frame-canvas');
+  if (!hero) return;
+
+  // Hide canvas on mobile — video replaces it
+  if (canvas) canvas.style.display = 'none';
+
+  // Create video element
+  const video = document.createElement('video');
+  video.src = '../study-mobile.mp4';
+  video.muted = true;
+  video.playsInline = true;
+  video.preload = 'auto';
+  video.className = 'frame-video';
+
+  hero.insertBefore(video, hero.firstChild);
+
+  // Wait for video metadata to be ready, then wire up ScrollTrigger
+  video.addEventListener('loadedmetadata', () => {
+    // Warm up the decoder on iOS
+    video.play().then(() => {
+      video.pause();
+      video.currentTime = 0;
+    }).catch(() => {
+      // Autoplay blocked — will still work on scroll
+      video.currentTime = 0;
+    });
+
+    ScrollTrigger.create({
+      trigger: '#scroll-runway',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.5,
+      onUpdate: (self) => {
+        video.currentTime = self.progress * video.duration;
+      },
+    });
   });
 }
 
