@@ -7,7 +7,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 /**
  * @param {Object} opts
  * @param {HTMLCanvasElement} opts.canvas
- * @param {number} opts.frameCount - total frames (same count for desktop and mobile)
+ * @param {number} opts.frameCount - total desktop frames
+ * @param {number} [opts.mobileFrameCount] - total mobile frames (defaults to frameCount)
  * @param {string} opts.desktopPath - path to desktop frames directory
  * @param {string} opts.mobilePath - path to mobile frames directory
  * @param {string} opts.trigger - CSS selector for ScrollTrigger trigger
@@ -19,6 +20,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 export function createFrameScroller({
   canvas,
   frameCount,
+  mobileFrameCount,
   desktopPath,
   mobilePath,
   trigger,
@@ -30,10 +32,11 @@ export function createFrameScroller({
   const isMobile = window.innerWidth < 768;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const basePath = isMobile ? mobilePath : desktopPath;
+  frameCount = isMobile && mobileFrameCount ? mobileFrameCount : frameCount;
 
   // Frame storage
   const frames = new Array(frameCount).fill(null);
-  const cacheBust = 'v2';
+  const cacheBust = 'v3';
   let currentFrame = 0;
   let lastDrawnFrame = -1;
 

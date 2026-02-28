@@ -9,10 +9,12 @@ import { resolve, basename } from 'path';
 const args = process.argv.slice(2);
 const videoPath = args.find(a => !a.startsWith('--'));
 const framesFlag = args.indexOf('--frames');
+const mobileFramesFlag = args.indexOf('--mobile-frames');
 const targetFrames = framesFlag !== -1 ? parseInt(args[framesFlag + 1], 10) : 120;
+const mobileFrames = mobileFramesFlag !== -1 ? parseInt(args[mobileFramesFlag + 1], 10) : targetFrames;
 
 if (!videoPath) {
-  console.error('Usage: node scripts/extract-frames.mjs <video-path> [--frames N]');
+  console.error('Usage: node scripts/extract-frames.mjs <video-path> [--frames N] [--mobile-frames N]');
   process.exit(1);
 }
 
@@ -39,25 +41,25 @@ const mobileDir = resolve('public/study-frames/mobile');
 mkdirSync(desktopDir, { recursive: true });
 mkdirSync(mobileDir, { recursive: true });
 
-// Same frame count for both desktop and mobile (frame-scroller.js uses one count)
-const fps = (targetFrames / duration).toFixed(4);
+const desktopFps = (targetFrames / duration).toFixed(4);
+const mobileFps = (mobileFrames / duration).toFixed(4);
 
-console.log(`\nExtracting ${targetFrames} desktop frames (1920x1080, q92) at ${fps} fps...`);
+console.log(`\nExtracting ${targetFrames} desktop frames (1920x1080, q92) at ${desktopFps} fps...`);
 execFileSync('ffmpeg', [
   '-y', '-i', absVideo,
-  '-vf', `fps=${fps},scale=1920:1080`,
+  '-vf', `fps=${desktopFps},scale=1920:1080`,
   '-c:v', 'libwebp', '-quality', '92',
   `${desktopDir}/frame-%03d.webp`,
 ], { stdio: 'inherit' });
 
-console.log(`\nExtracting ${targetFrames} mobile frames (640x360, q85) at ${fps} fps...`);
+console.log(`\nExtracting ${mobileFrames} mobile frames (960x540, q85) at ${mobileFps} fps...`);
 execFileSync('ffmpeg', [
   '-y', '-i', absVideo,
-  '-vf', `fps=${fps},scale=640:360`,
+  '-vf', `fps=${mobileFps},scale=960:540`,
   '-c:v', 'libwebp', '-quality', '85',
   `${mobileDir}/frame-%03d.webp`,
 ], { stdio: 'inherit' });
 
 console.log(`\nDone!`);
 console.log(`  Desktop: ${desktopDir} (${targetFrames} frames)`);
-console.log(`  Mobile:  ${mobileDir} (${targetFrames} frames)`);
+console.log(`  Mobile:  ${mobileDir} (${mobileFrames} frames)`);
