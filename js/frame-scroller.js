@@ -7,10 +7,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 /**
  * @param {Object} opts
  * @param {HTMLCanvasElement} opts.canvas
- * @param {number} opts.frameCount - total desktop frames
- * @param {number} [opts.mobileFrameCount] - total mobile frames (defaults to frameCount)
- * @param {string} opts.desktopPath - path to desktop frames directory
- * @param {string} opts.mobilePath - path to mobile frames directory
+ * @param {number} opts.frameCount - total frames
+ * @param {string} opts.framePath - path to frames directory
  * @param {string} opts.trigger - CSS selector for ScrollTrigger trigger
  * @param {number} [opts.scrub=0.5] - ScrollTrigger scrub value
  * @param {number[]} [opts.focalPoint=[0.5,0.5]] - [x,y] crop anchor (0-1), like object-position
@@ -20,23 +18,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 export function createFrameScroller({
   canvas,
   frameCount,
-  mobileFrameCount,
-  desktopPath,
-  mobilePath,
+  framePath: frameDir,
   trigger,
   scrub = 0.5,
   focalPoint = [0.5, 0.5],
   onFrameChange,
 }) {
   const ctx = canvas.getContext('2d');
-  const isMobile = window.innerWidth < 768;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const basePath = isMobile ? mobilePath : desktopPath;
-  frameCount = isMobile && mobileFrameCount ? mobileFrameCount : frameCount;
 
   // Frame storage
   const frames = new Array(frameCount).fill(null);
-  const cacheBust = 'v3';
+  const cacheBust = 'v4';
   let currentFrame = 0;
   let lastDrawnFrame = -1;
 
@@ -95,9 +88,9 @@ export function createFrameScroller({
   }
 
   // --- Frame loading ---
-  function framePath(index) {
+  function getFramePath(index) {
     const num = String(index + 1).padStart(3, '0');
-    return `${basePath}/frame-${num}.webp?v=${cacheBust}`;
+    return `${frameDir}/frame-${num}.webp?v=${cacheBust}`;
   }
 
   function loadFrame(index) {
@@ -106,7 +99,7 @@ export function createFrameScroller({
       const img = new Image();
       img.onload = () => { frames[index] = img; resolve(); };
       img.onerror = () => resolve(); // skip broken frames
-      img.src = framePath(index);
+      img.src = getFramePath(index);
     });
   }
 
