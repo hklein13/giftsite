@@ -26,13 +26,15 @@ function setupFrameScroller() {
   const canvas = document.getElementById('frame-canvas');
   if (!canvas) return;
 
+  const isMobile = window.innerWidth <= 768;
+
   createFrameScroller({
     canvas,
     frameCount: 192,
-    framePath: '../study-frames',
+    framePath: isMobile ? '../study-frames-mobile' : '../study-frames',
     trigger: '#scroll-runway',
     scrub: 0.5,
-    focalPoint: [0.475, 0.5],
+    focalPoint: isMobile ? [0.5, 0.5] : [0.475, 0.5],
   });
 }
 
