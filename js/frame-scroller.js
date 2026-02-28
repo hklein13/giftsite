@@ -4,18 +4,16 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
-
 /**
  * @param {Object} opts
  * @param {HTMLCanvasElement} opts.canvas
- * @param {number} opts.frameCount - total desktop frames
+ * @param {number} opts.frameCount - total frames (same count for desktop and mobile)
  * @param {string} opts.desktopPath - path to desktop frames directory
  * @param {string} opts.mobilePath - path to mobile frames directory
  * @param {string} opts.trigger - CSS selector for ScrollTrigger trigger
  * @param {number} [opts.scrub=0.5] - ScrollTrigger scrub value
  * @param {number[]} [opts.focalPoint=[0.5,0.5]] - [x,y] crop anchor (0-1), like object-position
- * @param {Function} [opts.onFrameChange] - callback(currentFrame, totalFrames)
+ * @param {Function} [opts.onFrameChange] - callback(currentFrame, frameCount)
  * @returns {{ destroy: Function, getCurrentFrame: Function }}
  */
 export function createFrameScroller({
@@ -31,11 +29,10 @@ export function createFrameScroller({
   const ctx = canvas.getContext('2d');
   const isMobile = window.innerWidth < 768;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const totalFrames = frameCount;
   const basePath = isMobile ? mobilePath : desktopPath;
 
   // Frame storage
-  const frames = new Array(totalFrames).fill(null);
+  const frames = new Array(frameCount).fill(null);
   const cacheBust = 'v2';
   let currentFrame = 0;
   let lastDrawnFrame = -1;
@@ -55,7 +52,7 @@ export function createFrameScroller({
     const img = frames[index];
     if (!img) {
       // Find nearest loaded frame
-      for (let offset = 1; offset < totalFrames; offset++) {
+      for (let offset = 1; offset < frameCount; offset++) {
         if (frames[index - offset]) { drawImage(frames[index - offset]); return; }
         if (frames[index + offset]) { drawImage(frames[index + offset]); return; }
       }
@@ -112,7 +109,7 @@ export function createFrameScroller({
 
   async function loadRange(start, end) {
     const promises = [];
-    for (let i = start; i < Math.min(end, totalFrames); i++) {
+    for (let i = start; i < Math.min(end, frameCount); i++) {
       promises.push(loadFrame(i));
     }
     await Promise.all(promises);
@@ -121,11 +118,11 @@ export function createFrameScroller({
   // --- Loading ---
   // Load first 30 frames immediately (hero view), then all remaining right after
   async function startLoading() {
-    await loadRange(0, Math.min(30, totalFrames));
+    await loadRange(0, Math.min(30, frameCount));
     drawFrame(0);
 
     // Load everything else immediately — don't wait for idle
-    loadRange(30, totalFrames);
+    loadRange(30, frameCount);
   }
 
   // --- ScrollTrigger integration ---
@@ -136,20 +133,19 @@ export function createFrameScroller({
     scrub: scrub,
     onUpdate: (self) => {
       const frameIndex = Math.min(
-        Math.floor(self.progress * totalFrames),
-        totalFrames - 1
+        Math.floor(self.progress * frameCount),
+        frameCount - 1
       );
       if (frameIndex !== currentFrame) {
         currentFrame = frameIndex;
         drawFrame(currentFrame);
-        if (onFrameChange) onFrameChange(currentFrame, totalFrames);
+        if (onFrameChange) onFrameChange(currentFrame, frameCount);
       }
     },
   });
 
   // --- Resize handler ---
-  function onResize() { sizeCanvas(); }
-  window.addEventListener('resize', onResize);
+  window.addEventListener('resize', sizeCanvas);
 
   // --- Init ---
   sizeCanvas();
@@ -157,7 +153,7 @@ export function createFrameScroller({
 
   return {
     destroy() {
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', sizeCanvas);
       st.kill();
     },
     getCurrentFrame() {

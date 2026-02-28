@@ -39,27 +39,25 @@ const mobileDir = resolve('public/study-frames/mobile');
 mkdirSync(desktopDir, { recursive: true });
 mkdirSync(mobileDir, { recursive: true });
 
-// Desktop: 1280x720 WebP, quality 80
-const desktopFps = (targetFrames / duration).toFixed(4);
-const mobileFrames = Math.round(targetFrames * 0.83);
-const mobileFps = (mobileFrames / duration).toFixed(4);
+// Same frame count for both desktop and mobile (frame-scroller.js uses one count)
+const fps = (targetFrames / duration).toFixed(4);
 
-console.log(`\nExtracting ${targetFrames} desktop frames (1280x720) at ${desktopFps} fps...`);
+console.log(`\nExtracting ${targetFrames} desktop frames (1920x1080, q92) at ${fps} fps...`);
 execFileSync('ffmpeg', [
   '-y', '-i', absVideo,
-  '-vf', `fps=${desktopFps},scale=1280:720`,
-  '-c:v', 'libwebp', '-quality', '80',
+  '-vf', `fps=${fps},scale=1920:1080`,
+  '-c:v', 'libwebp', '-quality', '92',
   `${desktopDir}/frame-%03d.webp`,
 ], { stdio: 'inherit' });
 
-console.log(`\nExtracting ${mobileFrames} mobile frames (640x360) at ${mobileFps} fps...`);
+console.log(`\nExtracting ${targetFrames} mobile frames (640x360, q85) at ${fps} fps...`);
 execFileSync('ffmpeg', [
   '-y', '-i', absVideo,
-  '-vf', `fps=${mobileFps},scale=640:360`,
-  '-c:v', 'libwebp', '-quality', '75',
+  '-vf', `fps=${fps},scale=640:360`,
+  '-c:v', 'libwebp', '-quality', '85',
   `${mobileDir}/frame-%03d.webp`,
 ], { stdio: 'inherit' });
 
 console.log(`\nDone!`);
 console.log(`  Desktop: ${desktopDir} (${targetFrames} frames)`);
-console.log(`  Mobile:  ${mobileDir} (${mobileFrames} frames)`);
+console.log(`  Mobile:  ${mobileDir} (${targetFrames} frames)`);

@@ -109,7 +109,8 @@ giftsite/
 - **page-flip** - Book page turns (Golden Book only)
 
 ### Fonts
-- **Fraunces** (display)
+- **Young Serif** (display — both templates)
+- **Fraunces** (display — chooser page only)
 - **Outfit** (body)
 
 ### Deployment
@@ -121,25 +122,25 @@ giftsite/
 ## Site Architecture
 
 ### Template Chooser (`/giftsite/`)
-Landing page with template cards. Dark navy background (#0d1929), Fraunces/Outfit typography, hover effects. Currently 3 cards (Sanctuary, Cloud, Book) — will become 2 cards (Study, Discovery).
+Landing page with 2 template cards (Study, Discovery). Dark navy background (#0d1929), Fraunces/Outfit typography, hover effects.
 
-### The Study (`/giftsite/study/`) — TO BE BUILT
-Scroll-driven frame sequence in an old money private study. Treasure chest opens as user scrolls, gold light fills the screen, reveals navigation cards on warm parchment background.
+### The Study (`/giftsite/study/`)
+Scroll-driven frame sequence in an old money private study. Treasure chest opens as user scrolls, gold light fills the screen, reveals navigation cards as an integrated overlay.
 
-- Canvas + GSAP ScrollTrigger scrub through ~120 WebP frames
+- Canvas + GSAP ScrollTrigger scrub through 192 WebP frames
 - 600vh scroll runway with sticky hero
-- Progressive 3-phase frame loading
-- Golden dust particles, title fades at 5% scroll
-- Dark mahogany body → warm parchment card section transition
+- Progressive frame loading (first 30 immediate, rest right after)
+- Title fades at 5% scroll, overlays at 8%
+- Cards overlay appears within the scroll sequence (60-85% of runway) — no separate section
+- No footer — scroll ends at fully materialized cards
 
-### The Discovery (`/giftsite/discovery/`) — TO BE BUILT
+### The Discovery (`/giftsite/discovery/`)
 Static hero image of a person looking into the treasure chest, same old money study setting.
 
-- Static `<picture>` hero with `object-fit: cover`, `object-position: 47% center`
-- Ken Burns gentle zoom + drift
+- Static `<img>` hero with `object-fit: cover`, `object-position: 48.5% center`
+- Scroll parallax on hero image (yPercent drift + subtle scale)
 - GSAP/Lenis SplitText hero animation, ScrollTrigger card reveals
-- Golden dust particles
-- Same layout pattern as Study but simpler (no frame sequence)
+- Same layout pattern as Study but simpler (no frame sequence, separate cards section)
 
 ### Shared between both templates:
 - **Setting:** Old money private study — mahogany, leather-bound books, quilted leather, ornate treasure chest
@@ -151,7 +152,7 @@ Static hero image of a person looking into the treasure chest, same old money st
 - **Companion bot button:** Fixed position, gold, bottom-right
 
 ### Shelved Templates
-Sanctuary (cabin/), Cloud Ascent (cloud/), and Golden Book (book/) are shelved. Code stays in repo for reference. Will be removed from vite.config.js entry points and chooser page.
+Sanctuary (cabin/), Cloud Ascent (cloud/), and Golden Book (book/) are shelved. Code stays in repo for reference. Removed from vite.config.js entry points and chooser page.
 
 ### Future: Gift Companion Bot
 Placeholder icon exists on templates. Will eventually be an interactive chatbot.
@@ -163,10 +164,11 @@ Placeholder icon exists on templates. Will eventually be an interactive chatbot.
 Primary target device: Modern iPhone (12+). Site should feel snappy and responsive.
 
 - Single landscape image source per template — mobile crops center via `object-fit: cover`
-- `object-position: 47% center` to correct for slightly off-center focal point
+- Study: canvas focalPoint `[0.475, 0.5]` for chest centering on mobile crop
+- Discovery: `object-position: 48.5% center` for hero image
 - Safe area insets respected (`env(safe-area-inset-bottom)`)
 - All interactive elements minimum 44x44px touch targets
-- Canvas DPR: mobile 1.0, desktop 1.5 (Study template)
+- Canvas DPR: capped at 2.0 for all devices (Study template)
 
 ---
 

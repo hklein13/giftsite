@@ -95,20 +95,9 @@ function setupHeroFade() {
     },
   });
 
-  if (heroOverlay) {
-    gsap.to(heroOverlay, {
-      autoAlpha: 0,
-      scrollTrigger: {
-        trigger: '#scroll-runway',
-        start: 'top top',
-        end: '8% top',
-        scrub: true,
-      },
-    });
-  }
-
-  if (heroGlow) {
-    gsap.to(heroGlow, {
+  const overlayTargets = [heroOverlay, heroGlow].filter(Boolean);
+  if (overlayTargets.length) {
+    gsap.to(overlayTargets, {
       autoAlpha: 0,
       scrollTrigger: {
         trigger: '#scroll-runway',
@@ -160,8 +149,8 @@ function setupCardsOverlay() {
   tl.to(overlay, { autoAlpha: 1, duration: 0.25 }, 0);
 
   // Heading appears
-  tl.to(heading, { autoAlpha: 1, y: 0, duration: 0.15 }, 0.1);
   gsap.set(heading, { y: 20 });
+  tl.to(heading, { autoAlpha: 1, y: 0, duration: 0.15 }, 0.1);
 
   // Cards stagger in
   cards.forEach((card, i) => {
