@@ -22,10 +22,11 @@ export function createFrameScroller({
   trigger,
   scrub = 0.5,
   focalPoint = [0.5, 0.5],
+  maxDpr = 2,
   onFrameChange,
 }) {
   const ctx = canvas.getContext('2d');
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
 
   // Frame storage
   const frames = new Array(frameCount).fill(null);
