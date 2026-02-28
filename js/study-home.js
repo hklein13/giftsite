@@ -29,6 +29,7 @@ function setupFrameScroller() {
   createFrameScroller({
     canvas,
     frameCount: 192,
+    mobileFrameCount: 140,
     desktopPath: '../study-frames/desktop',
     mobilePath: '../study-frames/mobile',
     trigger: '#scroll-runway',
